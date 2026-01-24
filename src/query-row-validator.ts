@@ -1,6 +1,6 @@
 import { BaseObject } from './base-object';
-import { compareArrays, getEntries } from './utils/functions/generic';
 import { QueryConditionsGroupNullable } from './query-conditions-group-nullable';
+import { compareArrays, getEntries } from './utils/functions/generic';
 import { isFunction, isObject } from './utils/functions/type-guards';
 
 /**
@@ -58,24 +58,17 @@ export class QueryRowValidator<T extends object> extends BaseObject {
     row: T,
     config: QueryRowValidatorInitializer<T>,
   ): boolean {
-    return new QueryRowValidator(row, config).validate();
+    const validator = new QueryRowValidator(row, config);
+
+    return validator.validate();
   }
 
   /**
-   * Applies the validation to the row.
-   *
-   * @returns {boolean} `true` if the row is valid, `false` otherwise.
-   */
-  private validate(): boolean {
-    return this.validateConditions();
-  }
-
-  /**
-   * Validates every condition.
+   * Validates all conditions of the row.
    *
    * @returns {boolean} Validation result.
    */
-  private validateConditions(): boolean {
+  private validate(): boolean {
     const conditionsEntries = getEntries(this.conditionsObject);
 
     return conditionsEntries.every(([columnName, condition]) =>
