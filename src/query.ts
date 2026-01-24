@@ -1,11 +1,9 @@
-import { QueryConditionsGroup } from './query-conditions-group';
-import { QueryConditionsGroupNullable } from './query-conditions-group-nullable';
-import { QueryRowValidator } from './query-row-validator';
 import {
-  integer,
-  min,
-  validateNumbers,
-} from './utils/decorators/number-validaton';
+  QueryConditionsGroup,
+  QueryConditionsGroupNullable,
+} from './core/types';
+import { QueryRowValidator } from './core/validation';
+import { integer, min, validateNumbers } from './core/validation/decorators';
 import { sortByProperties } from './utils/functions/sort';
 import { isFunction } from './utils/functions/type-guards';
 import { addPrefixToObject, PropertyOnly, PropOf } from './utils/types';

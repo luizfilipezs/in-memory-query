@@ -1,8 +1,10 @@
-import { BaseObject } from './base-object';
-import { AttributeValidationFunction } from './core/types';
-import { QueryConditionsGroupNullable } from './query-conditions-group-nullable';
-import { compareArrays, getEntries } from './utils/functions/generic';
-import { isFunction, isObject } from './utils/functions/type-guards';
+import { compareArrays, getEntries } from '../../utils/functions/generic';
+import { isFunction, isObject } from '../../utils/functions/type-guards';
+import { BaseObject } from '../data';
+import {
+  AttributeValidationFunction,
+  QueryConditionsGroupNullable,
+} from '../types';
 
 /**
  * Validator configuration.

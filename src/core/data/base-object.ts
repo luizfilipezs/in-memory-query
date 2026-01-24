@@ -1,4 +1,4 @@
-import { PartialOfProperties } from './utils/types';
+import { PartialOfProperties } from '../../utils/types';
 
 export abstract class BaseObject {
   constructor(init: PartialOfProperties<BaseObject> = {}) {

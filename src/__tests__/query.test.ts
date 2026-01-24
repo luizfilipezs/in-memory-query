@@ -1,5 +1,5 @@
-import { BaseObject } from '../base-object';
-import { InvalidArgumentError } from '../errors';
+import { BaseObject } from '../core/data';
+import { InvalidArgumentError } from '../core/errors';
 import { Query } from '../query';
 import { PropertyOnly } from '../utils/types';
 

@@ -1,6 +1,6 @@
 import 'reflect-metadata';
+import { isNumber } from '../../../utils/functions/type-guards';
 import { InvalidArgumentError } from '../../errors';
-import { isNumber } from '../functions/type-guards';
 
 const minMetadataKey = Symbol('min');
 const maxMetadataKey = Symbol('max');
