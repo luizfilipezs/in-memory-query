@@ -1,15 +1,29 @@
-export function sortByProperty(property: string) {
-  let sortOrder = 1;
+import { addPrefixToObject, PropertyOnly, PropOf } from '../../types';
 
-  if (property.startsWith('-')) {
+export function sortByProperty<T extends object>(
+  property: PropOf<T> | keyof addPrefixToObject<PropertyOnly<T>, '-'>
+) {
+  let sortOrder: 1 | -1 = 1;
+  let prop = property as string;
+
+  if (prop.startsWith('-')) {
     sortOrder = -1;
-    property = property.substring(1);
+    prop = prop.slice(1);
   }
 
-  return <T1 extends object, T2 extends object>(a: T1, b: T2) => {
-    const result =
-      a[property] < b[property] ? -1 : a[property] > b[property] ? 1 : 0;
+  const key = prop as keyof T;
 
-    return result * sortOrder;
+  return (a: T, b: T): number => {
+    const valueA = a[key];
+    const valueB = b[key];
+
+    if (valueA == null && valueB == null) return 0;
+    if (valueA == null) return 1 * sortOrder;
+    if (valueB == null) return -1 * sortOrder;
+
+    if (valueA < valueB) return -1 * sortOrder;
+    if (valueA > valueB) return 1 * sortOrder;
+
+    return 0;
   };
 }

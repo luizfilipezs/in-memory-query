@@ -163,7 +163,7 @@ export class Query<T extends object> {
   orderBy(
     ...columns: (PropOf<T> | keyof addPrefixToObject<PropertyOnly<T>, '-'>)[]
   ): this {
-    this.#rows.sort(sortByProperties(...(columns as string[])));
+    this.#rows.sort(sortByProperties(...columns));
 
     return this;
   }
