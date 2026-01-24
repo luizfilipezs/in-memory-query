@@ -13,5 +13,5 @@ export function sortByProperties(...props: string[]) {
     }
 
     return result;
-  }
+  };
 }

@@ -6,14 +6,17 @@ interface InvalidArgumentErrorConfig {
 }
 
 export class InvalidArgumentError extends Error {
-
-  constructor({ method, param, argument, expected }: InvalidArgumentErrorConfig) {
+  constructor({
+    method,
+    param,
+    argument,
+    expected,
+  }: InvalidArgumentErrorConfig) {
     super(
       `${argument} is not a valid argument to param ${param} on ${method}(). ` +
-      `It should be ${expected}.`
+        `It should be ${expected}.`,
     );
 
     this.name = 'InvalidArgumentError';
   }
-
 }

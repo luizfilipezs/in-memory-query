@@ -9,7 +9,8 @@ export function sortByProperty(property: string) {
   }
 
   return (a: GenericObject, b: GenericObject) => {
-    const result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
+    const result =
+      a[property] < b[property] ? -1 : a[property] > b[property] ? 1 : 0;
     return result * sortOrder;
-  }
+  };
 }
