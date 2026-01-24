@@ -7,3 +7,4 @@ export * from './partial-of-properties';
 export * from './prop-of';
 export * from './property-only';
 export * from './recursive-partial';
+export * from './sort-function';

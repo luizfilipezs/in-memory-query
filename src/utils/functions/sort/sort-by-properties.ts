@@ -1,9 +1,14 @@
 import { sortByProperty } from '.';
-import { addPrefixToObject, PropertyOnly, PropOf } from '../../types';
+import {
+  addPrefixToObject,
+  PropertyOnly,
+  PropOf,
+  SortFunction,
+} from '../../types';
 
 export function sortByProperties<T extends object>(
   ...props: (PropOf<T> | keyof addPrefixToObject<PropertyOnly<T>, '-'>)[]
-) {
+): SortFunction<T> {
   return (a: T, b: T): number => {
     if (props.length === 0) {
       return 0;

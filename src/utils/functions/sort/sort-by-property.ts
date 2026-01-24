@@ -1,8 +1,13 @@
-import { addPrefixToObject, PropertyOnly, PropOf } from '../../types';
+import {
+  addPrefixToObject,
+  PropertyOnly,
+  PropOf,
+  SortFunction,
+} from '../../types';
 
 export function sortByProperty<T extends object>(
   property: PropOf<T> | keyof addPrefixToObject<PropertyOnly<T>, '-'>
-) {
+): SortFunction<T> {
   let sortOrder: 1 | -1 = 1;
   let prop = property as string;
 
