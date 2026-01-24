@@ -224,7 +224,7 @@ export class Query<T extends object> {
     const firstObject = this.first();
     const firstColumn = this.getFirstColumn();
 
-    return firstObject && firstColumn ? firstObject[firstColumn] ?? false : false;
+    return firstObject && firstColumn ? (firstObject[firstColumn] ?? false) : false;
   }
 
   /**
