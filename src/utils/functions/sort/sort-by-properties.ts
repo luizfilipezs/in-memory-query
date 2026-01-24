@@ -2,7 +2,7 @@ import { sortByProperty } from '.';
 import { addPrefixToObject, PropertyOnly, PropOf } from '../../types';
 
 export function sortByProperties<T extends object>(
-  ...props: Array<PropOf<T> | keyof addPrefixToObject<PropertyOnly<T>, '-'>>
+  ...props: (PropOf<T> | keyof addPrefixToObject<PropertyOnly<T>, '-'>)[]
 ) {
   return (a: T, b: T): number => {
     if (props.length === 0) {
