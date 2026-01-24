@@ -4,22 +4,9 @@ import { BaseObject } from '../data';
 import {
   AttributeValidationFunction,
   QueryConditionsGroupNullable,
+  QueryRowValidatorInitializer,
 } from '../types';
-
-/**
- * Validator configuration.
- */
-interface QueryRowValidatorInitializer<T extends object> {
-  conditionsObject: QueryConditionsGroupNullable<T>;
-  ignoreNullValues: boolean;
-}
-
-/**
- * Condition to apply to a row column.
- */
-type ColumnCondition<T extends object, P extends keyof T> = T[P] extends object
-  ? QueryConditionsGroupNullable<T[P]> | undefined
-  : T[P] | AttributeValidationFunction<T, P> | null | undefined;
+import { ColumnCondition } from '../types/column-condition';
 
 /**
  * Validates a row in the query.
