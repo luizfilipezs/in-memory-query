@@ -1,6 +1,5 @@
 import { compareArrays, getEntries } from '../../utils/functions/generic';
 import { isFunction, isObject } from '../../utils/functions/type-guards';
-import { BaseObject } from '../data';
 import {
   AttributeValidationFunction,
   QueryConditionsGroupNullable,
@@ -11,7 +10,7 @@ import { ColumnCondition } from '../types/column-condition';
 /**
  * Validates a row in the query.
  */
-export class QueryRowValidator<T extends object> extends BaseObject {
+export class QueryRowValidator<T extends object> {
   /**
    * Row to be validated.
    */
@@ -20,13 +19,13 @@ export class QueryRowValidator<T extends object> extends BaseObject {
   /**
    * Conditions to be applied to the row.
    */
-  private conditionsObject!: QueryConditionsGroupNullable<T>;
+  private conditionsObject: QueryConditionsGroupNullable<T>;
 
   /**
    * Indicates whether conditions with `null` and `undefined` values should be
    * skipped.
    */
-  private ignoreNullValues!: boolean;
+  private ignoreNullValues: boolean;
 
   /**
    * Initializes the validator.
@@ -35,7 +34,9 @@ export class QueryRowValidator<T extends object> extends BaseObject {
    * @param config Validator configuration.
    */
   private constructor(row: T, config: QueryRowValidatorInitializer<T>) {
-    super({ row, ...config });
+    this.row = row;
+    this.conditionsObject = config.conditionsObject;
+    this.ignoreNullValues = config.ignoreNullValues;
   }
 
   /**
