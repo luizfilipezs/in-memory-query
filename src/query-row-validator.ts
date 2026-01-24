@@ -54,7 +54,10 @@ export class QueryRowValidator<T extends object> extends BaseObject {
    * @param {T} row Row to validated.
    * @param {QueryRowValidatorInitializer<T>} config Validator configuration.
    */
-  static validate<T extends object>(row: T, config: QueryRowValidatorInitializer<T>): boolean {
+  static validate<T extends object>(
+    row: T,
+    config: QueryRowValidatorInitializer<T>,
+  ): boolean {
     return new QueryRowValidator(row, config).validate();
   }
 
@@ -75,7 +78,9 @@ export class QueryRowValidator<T extends object> extends BaseObject {
   private validateConditions(): boolean {
     const conditionsEntries = getEntries(this.conditionsObject);
 
-    return conditionsEntries.every(([columnName, condition]) => this.validateColumnCondition(columnName, condition));
+    return conditionsEntries.every(([columnName, condition]) =>
+      this.validateColumnCondition(columnName, condition),
+    );
   }
 
   /**
@@ -86,8 +91,14 @@ export class QueryRowValidator<T extends object> extends BaseObject {
    *
    * @returns {boolean} Validation result.
    */
-  private validateColumnCondition<P extends keyof T>(columnName: P, condition: ColumnCondition<T, P>): boolean {
-    if (this.ignoreNullValues && (condition === null || condition === undefined)) {
+  private validateColumnCondition<P extends keyof T>(
+    columnName: P,
+    condition: ColumnCondition<T, P>,
+  ): boolean {
+    if (
+      this.ignoreNullValues &&
+      (condition === null || condition === undefined)
+    ) {
       return true;
     }
 
@@ -98,11 +109,15 @@ export class QueryRowValidator<T extends object> extends BaseObject {
     }
 
     if (Array.isArray(condition)) {
-      return Array.isArray(cellValue) ? compareArrays(cellValue, condition) : false;
+      return Array.isArray(cellValue)
+        ? compareArrays(cellValue, condition)
+        : false;
     }
 
     if (isObject(condition)) {
-      return isObject(cellValue) ? this.validateInnerObject(cellValue, condition) : false;
+      return isObject(cellValue)
+        ? this.validateInnerObject(cellValue, condition)
+        : false;
     }
 
     return cellValue === condition;
@@ -116,7 +131,10 @@ export class QueryRowValidator<T extends object> extends BaseObject {
    *
    * @returns {boolean} Validation result.
    */
-  private validateInnerObject<O extends object>(obj: O, conditionsObject: QueryConditionsGroupNullable<O>): boolean {
+  private validateInnerObject<O extends object>(
+    obj: O,
+    conditionsObject: QueryConditionsGroupNullable<O>,
+  ): boolean {
     return QueryRowValidator.validate(obj, {
       conditionsObject,
       ignoreNullValues: this.ignoreNullValues,

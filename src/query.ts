@@ -1,10 +1,14 @@
+import { QueryConditionsGroup } from './query-conditions-group';
+import { QueryConditionsGroupNullable } from './query-conditions-group-nullable';
+import { QueryRowValidator } from './query-row-validator';
+import {
+  integer,
+  min,
+  validateNumbers,
+} from './utils/decorators/number-validaton';
 import { sortByProperties } from './utils/functions/sort';
 import { isFunction } from './utils/functions/type-guards';
 import { addPrefixToObject, PropertyOnly, PropOf } from './utils/types';
-import { QueryRowValidator } from './query-row-validator';
-import { QueryConditionsGroup } from './query-conditions-group';
-import { QueryConditionsGroupNullable } from './query-conditions-group-nullable';
-import { integer, min, validateNumbers } from './utils/decorators/number-validaton';
 
 /**
  * Allows filtering data from an array of objects.
@@ -160,7 +164,9 @@ export class Query<T extends object> {
    *
    * @returns {this} Current query.
    */
-  orderBy(...columns: (PropOf<T> | keyof addPrefixToObject<PropertyOnly<T>, '-'>)[]): this {
+  orderBy(
+    ...columns: (PropOf<T> | keyof addPrefixToObject<PropertyOnly<T>, '-'>)[]
+  ): this {
     this.#rows.sort(sortByProperties(...(columns as string[])));
 
     return this;
@@ -224,7 +230,9 @@ export class Query<T extends object> {
     const firstObject = this.first();
     const firstColumn = this.getFirstColumn();
 
-    return firstObject && firstColumn ? (firstObject[firstColumn] ?? false) : false;
+    return firstObject && firstColumn
+      ? (firstObject[firstColumn] ?? false)
+      : false;
   }
 
   /**
@@ -250,7 +258,9 @@ export class Query<T extends object> {
    */
   values(): T[PropOf<T>][][] {
     return this.getLimitedRows().map((row) =>
-      this.#columns.length ? this.#columns.map((column) => row[column]) : Object.values(row),
+      this.#columns.length
+        ? this.#columns.map((column) => row[column])
+        : Object.values(row),
     );
   }
 
@@ -318,10 +328,14 @@ export class Query<T extends object> {
    * @param {QueryConditionsGroupNullable<T> | ((obj: T) => boolean)} condition
    * Object or callback function.
    */
-  private filterRows(condition: QueryConditionsGroupNullable<T> | ((obj: T) => boolean)): void {
+  private filterRows(
+    condition: QueryConditionsGroupNullable<T> | ((obj: T) => boolean),
+  ): void {
     const isCallbackValidator = isFunction(condition);
 
-    this.#rows = this.#rows.filter((row) => (isCallbackValidator ? condition(row) : this.validateRow(row, condition)));
+    this.#rows = this.#rows.filter((row) =>
+      isCallbackValidator ? condition(row) : this.validateRow(row, condition),
+    );
   }
 
   /**
@@ -332,7 +346,10 @@ export class Query<T extends object> {
    *
    * @returns {boolean} Validation result.
    */
-  private validateRow(row: T, condition: QueryConditionsGroupNullable<T>): boolean {
+  private validateRow(
+    row: T,
+    condition: QueryConditionsGroupNullable<T>,
+  ): boolean {
     return QueryRowValidator.validate(row, {
       conditionsObject: condition,
       ignoreNullValues: this.ignoreNullValues,
