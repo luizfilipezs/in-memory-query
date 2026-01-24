@@ -258,7 +258,7 @@ export class Query<T extends object> {
     return this.getLimitedRows().map((row) =>
       this.#columns.length
         ? this.#columns.map((column) => row[column])
-        : Object.values(row),
+        : Object.values(row)
     );
   }
 
@@ -325,12 +325,12 @@ export class Query<T extends object> {
    * @param condition Object or callback function.
    */
   private filterRows(
-    condition: QueryConditionsGroupNullable<T> | ((obj: T) => boolean),
+    condition: QueryConditionsGroupNullable<T> | ((obj: T) => boolean)
   ): void {
     const isCallbackValidator = isFunction(condition);
 
     this.#rows = this.#rows.filter((row) =>
-      isCallbackValidator ? condition(row) : this.validateRow(row, condition),
+      isCallbackValidator ? condition(row) : this.validateRow(row, condition)
     );
   }
 
@@ -344,7 +344,7 @@ export class Query<T extends object> {
    */
   private validateRow(
     row: T,
-    condition: QueryConditionsGroupNullable<T>,
+    condition: QueryConditionsGroupNullable<T>
   ): boolean {
     return QueryRowValidator.validate(row, {
       conditionsObject: condition,

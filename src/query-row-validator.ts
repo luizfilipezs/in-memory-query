@@ -56,7 +56,7 @@ export class QueryRowValidator<T extends object> extends BaseObject {
    */
   static validate<T extends object>(
     row: T,
-    config: QueryRowValidatorInitializer<T>,
+    config: QueryRowValidatorInitializer<T>
   ): boolean {
     const validator = new QueryRowValidator(row, config);
 
@@ -72,7 +72,7 @@ export class QueryRowValidator<T extends object> extends BaseObject {
     const conditionsEntries = getEntries(this.conditionsObject);
 
     return conditionsEntries.every(([columnName, condition]) =>
-      this.validateColumnCondition(columnName, condition),
+      this.validateColumnCondition(columnName, condition)
     );
   }
 
@@ -86,7 +86,7 @@ export class QueryRowValidator<T extends object> extends BaseObject {
    */
   private validateColumnCondition<P extends keyof T>(
     columnName: P,
-    condition: ColumnCondition<T, P>,
+    condition: ColumnCondition<T, P>
   ): boolean {
     if (
       this.ignoreNullValues &&
@@ -126,7 +126,7 @@ export class QueryRowValidator<T extends object> extends BaseObject {
    */
   private validateInnerObject<O extends object>(
     obj: O,
-    conditionsObject: QueryConditionsGroupNullable<O>,
+    conditionsObject: QueryConditionsGroupNullable<O>
   ): boolean {
     return QueryRowValidator.validate(obj, {
       conditionsObject,

@@ -22,7 +22,7 @@ export function min(value: number) {
   return (
     target: object,
     propertyKey: string | symbol,
-    parameterIndex: number,
+    parameterIndex: number
   ) => {
     const minParameters: ParameterConfig[] =
       Reflect.getOwnMetadata(minMetadataKey, target, propertyKey) || [];
@@ -47,7 +47,7 @@ export function max(value: number) {
   return (
     target: object,
     propertyKey: string | symbol,
-    parameterIndex: number,
+    parameterIndex: number
   ) => {
     const maxParameters: ParameterConfig[] =
       Reflect.getOwnMetadata(maxMetadataKey, target, propertyKey) || [];
@@ -71,7 +71,7 @@ export function max(value: number) {
 export function integer(
   target: object,
   propertyKey: string | symbol,
-  parameterIndex: number,
+  parameterIndex: number
 ) {
   const integerParameters: ParameterConfig[] =
     Reflect.getOwnMetadata(integerMetadataKey, target, propertyKey) || [];
@@ -84,7 +84,7 @@ export function integer(
     integerMetadataKey,
     integerParameters,
     target,
-    propertyKey,
+    propertyKey
   );
 }
 
@@ -101,7 +101,7 @@ export function integer(
 export function validateNumbers(
   target: any,
   propertyName: string,
-  descriptor: TypedPropertyDescriptor<any>,
+  descriptor: TypedPropertyDescriptor<any>
 ) {
   const method = descriptor.value!;
 
@@ -124,7 +124,7 @@ export function validateNumbers(
 function checkMinParams(
   methodName: string,
   params: ParameterConfig[],
-  actualArguments: IArguments,
+  actualArguments: IArguments
 ) {
   for (const parameter of params) {
     const actualValue = actualArguments[parameter.index];
@@ -144,7 +144,7 @@ function checkMinParams(
 function checkMaxParams(
   methodName: string,
   params: ParameterConfig[],
-  actualArguments: IArguments,
+  actualArguments: IArguments
 ) {
   for (const parameter of params) {
     const actualValue = actualArguments[parameter.index];
@@ -164,7 +164,7 @@ function checkMaxParams(
 function checkIntegerParams(
   methodName: string,
   params: ParameterConfig[],
-  actualArguments: IArguments,
+  actualArguments: IArguments
 ) {
   for (const { index } of params) {
     const actualValue = actualArguments[index];

@@ -4,8 +4,8 @@ import { FlagExcludedType } from './flag-excluded-type';
 import { GenericObject } from './generic-object';
 import { OmitType } from './omit-type';
 import { PartialOfProperties } from './partial-of-properties';
-import { PropertyOnly } from './property-only';
 import { PropOf } from './prop-of';
+import { PropertyOnly } from './property-only';
 import { RecursivePartial } from './recursive-partial';
 
 export {

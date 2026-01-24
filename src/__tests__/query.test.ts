@@ -1,7 +1,7 @@
 import { BaseObject } from '../base-object';
+import { InvalidArgumentError } from '../errors';
 import { Query } from '../query';
 import { PropertyOnly } from '../utils/types';
-import { InvalidArgumentError } from '../errors';
 
 describe('Query', () => {
   const today: Date = new Date();
@@ -477,7 +477,7 @@ describe('Query', () => {
             param: 0,
             argument: argument,
             expected: 'equal or greater than 0',
-          }),
+          })
         );
       });
 
@@ -490,7 +490,7 @@ describe('Query', () => {
             param: 0,
             argument: argument,
             expected: 'an integer',
-          }),
+          })
         );
       });
     });
@@ -568,7 +568,7 @@ describe('Query', () => {
             param: 0,
             argument: numberOfRows,
             expected: 'equal or greater than 0',
-          }),
+          })
         );
       });
 
@@ -581,7 +581,7 @@ describe('Query', () => {
             param: 0,
             argument: numberOfRows,
             expected: 'an integer',
-          }),
+          })
         );
       });
     });
