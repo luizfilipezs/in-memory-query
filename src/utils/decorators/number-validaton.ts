@@ -13,78 +13,105 @@ interface ParameterConfig {
 
 /**
  * Sets a minimal value to be used as argument to the given parameter.
- * 
- * @param {number} value Minimal value to set.
- * 
+ *
+ * @param value Minimal value to set.
+ *
  * @returns Decorator function.
  */
 export function min(value: number) {
-  return (target: object, propertyKey: string | symbol, parameterIndex: number) => {
-    const minParameters: ParameterConfig[] = Reflect.getOwnMetadata(minMetadataKey, target, propertyKey) || [];
-  
+  return (
+    target: object,
+    propertyKey: string | symbol,
+    parameterIndex: number,
+  ) => {
+    const minParameters: ParameterConfig[] =
+      Reflect.getOwnMetadata(minMetadataKey, target, propertyKey) || [];
+
     minParameters.push({
       value,
       index: parameterIndex,
     });
-  
+
     Reflect.defineMetadata(minMetadataKey, minParameters, target, propertyKey);
-  }
+  };
 }
 
 /**
  * Sets a maximum value to be used as argument to the given parameter.
- * 
- * @param {number} value Maximal value to set.
- * 
+ *
+ * @param value Maximal value to set.
+ *
  * @returns Decorator function.
  */
 export function max(value: number) {
-  return (target: object, propertyKey: string | symbol, parameterIndex: number) => {
-    const maxParameters: ParameterConfig[] = Reflect.getOwnMetadata(maxMetadataKey, target, propertyKey) || [];
-  
+  return (
+    target: object,
+    propertyKey: string | symbol,
+    parameterIndex: number,
+  ) => {
+    const maxParameters: ParameterConfig[] =
+      Reflect.getOwnMetadata(maxMetadataKey, target, propertyKey) || [];
+
     maxParameters.push({
       value,
       index: parameterIndex,
     });
-  
+
     Reflect.defineMetadata(maxMetadataKey, maxParameters, target, propertyKey);
-  }
+  };
 }
 
 /**
  * Marks the given parameter as an integer.
- * 
- * @param {Object} target Class to which the parameter belongs.
- * @param {string} propertyKey Method name.
- * @param {number} parameterIndex Parameter index.
+ *
+ * @param target Class to which the parameter belongs.
+ * @param propertyKey Method name.
+ * @param parameterIndex Parameter index.
  */
-export function integer(target: object, propertyKey: string | symbol, parameterIndex: number) {
-  const integerParameters: ParameterConfig[] = Reflect.getOwnMetadata(integerMetadataKey, target, propertyKey) || [];
+export function integer(
+  target: object,
+  propertyKey: string | symbol,
+  parameterIndex: number,
+) {
+  const integerParameters: ParameterConfig[] =
+    Reflect.getOwnMetadata(integerMetadataKey, target, propertyKey) || [];
 
   integerParameters.push({
     index: parameterIndex,
   });
 
-  Reflect.defineMetadata(integerMetadataKey, integerParameters, target, propertyKey);
+  Reflect.defineMetadata(
+    integerMetadataKey,
+    integerParameters,
+    target,
+    propertyKey,
+  );
 }
 
 /**
  * Validates the property decorators `integer`, `min`, and `max`, throwing and error
  * when the arguments passed to the parameters decorated by them are invalid.
- * 
- * @param {any} target Class to which the method belongs.
- * @param {string} propertyName Method name.
- * @param {TypedPropertyDescriptor<any>} descriptor Descriptor object.
- * 
+ *
+ * @param target Class to which the method belongs.
+ * @param propertyName Method name.
+ * @param descriptor Descriptor object.
+ *
  * @throws {InvalidArgumentError} If an argument is invalid.
  */
-export function validateNumbers(target: any, propertyName: string, descriptor: TypedPropertyDescriptor<any>) {
+export function validateNumbers(
+  target: any,
+  propertyName: string,
+  descriptor: TypedPropertyDescriptor<any>,
+) {
   const method = descriptor.value!;
 
   descriptor.value = function () {
-    const minParams: ParameterConfig[] = Reflect.getOwnMetadata(minMetadataKey, target, propertyName) || [];
-    const maxParams: ParameterConfig[] = Reflect.getOwnMetadata(maxMetadataKey, target, propertyName) || [];
-    const integerParams: ParameterConfig[] = Reflect.getOwnMetadata(integerMetadataKey, target, propertyName) || [];
+    const minParams: ParameterConfig[] =
+      Reflect.getOwnMetadata(minMetadataKey, target, propertyName) || [];
+    const maxParams: ParameterConfig[] =
+      Reflect.getOwnMetadata(maxMetadataKey, target, propertyName) || [];
+    const integerParams: ParameterConfig[] =
+      Reflect.getOwnMetadata(integerMetadataKey, target, propertyName) || [];
 
     checkMinParams(propertyName, minParams, arguments);
     checkMaxParams(propertyName, maxParams, arguments);
@@ -94,7 +121,11 @@ export function validateNumbers(target: any, propertyName: string, descriptor: T
   };
 }
 
-function checkMinParams(methodName: string, params: ParameterConfig[], actualArguments: IArguments) {
+function checkMinParams(
+  methodName: string,
+  params: ParameterConfig[],
+  actualArguments: IArguments,
+) {
   for (const parameter of params) {
     const actualValue = actualArguments[parameter.index];
     const minValue = parameter.value!;
@@ -110,7 +141,11 @@ function checkMinParams(methodName: string, params: ParameterConfig[], actualArg
   }
 }
 
-function checkMaxParams(methodName: string, params: ParameterConfig[], actualArguments: IArguments) {
+function checkMaxParams(
+  methodName: string,
+  params: ParameterConfig[],
+  actualArguments: IArguments,
+) {
   for (const parameter of params) {
     const actualValue = actualArguments[parameter.index];
     const maxValue = parameter.value!;
@@ -126,7 +161,11 @@ function checkMaxParams(methodName: string, params: ParameterConfig[], actualArg
   }
 }
 
-function checkIntegerParams(methodName: string, params: ParameterConfig[], actualArguments: IArguments) {
+function checkIntegerParams(
+  methodName: string,
+  params: ParameterConfig[],
+  actualArguments: IArguments,
+) {
   for (const { index } of params) {
     const actualValue = actualArguments[index];
 

@@ -1,8 +1,9 @@
 /**
  * Determines if the given value is an object.
- * 
- * @param {any} value The value to check.
- * 
- * @returns {boolean} Validation result.
+ *
+ * @param value The value to check.
+ *
+ * @returns Validation result.
  */
-export const isObject = (value: any): value is object => typeof value === 'object' && value !== null;
+export const isObject = (value: any): value is object =>
+  typeof value === 'object' && value !== null;

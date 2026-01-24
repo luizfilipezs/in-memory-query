@@ -41,8 +41,8 @@ export class QueryRowValidator<T extends object> extends BaseObject {
   /**
    * Initializes the validator.
    *
-   * @param {T} row Row to validated.
-   * @param {QueryRowValidatorInitializer<T>} config Validator configuration.
+   * @param row Row to validated.
+   * @param config Validator configuration.
    */
   private constructor(row: T, config: QueryRowValidatorInitializer<T>) {
     super({ row, ...config });
@@ -51,8 +51,8 @@ export class QueryRowValidator<T extends object> extends BaseObject {
   /**
    * Validates a row.
    *
-   * @param {T} row Row to validated.
-   * @param {QueryRowValidatorInitializer<T>} config Validator configuration.
+   * @param row Row to validated.
+   * @param config Validator configuration.
    */
   static validate<T extends object>(
     row: T,
@@ -66,7 +66,7 @@ export class QueryRowValidator<T extends object> extends BaseObject {
   /**
    * Validates all conditions of the row.
    *
-   * @returns {boolean} Validation result.
+   * @returns Validation result.
    */
   private validate(): boolean {
     const conditionsEntries = getEntries(this.conditionsObject);
@@ -79,10 +79,10 @@ export class QueryRowValidator<T extends object> extends BaseObject {
   /**
    * Validate a condition to a specific column.
    *
-   * @param {P} columnName Column name.
-   * @param {ColumnCondition<T, P>} condition Condition to be validated.
+   * @param columnName Column name.
+   * @param condition Condition to be validated.
    *
-   * @returns {boolean} Validation result.
+   * @returns Validation result.
    */
   private validateColumnCondition<P extends keyof T>(
     columnName: P,
@@ -119,10 +119,10 @@ export class QueryRowValidator<T extends object> extends BaseObject {
   /**
    * Validates an object inside the row.
    *
-   * @param {object} obj Object to validated.
-   * @param {QueryConditionsGroupNullable<O>} conditionsObject Conditions to be applied to the object.
+   * @param obj Object to validated.
+   * @param conditionsObject Conditions to be applied to the object.
    *
-   * @returns {boolean} Validation result.
+   * @returns Validation result.
    */
   private validateInnerObject<O extends object>(
     obj: O,
