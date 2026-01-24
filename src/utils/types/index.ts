@@ -1,21 +1,9 @@
-import { addPrefixToObject } from './add-prefix-to-object';
-import { AllowedNames } from './allowed-names';
-import { FlagExcludedType } from './flag-excluded-type';
-import { GenericObject } from './generic-object';
-import { OmitType } from './omit-type';
-import { PartialOfProperties } from './partial-of-properties';
-import { PropOf } from './prop-of';
-import { PropertyOnly } from './property-only';
-import { RecursivePartial } from './recursive-partial';
-
-export {
-  addPrefixToObject,
-  AllowedNames,
-  FlagExcludedType,
-  GenericObject,
-  OmitType,
-  PartialOfProperties,
-  PropertyOnly,
-  PropOf,
-  RecursivePartial,
-};
+export * from './add-prefix-to-object';
+export * from './allowed-names';
+export * from './flag-excluded-type';
+export * from './generic-object';
+export * from './omit-type';
+export * from './partial-of-properties';
+export * from './prop-of';
+export * from './property-only';
+export * from './recursive-partial';
