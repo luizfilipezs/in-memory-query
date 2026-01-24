@@ -162,6 +162,16 @@ describe('Query', () => {
 
       expect(result).toEqual([3, 2, 1]);
     });
+
+    it('should clear order defined previously', () => {
+      const result = Query.from(users)
+        .orderBy('-id')
+        .orderBy()
+        .select('id')
+        .column();
+
+      expect(result).toEqual([1, 2, 3]);
+    });
   });
 
   describe('pagination', () => {
