@@ -6,7 +6,12 @@ import { QueryRowValidator } from './core/validation';
 import { integer, min, validateNumbers } from './core/validation/decorators';
 import { sortByProperties } from './utils/functions/sort';
 import { isFunction } from './utils/functions/type-guards';
-import { addPrefixToObject, PropertyOnly, PropOf } from './utils/types';
+import {
+  addPrefixToObject,
+  PropertyOnly,
+  PropOf,
+  SortFunction,
+} from './utils/types';
 
 /**
  * Allows filtering data from an array of objects.
@@ -74,6 +79,11 @@ export class Query<T extends object> {
    * Limit of results.
    */
   #limit?: number;
+
+  /**
+   * Function to order the results.
+   */
+  #sortFunction?: SortFunction<T>;
 
   /**
    * Indicates whether conditions with `null` and `undefined` values should be
@@ -163,7 +173,7 @@ export class Query<T extends object> {
   orderBy(
     ...columns: (PropOf<T> | keyof addPrefixToObject<PropertyOnly<T>, '-'>)[]
   ): this {
-    this.#rows.sort(sortByProperties(...columns));
+    this.#sortFunction = sortByProperties(...columns);
 
     return this;
   }
@@ -299,7 +309,13 @@ export class Query<T extends object> {
    * @returns Rows within the specified limit.
    */
   private getLimitedRows(): T[] {
-    return this.#rows.slice(this.#startAt).slice(0, this.#limit);
+    const rows = [...this.#rows];
+
+    if (this.#sortFunction) {
+      rows.sort(this.#sortFunction);
+    }
+
+    return rows.slice(this.#startAt).slice(0, this.#limit);
   }
 
   /**
