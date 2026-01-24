@@ -5,5 +5,5 @@
  *
  * @returns Validation result.
  */
-export const isFunction = (value: any): value is (...args: any[]) => any =>
+export const isFunction = <T>(value: unknown): value is T =>
   typeof value === 'function';

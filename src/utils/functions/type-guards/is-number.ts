@@ -5,5 +5,5 @@
  *
  * @returns Validation result.
  */
-export const isNumber = (value: any): value is number =>
+export const isNumber = (value: unknown): value is number =>
   typeof value === 'number';

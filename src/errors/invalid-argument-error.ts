@@ -1,7 +1,7 @@
 interface InvalidArgumentErrorConfig {
   method: string;
   param: string | number;
-  argument: any;
+  argument: unknown;
   expected: string;
 }
 

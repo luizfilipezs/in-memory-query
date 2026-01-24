@@ -327,10 +327,10 @@ export class Query<T extends object> {
   private filterRows(
     condition: QueryConditionsGroupNullable<T> | ((obj: T) => boolean)
   ): void {
-    const isCallbackValidator = isFunction(condition);
-
     this.#rows = this.#rows.filter((row) =>
-      isCallbackValidator ? condition(row) : this.validateRow(row, condition)
+      isFunction<(obj: T) => boolean>(condition)
+        ? condition(row)
+        : this.validateRow(row, condition)
     );
   }
 

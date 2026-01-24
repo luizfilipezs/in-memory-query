@@ -5,5 +5,5 @@
  *
  * @returns Validation result.
  */
-export const isObject = (value: any): value is object =>
+export const isObject = (value: unknown): value is object =>
   typeof value === 'object' && value !== null;

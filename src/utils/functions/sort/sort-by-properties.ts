@@ -1,8 +1,7 @@
 import { sortByProperty } from '.';
-import { GenericObject } from '../../types';
 
 export function sortByProperties(...props: string[]) {
-  return (obj1: GenericObject, obj2: GenericObject) => {
+  return <T1 extends object, T2 extends object>(obj1: T1, obj2: T2) => {
     const numberOfProperties = props.length;
     let result = 0;
     let i = 0;

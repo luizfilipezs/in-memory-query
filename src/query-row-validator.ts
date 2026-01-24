@@ -1,4 +1,5 @@
 import { BaseObject } from './base-object';
+import { AttributeValidationFunction } from './core/types';
 import { QueryConditionsGroupNullable } from './query-conditions-group-nullable';
 import { compareArrays, getEntries } from './utils/functions/generic';
 import { isFunction, isObject } from './utils/functions/type-guards';
@@ -16,7 +17,7 @@ interface QueryRowValidatorInitializer<T extends object> {
  */
 type ColumnCondition<T extends object, P extends keyof T> = T[P] extends object
   ? QueryConditionsGroupNullable<T[P]> | undefined
-  : T[P] | ((value: T[P]) => boolean) | null | undefined;
+  : T[P] | AttributeValidationFunction<T, P> | null | undefined;
 
 /**
  * Validates a row in the query.
@@ -97,7 +98,7 @@ export class QueryRowValidator<T extends object> extends BaseObject {
 
     const cellValue = this.row[columnName];
 
-    if (isFunction(condition)) {
+    if (isFunction<AttributeValidationFunction<T, P>>(condition)) {
       return condition(cellValue);
     }
 

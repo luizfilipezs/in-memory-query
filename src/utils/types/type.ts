@@ -1,4 +1,4 @@
 /**
  * Represents a class.
  */
-export type Type<T = any> = new (...args: any[]) => T;
+export type Type<T = unknown> = new (...args: unknown[]) => T;

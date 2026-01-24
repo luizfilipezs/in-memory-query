@@ -6,5 +6,5 @@
  *
  * @returns Validation result.
  */
-export const compareArrays = (a: any[], b: any[]): boolean =>
+export const compareArrays = <T1, T2>(a: T2[], b: T2[]): boolean =>
   a.length === b.length && a.every((v, i) => v === b[i]);
