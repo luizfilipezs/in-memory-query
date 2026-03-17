@@ -109,7 +109,7 @@ let isActive: bool;
 const filteredUsers = Query.from(users)
   .filterWhere({
     id: 1,
-    isActive: isActive, // this condition will be skipped
+    isActive: isActive, // condition for "isActive" will be ignored, because the variable is still undefined
   })
   .all();
 ```
