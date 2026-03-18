@@ -6,7 +6,12 @@ import tseslint from 'typescript-eslint';
 
 export default defineConfig([
   {
-    ignores: ['./node_modules/**', '**/__tests__/**', 'eslint.config.ts'],
+    ignores: [
+      './node_modules/**',
+      '**/__tests__/**',
+      'eslint.config.ts',
+      'jest.config.ts',
+    ],
   },
 
   eslint.configs.recommended,
