@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { InvalidArgumentError } from '../../../errors';
 import { integer, max, min, validateNumbers } from '../number-validaton';
 

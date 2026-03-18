@@ -1,181 +1,139 @@
-import 'reflect-metadata';
 import { isNumber } from '../../../utils/functions/type-guards';
 import { InvalidArgumentError } from '../../errors';
 
-const minMetadataKey = Symbol('min');
-const maxMetadataKey = Symbol('max');
-const integerMetadataKey = Symbol('integer');
-
 interface ParameterConfig {
-  value?: number;
   index: number;
+  min?: number;
+  max?: number;
+  integer?: boolean;
 }
 
-/**
- * Sets a minimal value to be used as argument to the given parameter.
- *
- * @param value Minimal value to set.
- *
- * @returns Decorator function.
- */
+const metadata = new WeakMap<object, Map<string | symbol, ParameterConfig[]>>();
+
+function getParams(
+  target: object,
+  propertyKey: string | symbol
+): ParameterConfig[] {
+  let methods = metadata.get(target);
+
+  if (!methods) {
+    methods = new Map();
+    metadata.set(target, methods);
+  }
+
+  let params = methods.get(propertyKey);
+
+  if (!params) {
+    params = [];
+    methods.set(propertyKey, params);
+  }
+
+  return params;
+}
+
 export function min(value: number) {
-  return (
+  return function (
     target: object,
     propertyKey: string | symbol,
-    parameterIndex: number
-  ) => {
-    const minParameters: ParameterConfig[] =
-      Reflect.getOwnMetadata(minMetadataKey, target, propertyKey) || [];
+    index: number
+  ): void {
+    const params = getParams(target, propertyKey);
 
-    minParameters.push({
-      value,
-      index: parameterIndex,
-    });
+    const existing = params.find((p) => p.index === index);
 
-    Reflect.defineMetadata(minMetadataKey, minParameters, target, propertyKey);
+    if (existing) {
+      existing.min = value;
+    } else {
+      params.push({ index, min: value });
+    }
   };
 }
 
-/**
- * Sets a maximum value to be used as argument to the given parameter.
- *
- * @param value Maximal value to set.
- *
- * @returns Decorator function.
- */
 export function max(value: number) {
-  return (
+  return function (
     target: object,
     propertyKey: string | symbol,
-    parameterIndex: number
-  ) => {
-    const maxParameters: ParameterConfig[] =
-      Reflect.getOwnMetadata(maxMetadataKey, target, propertyKey) || [];
+    index: number
+  ): void {
+    const params = getParams(target, propertyKey);
 
-    maxParameters.push({
-      value,
-      index: parameterIndex,
-    });
+    const existing = params.find((p) => p.index === index);
 
-    Reflect.defineMetadata(maxMetadataKey, maxParameters, target, propertyKey);
+    if (existing) {
+      existing.max = value;
+    } else {
+      params.push({ index, max: value });
+    }
   };
 }
 
-/**
- * Marks the given parameter as an integer.
- *
- * @param target Class to which the parameter belongs.
- * @param propertyKey Method name.
- * @param parameterIndex Parameter index.
- */
 export function integer(
   target: object,
   propertyKey: string | symbol,
-  parameterIndex: number
-) {
-  const integerParameters: ParameterConfig[] =
-    Reflect.getOwnMetadata(integerMetadataKey, target, propertyKey) || [];
+  index: number
+): void {
+  const params = getParams(target, propertyKey);
 
-  integerParameters.push({
-    index: parameterIndex,
-  });
+  const existing = params.find((p) => p.index === index);
 
-  Reflect.defineMetadata(
-    integerMetadataKey,
-    integerParameters,
-    target,
-    propertyKey
-  );
+  if (existing) {
+    existing.integer = true;
+  } else {
+    params.push({ index, integer: true });
+  }
 }
 
-/**
- * Validates the property decorators `integer`, `min`, and `max`, throwing and error
- * when the arguments passed to the parameters decorated by them are invalid.
- *
- * @param target Class to which the method belongs.
- * @param propertyName Method name.
- * @param descriptor Descriptor object.
- *
- * @throws {InvalidArgumentError} If an argument is invalid.
- */
 export function validateNumbers(
-  target: any,
-  propertyName: string,
+  target: object,
+  propertyKey: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   descriptor: TypedPropertyDescriptor<any>
-) {
-  const method = descriptor.value!;
+): void {
+  const original = descriptor.value! as (...args: unknown[]) => void;
 
-  descriptor.value = function () {
-    const minParams: ParameterConfig[] =
-      Reflect.getOwnMetadata(minMetadataKey, target, propertyName) || [];
-    const maxParams: ParameterConfig[] =
-      Reflect.getOwnMetadata(maxMetadataKey, target, propertyName) || [];
-    const integerParams: ParameterConfig[] =
-      Reflect.getOwnMetadata(integerMetadataKey, target, propertyName) || [];
+  descriptor.value = function (...args: unknown[]): void {
+    const params = metadata.get(target)?.get(propertyKey) ?? [];
 
-    checkMinParams(propertyName, minParams, arguments);
-    checkMaxParams(propertyName, maxParams, arguments);
-    checkIntegerParams(propertyName, integerParams, arguments);
+    for (const rule of params) {
+      const value = args[rule.index];
 
-    return method.apply(this, arguments);
+      // MIN
+      if (rule.min !== undefined) {
+        if (!isNumber(value) || value < rule.min) {
+          throw new InvalidArgumentError({
+            method: propertyKey,
+            param: rule.index,
+            argument: value,
+            expected: `equal or greater than ${rule.min}`,
+          });
+        }
+      }
+
+      // MAX
+      if (rule.max !== undefined) {
+        if (!isNumber(value) || value > rule.max) {
+          throw new InvalidArgumentError({
+            method: propertyKey,
+            param: rule.index,
+            argument: value,
+            expected: `equal or less than ${rule.max}`,
+          });
+        }
+      }
+
+      // INTEGER
+      if (rule.integer) {
+        if (!Number.isSafeInteger(value)) {
+          throw new InvalidArgumentError({
+            method: propertyKey,
+            param: rule.index,
+            argument: value,
+            expected: 'an integer',
+          });
+        }
+      }
+    }
+
+    return original.apply(this, args);
   };
-}
-
-function checkMinParams(
-  methodName: string,
-  params: ParameterConfig[],
-  actualArguments: IArguments
-) {
-  for (const parameter of params) {
-    const actualValue = actualArguments[parameter.index];
-    const minValue = parameter.value!;
-
-    if (!isNumber(actualValue) || actualValue < minValue) {
-      throw new InvalidArgumentError({
-        method: methodName,
-        param: parameter.index,
-        argument: actualValue,
-        expected: `equal or greater than ${minValue}`,
-      });
-    }
-  }
-}
-
-function checkMaxParams(
-  methodName: string,
-  params: ParameterConfig[],
-  actualArguments: IArguments
-) {
-  for (const parameter of params) {
-    const actualValue = actualArguments[parameter.index];
-    const maxValue = parameter.value!;
-
-    if (!isNumber(actualValue) || actualValue > maxValue) {
-      throw new InvalidArgumentError({
-        method: methodName,
-        param: parameter.index,
-        argument: actualValue,
-        expected: `equal or less than ${maxValue}`,
-      });
-    }
-  }
-}
-
-function checkIntegerParams(
-  methodName: string,
-  params: ParameterConfig[],
-  actualArguments: IArguments
-) {
-  for (const { index } of params) {
-    const actualValue = actualArguments[index];
-
-    if (!Number.isSafeInteger(actualValue)) {
-      throw new InvalidArgumentError({
-        method: methodName,
-        param: index,
-        argument: actualValue,
-        expected: 'an integer',
-      });
-    }
-  }
 }

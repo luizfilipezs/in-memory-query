@@ -37,7 +37,6 @@
   },
   "homepage": "https://github.com/luizfilipezs/query-ts#readme",
   "dependencies": {
-    "reflect-metadata": "^0.2.2",
     "utility-types": "^3.11.0"
   },
   "devDependencies": {
