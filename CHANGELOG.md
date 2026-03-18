@@ -1,5 +1,19 @@
 # Changelog
 
+## v1.0.2
+
+Impacts:
+
+### Production
+
+- Code refactory: replaced legacy code with modern alternatives without modifying behavior.
+- Removed `reflect-metadata` from dependencies list.
+
+### Development
+
+- Replaced `tslint` by `eslint`.
+- Updated `tsconfig.json` with stricter options.
+
 ## v1.0.1
 
 ### Ensure rows immutability in `orderBy()`
