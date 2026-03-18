@@ -1,5 +1,5 @@
 import { sortByProperty } from '.';
-import {
+import type {
   addPrefixToObject,
   PropertyOnly,
   PropOf,
@@ -14,10 +14,9 @@ export function sortByProperties<T extends object>(
       return 0;
     }
 
-    let result = 0;
-
     for (const prop of props) {
-      result = sortByProperty<T>(prop)(a, b);
+      const result = sortByProperty<T>(prop)(a, b);
+
       if (result !== 0) {
         return result;
       }

@@ -1,11 +1,11 @@
 import { compareArrays, getEntries } from '../../utils/functions/generic';
 import { isFunction, isObject } from '../../utils/functions/type-guards';
-import {
+import type {
   AttributeValidationFunction,
   QueryConditionsGroupNullable,
   QueryRowValidatorInitializer,
 } from '../types';
-import { ColumnCondition } from '../types/column-condition';
+import type { ColumnCondition } from '../types/column-condition';
 
 /**
  * Validates a row in the query.

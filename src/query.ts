@@ -1,4 +1,4 @@
-import {
+import type {
   QueryConditionsGroup,
   QueryConditionsGroupNullable,
 } from './core/types';
@@ -6,7 +6,7 @@ import { QueryRowValidator } from './core/validation';
 import { integer, min, validateNumbers } from './core/validation/decorators';
 import { sortByProperties } from './utils/functions/sort';
 import { isFunction } from './utils/functions/type-guards';
-import {
+import type {
   addPrefixToObject,
   PropertyOnly,
   PropOf,
@@ -83,7 +83,7 @@ export class Query<T extends object> {
   /**
    * Function to order the results.
    */
-  #sortFunction?: SortFunction<T>;
+  #sortFunction: SortFunction<T> | null = null;
 
   /**
    * Indicates whether conditions with `null` and `undefined` values should be
@@ -174,7 +174,7 @@ export class Query<T extends object> {
     ...columns: (PropOf<T> | keyof addPrefixToObject<PropertyOnly<T>, '-'>)[]
   ): this {
     this.#sortFunction =
-      columns.length > 0 ? sortByProperties(...columns) : undefined;
+      columns.length > 0 ? sortByProperties(...columns) : null;
 
     return this;
   }
@@ -205,7 +205,7 @@ export class Query<T extends object> {
   first(): T | null {
     const rows = this.getLimitedRows();
 
-    return rows.length ? rows[0] : null;
+    return rows.length > 0 ? rows[0]! : null;
   }
 
   /**
@@ -265,9 +265,9 @@ export class Query<T extends object> {
    */
   values(): T[PropOf<T>][][] {
     return this.getLimitedRows().map((row) =>
-      this.#columns.length
+      this.#columns.length > 0
         ? this.#columns.map((column) => row[column])
-        : Object.values(row)
+        : (Object.values(row) as T[PropOf<T>][])
     );
   }
 
@@ -312,7 +312,7 @@ export class Query<T extends object> {
   private getLimitedRows(): T[] {
     const rows = [...this.#rows];
 
-    if (this.#sortFunction) {
+    if (this.#sortFunction !== null) {
       rows.sort(this.#sortFunction);
     }
 
@@ -325,8 +325,8 @@ export class Query<T extends object> {
    * @returns The first column or `null`, if none is selected  or there is no row.
    */
   private getFirstColumn(): PropOf<T> | null {
-    if (this.#columns.length) {
-      return this.#columns[0];
+    if (this.#columns.length > 0) {
+      return this.#columns[0]!;
     }
 
     const firstObject = this.first();
