@@ -1,4 +1,4 @@
-import { PropertyOnly } from '.';
+import type { PropertyOnly } from '.';
 
 /**
  * Represents a property of a class or interface.

@@ -1,4 +1,4 @@
-import { QueryConditionsGroupNullable } from './query-conditions-group-nullable';
+import type { QueryConditionsGroupNullable } from './query-conditions-group-nullable';
 
 /**
  * Validator configuration.

@@ -1,5 +1,5 @@
-import { AttributeValidationFunction } from './attribute-validation-function';
-import { QueryConditionsGroupNullable } from './query-conditions-group-nullable';
+import type { AttributeValidationFunction } from './attribute-validation-function';
+import type { QueryConditionsGroupNullable } from './query-conditions-group-nullable';
 
 /**
  * Condition to apply to a row column.
