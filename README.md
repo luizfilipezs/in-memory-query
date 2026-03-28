@@ -24,30 +24,6 @@ const usersQuery = Query.from<User>(users);
 
 ---
 
-### Getting results
-
-#### `all()`
-
-Returns all results.
-
-#### `first()`
-
-Returns the first result.
-
-#### `last()`
-
-Returns the last result.
-
-#### `count()`
-
-Returns the number of results.
-
-#### `exists()`
-
-Returns a boolean indicating whether any results exist.
-
----
-
 ### Filtering data
 
 #### `where(condition)`
@@ -103,18 +79,139 @@ const filteredUsers = Query.from(users)
 
 ---
 
-### Selecting specific data
+### Selecting data
 
 #### `select(columns)`
 
-Defines which columns should be selected.
-It can be combined with `scalar()`, `column()`, or `values()`.
+Defines which columns should be selected, returning a new query with rows containing only the selected columns.
 
-Accepts either a string (single column) or an array of column names.
+Accepts multiple column names.
 
 ```ts
-.select('id')
+.select('id', 'email')
 ```
+
+---
+
+#### `map(callback)`
+
+Transforms each row into a new object using a callback function.
+
+Like `select()`, this method is intended for data projection, but it is more flexible and better suited for complex transformations:
+
+
+```ts
+const authorsWithFirstPostQuery = Query.from(authors)
+  .map(({ posts, ...author }) => ({
+    ...author
+    firstPost: posts[0],
+  }));
+```
+
+When dealing with simples scenarios, prefer `select()`:
+
+```ts
+// ⚠️ More verbose than necessary
+const query = Query.from(users)
+  .map((user) => ({
+    id: user.id,
+    email: user.email,
+  }));
+
+// ✅ More concise and expressive
+const query = Query.from()
+  .select('id', 'email');
+```
+
+---
+
+### Ordering results
+
+#### `orderBy(...columns)`
+
+Sorts the results. You can pass multiple columns.
+
+```ts
+.orderBy('name', 'id')
+```
+
+In this example, `name` has higher priority than `id`.
+
+You can also sort in descending order by prefixing the column with `-`:
+
+```ts
+const lastId = Query.from(users)
+  .select('id')
+  .orderBy('-id')
+  .scalar();
+```
+
+---
+
+### Limiting results
+
+#### `limit(limit)`
+
+Limits the number of results returned.
+
+```ts
+.limit(100)
+```
+
+> Passing a non-integer or a negative number will throw an `InvalidArgumentError`.
+
+---
+
+#### `skip(numberOfRows)`
+
+Skips the first results.
+
+```ts
+.skip(5)
+```
+
+Example:
+
+```ts
+const secondId = Query.from(users)
+  .select('id')
+  .skip(1)
+  .scalar();
+```
+
+> Passing a non-integer or a negative number will throw an `InvalidArgumentError`.
+
+---
+
+### Getting results
+
+#### `all()`
+
+Returns all results.
+
+---
+
+#### `first()`
+
+Returns the first result.
+
+---
+
+#### `last()`
+
+Returns the last result.
+
+---
+
+#### `count()`
+
+Returns the number of results.
+
+---
+
+#### `exists()`
+
+Returns a boolean indicating whether any results exist.
 
 ---
 
@@ -180,61 +277,3 @@ Example output:
   [2, 'mary@gmail.com']
 ]
 ```
-
----
-
-### Ordering results
-
-#### `orderBy(...columns)`
-
-Sorts the results. You can pass multiple columns.
-
-```ts
-.orderBy('name', 'id')
-```
-
-In this example, `name` has higher priority than `id`.
-
-You can also sort in descending order by prefixing the column with `-`:
-
-```ts
-const lastId = Query.from(users)
-  .select('id')
-  .orderBy('-id')
-  .scalar();
-```
-
----
-
-### Limiting results
-
-#### `limit(limit)`
-
-Limits the number of results returned.
-
-```ts
-.limit(100)
-```
-
-> Passing a non-integer or a negative number will throw an `InvalidArgumentError`.
-
----
-
-#### `skip(numberOfRows)`
-
-Skips the first results.
-
-```ts
-.skip(5)
-```
-
-Example:
-
-```ts
-const secondId = Query.from(users)
-  .select('id')
-  .skip(1)
-  .scalar();
-```
-
-> Passing a non-integer or a negative number will throw an `InvalidArgumentError`.

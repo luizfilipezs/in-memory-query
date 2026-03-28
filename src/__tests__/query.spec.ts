@@ -192,6 +192,21 @@ describe('Query', () => {
     });
   });
 
+  describe('mapping', () => {
+    it('should map each row to a new object', () => {
+      const result = Query.from(users).map((user) => ({
+        id: user.id,
+        name: user.name,
+      }));
+
+      expect(result.all()).toEqual([
+        { id: 1, name: 'John' },
+        { id: 2, name: 'Mary' },
+        { id: 3, name: 'Bob' },
+      ]);
+    });
+  });
+
   describe('ordering', () => {
     it('should order by ascending property', () => {
       const result = Query.from(users).select('name').orderBy('name').column();
