@@ -1,10 +1,16 @@
-# query-ts
-
-A package that allows you to query data from an array of objects.
+<h1 align="center">
+querier-ts
+</h1>
+<p align="center">
+A lightweight, type-safe in-memory query engine for JavaScript and TypeScript.
+<p>
+<p align="center">
+  <a href="https://npmx.dev/package/querier-ts"><img src="https://img.shields.io/npm/v/querier-ts?color=729B1B&label=" alt="current querier-ts version badge"></a>
+<p>
 
 ## Introduction
 
-The following data will be used in the samples of this documentation:
+The following data is used throughout the examples in this documentation:
 
 ```ts
 interface UserPermissions {
@@ -32,17 +38,19 @@ const users: User[] = [
 
 ## `Query`
 
-A `Query` can be created this way:
+You can create a `Query` instance like this:
 
 ```ts
 const usersQuery = Query.from(users);
 ```
 
-TypeScript will automatically assume that the query data type is `User`. You can make it explicit:
+TypeScript will automatically infer the query data type as `User`. You can also make it explicit:
 
 ```ts
 const usersQuery = Query.from<User>(users);
 ```
+
+---
 
 ### Getting results
 
@@ -66,16 +74,18 @@ Returns the number of results.
 
 Returns a boolean indicating whether any results exist.
 
+---
+
 ### Filtering data
 
 #### `where(condition)`
 
-There are two types of parameters:
+This method accepts two types of parameters:
 
-1. An object where each property represents an attribute to be validated.
-2. A callback function that returns a boolean validating the object.
+1. An object, where each property represents a field to be validated.
+2. A callback function that returns a boolean.
 
-When the condition is an object, you can pass literal values or callback functions to each attribute that needs to be validated.
+When passing an object, each property can be either a literal value or a callback function used for validation.
 
 ```ts
 const activeGmailUsers = Query.from(users)
@@ -83,60 +93,68 @@ const activeGmailUsers = Query.from(users)
     isActive: true,
     email: (email) => email.endsWith('@gmail.com'),
   })
-  .where((user) => (
-    !user.isAdmin()
-  ))
+  .where((user) => !user.isAdmin())
   .all();
 ```
 
-It also works on inner objects:
+It also supports nested objects:
 
 ```ts
-  .where({
-    permissions: {
-      sendNotifications: true,
-    },
-  })
+.where({
+  permissions: {
+    sendNotifications: true,
+  },
+})
 ```
+
+---
 
 #### `filterWhere(condition)`
 
-The difference of `filterWhere` is that it only accepts an object and it ignores conditions whose values are `null` or `undefined`.
+Unlike `where()`, `filterWhere()`:
+
+* Accepts only an object
+* Ignores properties whose values are `null` or `undefined`
 
 ```ts
-let isActive: bool;
+let isActive: boolean; // undefined
 
 const filteredUsers = Query.from(users)
   .filterWhere({
     id: 1,
-    isActive: isActive, // condition for "isActive" will be ignored, because the variable is still undefined
+    isActive: isActive, // ignored
   })
   .all();
 ```
 
->**Remember**: if you want to check if a value is really `null` or `undefined`, use `where()`.
+> **Note:** If you need to explicitly check for `null` or `undefined`, use `where()` instead.
+
+---
 
 ### Selecting specific data
 
 #### `select(columns)`
 
-This method can be combined with `scalar()`, `column()`, or `values()`. It determines which columns should be selected.
+Defines which columns should be selected.
+It can be combined with `scalar()`, `column()`, or `values()`.
 
-It accepts a string containing a single column name or an array of column names.
+Accepts either a string (single column) or an array of column names.
 
 ```ts
-  .select('id')
+.select('id')
 ```
+
+---
 
 #### `scalar()`
 
-It returns the value of the first property of the first object.
+Returns the value of the first property of the first result.
 
 ```ts
 const firstId = Query.from(users).scalar();
 ```
 
-As mentioned above, it is possible to combine it with `select()` in order to get the value of another property.
+You can combine it with `select()` to retrieve a specific property:
 
 ```ts
 const firstEmail = Query.from(users)
@@ -144,20 +162,21 @@ const firstEmail = Query.from(users)
   .scalar();
 ```
 
-`false` is returned where there is no value.
+Returns `false` if no value is found.
+
+---
 
 #### `column()`
 
-It returns the values of the first properties of all objects by default.
+Returns the values of the first property from all results by default.
 
 ```ts
 const ids = Query.from(users).column();
 ```
 
-You can also specify the column name:
+You can specify a column:
 
 ```ts
-
 const emails = Query.from(users).column('email');
 ```
 
@@ -169,9 +188,11 @@ const emails = Query.from(users)
   .column();
 ```
 
+---
+
 #### `values()`
 
-It returns the values of all objects as arrays.
+Returns all results as arrays of values.
 
 ```ts
 const data = Query.from(users)
@@ -179,7 +200,7 @@ const data = Query.from(users)
   .values();
 ```
 
-`data` would be something like this:
+Example output:
 
 ```ts
 [
@@ -188,19 +209,21 @@ const data = Query.from(users)
 ]
 ```
 
+---
+
 ### Ordering results
 
 #### `orderBy(...columns)`
 
-Sorts the results. You can pass multiple arguments to it.
+Sorts the results. You can pass multiple columns.
 
 ```ts
-  .orderBy('name', 'id')
+.orderBy('name', 'id')
 ```
 
-In the example above, `name` will have more priority than `id`.
+In this example, `name` has higher priority than `id`.
 
-It is also possible to apply descending order:
+You can also sort in descending order by prefixing the column with `-`:
 
 ```ts
 const lastId = Query.from(users)
@@ -209,24 +232,28 @@ const lastId = Query.from(users)
   .scalar();
 ```
 
+---
+
 ### Limiting results
 
 #### `limit(limit)`
 
-This method can be used to set a limit of results.
+Limits the number of results returned.
 
 ```ts
-  .limit(100)
+.limit(100)
 ```
 
->Passing a float or a negative number will throw an `InvalidArgumentError`.
+> Passing a non-integer or a negative number will throw an `InvalidArgumentError`.
+
+---
 
 #### `skip(numberOfRows)`
 
 Skips the first results.
 
 ```ts
-  .skip(5)
+.skip(5)
 ```
 
 Example:
@@ -234,8 +261,8 @@ Example:
 ```ts
 const secondId = Query.from(users)
   .select('id')
-  .skip(1) // skips the first user
+  .skip(1)
   .scalar();
 ```
 
->Passing a float or a negative number will throw an `InvalidArgumentError`.
+> Passing a non-integer or a negative number will throw an `InvalidArgumentError`.
