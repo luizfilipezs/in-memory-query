@@ -76,7 +76,7 @@ export class Query<T extends object> {
    * Indicates whether conditions with `null` and `undefined` values should be
    * skipped.
    */
-  private ignoreNullValues: boolean = false;
+  #ignoreNullValues: boolean = false;
 
   /**
    * Initializes the query.
@@ -164,9 +164,9 @@ export class Query<T extends object> {
    * @returns Current query.
    */
   filterWhere(condition: QueryConditionsGroupNullable<T>): this {
-    this.ignoreNullValues = true;
+    this.#ignoreNullValues = true;
     this.filterRows(condition);
-    this.ignoreNullValues = false;
+    this.#ignoreNullValues = false;
 
     return this;
   }
@@ -288,6 +288,8 @@ export class Query<T extends object> {
 
   /**
    * Returns the values of the first (selected) column of all rows.
+   *
+   * @param column (Optional) The column to get the values from.
    *
    * @returns Values from the first (selected) column.
    */
@@ -413,7 +415,7 @@ export class Query<T extends object> {
   ): boolean {
     return QueryRowValidator.validate(row, {
       conditionsObject: condition,
-      ignoreNullValues: this.ignoreNullValues,
+      ignoreNullValues: this.#ignoreNullValues,
     });
   }
 }
