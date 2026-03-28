@@ -61,6 +61,27 @@ describe('sortByProperty (improved)', () => {
 
       expect(data).toEqual([{ value: 1 }, { value: 2 }, { value: null }]);
     });
+
+    it('returns 0 when both values are null', () => {
+      const comparator = sortByProperty<{ value: number | null }>('value');
+
+      expect(comparator({ value: null }, { value: null })).toBe(0);
+    });
+
+    it('returns 0 when both values are undefined', () => {
+      const comparator = sortByProperty<{ value?: number }>('value');
+
+      expect(comparator({ value: undefined }, { value: undefined })).toBe(0);
+    });
+
+    it('returns 0 when both values are nullish (null vs undefined)', () => {
+      const comparator = sortByProperty<{ value: number | null | undefined }>(
+        'value'
+      );
+
+      expect(comparator({ value: null }, { value: undefined })).toBe(0);
+      expect(comparator({ value: undefined }, { value: null })).toBe(0);
+    });
   });
 
   describe('equal values', () => {

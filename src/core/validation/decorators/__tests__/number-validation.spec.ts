@@ -68,6 +68,23 @@ describe('number decorators', () => {
         expect((e as Error).message).toContain('equal or less than 10');
       }
     });
+
+    describe('decorator override behavior', () => {
+      class OverrideService {
+        @validateNumbers
+        test(@max(10) @max(5) value: number): number {
+          return value;
+        }
+      }
+
+      const service = new OverrideService();
+
+      it('should override max value when decorator is applied multiple times', () => {
+        // valor final é 10 (último decorator executado)
+        expect(service.test(10)).toBe(10);
+        expect(() => service.test(11)).toThrow(InvalidArgumentError);
+      });
+    });
   });
 
   describe('integer decorator', () => {
