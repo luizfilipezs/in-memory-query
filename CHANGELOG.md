@@ -1,5 +1,14 @@
 # Changelog
 
+## v2.0.1
+
+This release includes minor internal refactoring. There are no new features or breaking changes.
+
+## Improvements
+
+- Avoid repeated instantiation of `QueryRowValidator` during row validation by leveraging static members.
+- Replace `Array.prototype.every()` with a `for...of` loop for improved performance.
+
 ## v2.0.0
 
 ### Changes
