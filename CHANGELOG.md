@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.0.2
+
+This release includes minor internal refactoring. There are no new features or breaking changes.
+
+## Improvements
+
+- Performed micro-optimizations on array operations.
+
 ## v2.0.1
 
 This release includes minor internal refactoring. There are no new features or breaking changes.
