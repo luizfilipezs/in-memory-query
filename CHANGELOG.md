@@ -1,5 +1,20 @@
 # Changelog
 
+## v2.0.0
+
+### Changes
+
+* Updated the `select()` method to return a new `Query` instance containing only the selected columns.
+* Added a new `groupBy()` method, which returns a `Map` with results grouped by the specified column.
+* Added an optional `column` parameter to the `column()` method, allowing you to specify which column's values should be returned.
+* Updated the `orderBy()` method to sort query results immediately, restoring the behavior from previous versions.
+
+### Other Improvements
+
+* Replaced Jest with Vitest, improving test performance.
+* Added test coverage reporting.
+* Expanded the test suite to cover more execution paths.
+
 ## v1.0.2
 
 Impacts:
