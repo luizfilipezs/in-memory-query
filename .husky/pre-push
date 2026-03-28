@@ -1,0 +1,2 @@
+echo "Running unit tests..."
+pnpm test || exit 1

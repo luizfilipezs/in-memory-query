@@ -1,0 +1,5 @@
+echo "Running lint-staged..."
+pnpm lint-staged || exit 1
+
+echo "Running type-check..."
+pnpm type-check || exit 1
