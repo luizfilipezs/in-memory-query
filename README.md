@@ -8,34 +8,6 @@ A lightweight, type-safe in-memory query engine for JavaScript and TypeScript.
   <a href="https://npmx.dev/package/querier-ts"><img src="https://img.shields.io/npm/v/querier-ts?color=729B1B&label=" alt="current querier-ts version badge"></a>
 <p>
 
-## Introduction
-
-The following data is used throughout the examples in this documentation:
-
-```ts
-interface UserPermissions {
-  useCookies: boolean;
-  sendNotifications: boolean;
-}
-
-class User {
-  id: number;
-  name: string;
-  permissions: UserPermissions;
-  isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-
-  isAdmin(): boolean {
-    ...
-  }
-}
-
-const users: User[] = [
-  ...
-];
-```
-
 ## `Query`
 
 You can create a `Query` instance like this:
@@ -44,9 +16,9 @@ You can create a `Query` instance like this:
 const usersQuery = Query.from(users);
 ```
 
-TypeScript will automatically infer the query data type as `User`. You can also make it explicit:
+TypeScript will automatically infer the query data type. You can also make it explicit:
 
-```ts
+```tsv
 const usersQuery = Query.from<User>(users);
 ```
 
