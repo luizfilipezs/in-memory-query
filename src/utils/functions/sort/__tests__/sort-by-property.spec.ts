@@ -69,7 +69,9 @@ describe('sortByProperty (improved)', () => {
     });
 
     it('returns 0 when both values are undefined', () => {
-      const comparator = sortByProperty<{ value?: number }>('value');
+      const comparator = sortByProperty<{ value?: number | undefined }>(
+        'value'
+      );
 
       expect(comparator({ value: undefined }, { value: undefined })).toBe(0);
     });

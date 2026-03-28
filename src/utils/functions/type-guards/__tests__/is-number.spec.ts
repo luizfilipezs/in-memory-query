@@ -30,7 +30,7 @@ describe('isNumber', () => {
       const result: number = value + 1;
       expect(result).toBe(124);
     } else {
-      fail('Expected value to be a number');
+      throw new Error('Expected value to be a number');
     }
   });
 });

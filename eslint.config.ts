@@ -10,7 +10,7 @@ export default defineConfig([
       './node_modules/**',
       '**/__tests__/**',
       'eslint.config.ts',
-      'jest.config.ts',
+      'vitest.config.ts',
     ],
   },
 
@@ -22,11 +22,11 @@ export default defineConfig([
     languageOptions: {
       globals: {
         ...globals.node,
-        ...globals.jest,
+        ...globals.vitest,
       },
       sourceType: 'module',
       parserOptions: {
-        project: './tsconfig.json',
+        project: './tsconfig.eslint.json',
       },
     },
   },

@@ -34,7 +34,7 @@ describe('isFunction', () => {
       const result = value();
       expect(result).toBe('hello');
     } else {
-      fail('Expected value to be a function');
+      throw new Error('Expected value to be a function');
     }
   });
 });

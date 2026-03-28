@@ -35,7 +35,7 @@ describe('isObject', () => {
       // TypeScript now knows value is object
       expect(typeof value).toBe('object');
     } else {
-      fail('Expected value to be an object');
+      throw new Error('Expected value to be an object');
     }
   });
 });

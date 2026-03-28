@@ -171,12 +171,12 @@ describe('QueryRowValidator', () => {
       expect(result).toBe(true);
     });
 
-    it('should ignore undefined conditions when ignoreNullValues is true', () => {
+    it('should ignore null conditions when ignoreNullValues is true', () => {
       const row = { name: 'Alice' };
 
       const result = QueryRowValidator.validate(row, {
         conditionsObject: {
-          name: undefined,
+          name: null,
         },
         ignoreNullValues: true,
       });
