@@ -18,7 +18,7 @@ const usersQuery = Query.from(users);
 
 TypeScript will automatically infer the query data type. You can also make it explicit:
 
-```tsv
+```ts
 const usersQuery = Query.from<User>(users);
 ```
 
