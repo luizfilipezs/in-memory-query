@@ -6,11 +6,8 @@ describe('QueryRowValidator', () => {
       const row = { id: 1, name: 'Alice' };
 
       const result = QueryRowValidator.validate(row, {
-        conditionsObject: {
-          id: 1,
-          name: 'Alice',
-        },
-        ignoreNullValues: false,
+        id: 1,
+        name: 'Alice',
       });
 
       expect(result).toBe(true);
@@ -20,10 +17,7 @@ describe('QueryRowValidator', () => {
       const row = { id: 1 };
 
       const result = QueryRowValidator.validate(row, {
-        conditionsObject: {
-          id: 2,
-        },
-        ignoreNullValues: false,
+        id: 2,
       });
 
       expect(result).toBe(false);
@@ -35,10 +29,7 @@ describe('QueryRowValidator', () => {
       const row = { age: 30 };
 
       const result = QueryRowValidator.validate(row, {
-        conditionsObject: {
-          age: (value) => value > 18,
-        },
-        ignoreNullValues: false,
+        age: (value) => value > 18,
       });
 
       expect(result).toBe(true);
@@ -48,10 +39,7 @@ describe('QueryRowValidator', () => {
       const row = { age: 15 };
 
       const result = QueryRowValidator.validate(row, {
-        conditionsObject: {
-          age: (value) => value > 18,
-        },
-        ignoreNullValues: false,
+        age: (value) => value > 18,
       });
 
       expect(result).toBe(false);
@@ -63,10 +51,7 @@ describe('QueryRowValidator', () => {
       const row = { tags: ['a', 'b'] };
 
       const result = QueryRowValidator.validate(row, {
-        conditionsObject: {
-          tags: ['a', 'b'],
-        },
-        ignoreNullValues: false,
+        tags: ['a', 'b'],
       });
 
       expect(result).toBe(true);
@@ -76,10 +61,7 @@ describe('QueryRowValidator', () => {
       const row = { tags: ['a', 'b'] };
 
       const result = QueryRowValidator.validate(row, {
-        conditionsObject: {
-          tags: ['a', 'c'],
-        },
-        ignoreNullValues: false,
+        tags: ['a', 'c'],
       });
 
       expect(result).toBe(false);
@@ -89,10 +71,7 @@ describe('QueryRowValidator', () => {
       const row = { tags: 'a,b' };
 
       const result = QueryRowValidator.validate(row as any, {
-        conditionsObject: {
-          tags: ['a', 'b'],
-        },
-        ignoreNullValues: false,
+        tags: ['a', 'b'],
       });
 
       expect(result).toBe(false);
@@ -109,13 +88,10 @@ describe('QueryRowValidator', () => {
       };
 
       const result = QueryRowValidator.validate(row, {
-        conditionsObject: {
-          user: {
-            name: 'John',
-            age: (value) => value >= 18,
-          },
+        user: {
+          name: 'John',
+          age: (value) => value >= 18,
         },
-        ignoreNullValues: false,
       });
 
       expect(result).toBe(true);
@@ -130,12 +106,9 @@ describe('QueryRowValidator', () => {
       };
 
       const result = QueryRowValidator.validate(row, {
-        conditionsObject: {
-          user: {
-            age: (value) => value >= 18,
-          },
+        user: {
+          age: (value) => value >= 18,
         },
-        ignoreNullValues: false,
       });
 
       expect(result).toBe(false);
@@ -147,10 +120,7 @@ describe('QueryRowValidator', () => {
       };
 
       const result = QueryRowValidator.validate(row as any, {
-        conditionsObject: {
-          user: { name: 'John' },
-        },
-        ignoreNullValues: false,
+        user: { name: 'John' },
       });
 
       expect(result).toBe(false);
@@ -161,25 +131,27 @@ describe('QueryRowValidator', () => {
     it('should ignore null conditions when ignoreNullValues is true', () => {
       const row = { name: 'Alice' };
 
-      const result = QueryRowValidator.validate(row, {
-        conditionsObject: {
+      const result = QueryRowValidator.validate(
+        row,
+        {
           name: null,
         },
-        ignoreNullValues: true,
-      });
+        { ignoreNullValues: true }
+      );
 
       expect(result).toBe(true);
     });
 
-    it('should ignore null conditions when ignoreNullValues is true', () => {
+    it('should ignore undefined conditions when ignoreNullValues is true', () => {
       const row = { name: 'Alice' };
 
-      const result = QueryRowValidator.validate(row, {
-        conditionsObject: {
-          name: null,
+      const result = QueryRowValidator.validate(
+        row,
+        {
+          name: undefined,
         },
-        ignoreNullValues: true,
-      });
+        { ignoreNullValues: true }
+      );
 
       expect(result).toBe(true);
     });
@@ -187,11 +159,22 @@ describe('QueryRowValidator', () => {
     it('should NOT ignore null when ignoreNullValues is false', () => {
       const row = { name: 'Alice' };
 
-      const result = QueryRowValidator.validate(row, {
-        conditionsObject: {
+      const result = QueryRowValidator.validate(
+        row,
+        {
           name: null,
         },
-        ignoreNullValues: false,
+        { ignoreNullValues: false }
+      );
+
+      expect(result).toBe(false);
+    });
+
+    it('should use default options (ignoreNullValues = false)', () => {
+      const row = { name: 'Alice' };
+
+      const result = QueryRowValidator.validate(row, {
+        name: null,
       });
 
       expect(result).toBe(false);
@@ -207,12 +190,9 @@ describe('QueryRowValidator', () => {
       };
 
       const result = QueryRowValidator.validate(row, {
-        conditionsObject: {
-          id: 1,
-          active: true,
-          roles: ['admin'],
-        },
-        ignoreNullValues: false,
+        id: 1,
+        active: true,
+        roles: ['admin'],
       });
 
       expect(result).toBe(true);
@@ -225,11 +205,8 @@ describe('QueryRowValidator', () => {
       };
 
       const result = QueryRowValidator.validate(row, {
-        conditionsObject: {
-          id: 1,
-          active: true,
-        },
-        ignoreNullValues: false,
+        id: 1,
+        active: true,
       });
 
       expect(result).toBe(false);

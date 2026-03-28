@@ -3,6 +3,7 @@ import type {
   QueryConditionsGroupNullable,
 } from './core/types';
 import type { OrderingColumn } from './core/types/ordering-column';
+import type { ValidationOptions } from './core/types/validation-options';
 import { QueryRowValidator } from './core/validation';
 import { integer, min, validateNumbers } from './core/validation/decorators';
 import { getObjectPropertyNames } from './utils/functions/generic/get-object-property-names';
@@ -71,12 +72,6 @@ export class Query<T extends object> {
    * Limit of results.
    */
   #limit: number | null = null;
-
-  /**
-   * Indicates whether conditions with `null` and `undefined` values should be
-   * skipped.
-   */
-  #ignoreNullValues: boolean = false;
 
   /**
    * Initializes the query.
@@ -164,9 +159,7 @@ export class Query<T extends object> {
    * @returns Current query.
    */
   filterWhere(condition: QueryConditionsGroupNullable<T>): this {
-    this.#ignoreNullValues = true;
-    this.filterRows(condition);
-    this.#ignoreNullValues = false;
+    this.filterRows(condition, { ignoreNullValues: true });
 
     return this;
   }
@@ -355,14 +348,19 @@ export class Query<T extends object> {
   }
 
   /**
-   * Returns the rows that should be used in the final results.
+   * Filters the rows according to the given conditions.
    *
-   * @returns Rows within the specified limit.
+   * @param condition Object or callback function.
    */
-  private getLimitedRows(): T[] {
-    const rows = [...this.#rows];
-
-    return rows.slice(this.#startAt).slice(0, this.#limit ?? undefined);
+  private filterRows(
+    condition: QueryConditionsGroupNullable<T> | ((obj: T) => boolean),
+    options?: ValidationOptions
+  ): void {
+    this.#rows = this.#rows.filter((row) =>
+      isFunction<(obj: T) => boolean>(condition)
+        ? condition(row)
+        : QueryRowValidator.validate(row, condition, options)
+    );
   }
 
   /**
@@ -387,35 +385,13 @@ export class Query<T extends object> {
   }
 
   /**
-   * Filters the rows according to the given conditions.
+   * Returns the rows that should be used in the final results.
    *
-   * @param condition Object or callback function.
+   * @returns Rows within the specified limit.
    */
-  private filterRows(
-    condition: QueryConditionsGroupNullable<T> | ((obj: T) => boolean)
-  ): void {
-    this.#rows = this.#rows.filter((row) =>
-      isFunction<(obj: T) => boolean>(condition)
-        ? condition(row)
-        : this.validateRow(row, condition)
-    );
-  }
+  private getLimitedRows(): T[] {
+    const rows = [...this.#rows];
 
-  /**
-   * Validates a row based on the given conditions object.
-   *
-   * @param row Row to validate.
-   * @param condition Conditions object.
-   *
-   * @returns {boolean} Validation result.
-   */
-  private validateRow(
-    row: T,
-    condition: QueryConditionsGroupNullable<T>
-  ): boolean {
-    return QueryRowValidator.validate(row, {
-      conditionsObject: condition,
-      ignoreNullValues: this.#ignoreNullValues,
-    });
+    return rows.slice(this.#startAt).slice(0, this.#limit ?? undefined);
   }
 }

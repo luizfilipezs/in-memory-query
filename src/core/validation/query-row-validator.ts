@@ -3,68 +3,42 @@ import { isFunction, isObject } from '../../utils/functions/type-guards';
 import type {
   AttributeValidationFunction,
   QueryConditionsGroupNullable,
-  QueryRowValidatorInitializer,
 } from '../types';
 import type { ColumnCondition } from '../types/column-condition';
+import type { ValidationOptions } from '../types/validation-options';
 
 /**
  * Validates a row in the query.
  */
-export class QueryRowValidator<T extends object> {
-  /**
-   * Row to be validated.
-   */
-  private row!: T;
-
-  /**
-   * Conditions to be applied to the row.
-   */
-  private conditionsObject: QueryConditionsGroupNullable<T>;
-
-  /**
-   * Indicates whether conditions with `null` and `undefined` values should be
-   * skipped.
-   */
-  private ignoreNullValues: boolean;
-
-  /**
-   * Initializes the validator.
-   *
-   * @param row Row to validated.
-   * @param config Validator configuration.
-   */
-  private constructor(row: T, config: QueryRowValidatorInitializer<T>) {
-    this.row = row;
-    this.conditionsObject = config.conditionsObject;
-    this.ignoreNullValues = config.ignoreNullValues;
-  }
-
-  /**
-   * Validates a row.
-   *
-   * @param row Row to validated.
-   * @param config Validator configuration.
-   */
-  static validate<T extends object>(
-    row: T,
-    config: QueryRowValidatorInitializer<T>
-  ): boolean {
-    const validator = new QueryRowValidator(row, config);
-
-    return validator.validate();
-  }
+export class QueryRowValidator {
+  static #defaultOptions: ValidationOptions = {
+    ignoreNullValues: false,
+  };
 
   /**
    * Validates all conditions of the row.
    *
    * @returns Validation result.
    */
-  private validate(): boolean {
-    const conditionsEntries = getEntries(this.conditionsObject);
+  static validate<T extends object>(
+    row: T,
+    condition: QueryConditionsGroupNullable<T>,
+    options?: ValidationOptions
+  ): boolean {
+    for (const [column, columnCondition] of getEntries(condition)) {
+      const validated = this.validateColumnCondition(
+        row,
+        column,
+        columnCondition,
+        options ?? this.#defaultOptions
+      );
 
-    return conditionsEntries.every(([columnName, condition]) =>
-      this.validateColumnCondition(columnName, condition)
-    );
+      if (!validated) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   /**
@@ -75,20 +49,25 @@ export class QueryRowValidator<T extends object> {
    *
    * @returns Validation result.
    */
-  private validateColumnCondition<P extends keyof T>(
-    columnName: P,
-    condition: ColumnCondition<T, P>
+  private static validateColumnCondition<
+    T extends object,
+    TColumn extends keyof T,
+  >(
+    row: T,
+    column: TColumn,
+    condition: ColumnCondition<T, TColumn>,
+    options: ValidationOptions
   ): boolean {
     if (
-      this.ignoreNullValues &&
+      options.ignoreNullValues &&
       (condition === null || condition === undefined)
     ) {
       return true;
     }
 
-    const cellValue = this.row[columnName];
+    const cellValue = row[column];
 
-    if (isFunction<AttributeValidationFunction<T, P>>(condition)) {
+    if (isFunction<AttributeValidationFunction<T, TColumn>>(condition)) {
       return condition(cellValue);
     }
 
@@ -99,29 +78,9 @@ export class QueryRowValidator<T extends object> {
     }
 
     if (isObject(condition)) {
-      return isObject(cellValue)
-        ? this.validateInnerObject(cellValue, condition)
-        : false;
+      return isObject(cellValue) ? this.validate(cellValue, condition) : false;
     }
 
     return cellValue === condition;
-  }
-
-  /**
-   * Validates an object inside the row.
-   *
-   * @param obj Object to validated.
-   * @param conditionsObject Conditions to be applied to the object.
-   *
-   * @returns Validation result.
-   */
-  private validateInnerObject<O extends object>(
-    obj: O,
-    conditionsObject: QueryConditionsGroupNullable<O>
-  ): boolean {
-    return QueryRowValidator.validate(obj, {
-      conditionsObject,
-      ignoreNullValues: this.ignoreNullValues,
-    });
   }
 }
