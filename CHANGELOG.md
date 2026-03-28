@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.1.0
+
+- Added method `map()` to `Query`, intended for data projection, but more flexible and better suited for complex transformations.
+
 ## v2.0.2
 
 This release includes minor internal refactoring. There are no new features or breaking changes.
