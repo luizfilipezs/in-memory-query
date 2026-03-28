@@ -309,9 +309,15 @@ export class Query<T extends object> {
    * @returns Array with the values of all rows.
    */
   values(): T[PropOf<T>][][] {
-    return this.getLimitedRows().map(
-      (row) => Object.values(row) as T[PropOf<T>][]
-    );
+    type _Values = T[PropOf<T>][];
+
+    const rows: _Values[] = [];
+
+    for (const row of this.getLimitedRows()) {
+      rows.push(Object.values(row) as _Values);
+    }
+
+    return rows;
   }
 
   /**
@@ -356,11 +362,28 @@ export class Query<T extends object> {
     condition: QueryConditionsGroupNullable<T> | ((obj: T) => boolean),
     options?: ValidationOptions
   ): void {
-    this.#rows = this.#rows.filter((row) =>
-      isFunction<(obj: T) => boolean>(condition)
-        ? condition(row)
-        : QueryRowValidator.validate(row, condition, options)
-    );
+    const rows = this.#rows;
+    const result: T[] = [];
+
+    if (isFunction<(obj: T) => boolean>(condition)) {
+      for (let i = 0; i < rows.length; i++) {
+        const row = rows[i]!;
+
+        if (condition(row)) {
+          result.push(row);
+        }
+      }
+    } else {
+      for (let i = 0; i < rows.length; i++) {
+        const row = rows[i]!;
+
+        if (QueryRowValidator.validate(row, condition, options)) {
+          result.push(row);
+        }
+      }
+    }
+
+    this.#rows = result;
   }
 
   /**
@@ -392,6 +415,9 @@ export class Query<T extends object> {
   private getLimitedRows(): T[] {
     const rows = [...this.#rows];
 
-    return rows.slice(this.#startAt).slice(0, this.#limit ?? undefined);
+    return rows.slice(
+      this.#startAt,
+      this.#startAt + (this.#limit ?? rows.length)
+    );
   }
 }
