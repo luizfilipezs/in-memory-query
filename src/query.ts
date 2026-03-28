@@ -68,11 +68,6 @@ export class Query<T extends object> {
   #startAt = 0;
 
   /**
-   * Columns to order the results by.
-   */
-  #orderBy: OrderingColumn<T>[] = [];
-
-  /**
    * Limit of results.
    */
   #limit: number | null = null;
@@ -114,7 +109,6 @@ export class Query<T extends object> {
     ...columns: TColumns
   ): Query<{ [P in TColumns[number]]: T[P] }> {
     type _Row = { [P in TColumns[number]]: T[P] };
-    type _Column = TColumns[number];
 
     // extract selected columns
     const rows: _Row[] = [];
@@ -132,31 +126,7 @@ export class Query<T extends object> {
     // create new query
     const query = new Query(rows);
 
-    // copy ordering columns that are part of the selected columns
-    if (this.#orderBy.length > 0) {
-      const orderBy: OrderingColumn<_Row>[] = [];
-
-      for (const orderingColumn of this.#orderBy) {
-        if (columns.includes(orderingColumn)) {
-          orderBy.push(orderingColumn as OrderingColumn<_Row>);
-          continue;
-        }
-
-        let normalizedColumn = orderingColumn.toString();
-
-        if (normalizedColumn.startsWith('-')) {
-          normalizedColumn = normalizedColumn.slice(1);
-        }
-
-        if (columns.includes(normalizedColumn as _Column)) {
-          orderBy.push(orderingColumn as OrderingColumn<_Row>);
-        }
-      }
-
-      query.#orderBy = orderBy;
-    }
-
-    // copy the remaining query properties
+    // copy the current state
     query.#startAt = this.#startAt;
     query.#limit = this.#limit;
 
@@ -226,7 +196,7 @@ export class Query<T extends object> {
    * @returns Current query.
    */
   orderBy(...columns: OrderingColumn<T>[]): this {
-    this.#orderBy = columns;
+    this.#rows = this.#rows.sort(sortByProperties(...columns));
 
     return this;
   }
@@ -389,10 +359,6 @@ export class Query<T extends object> {
    */
   private getLimitedRows(): T[] {
     const rows = [...this.#rows];
-
-    if (this.#orderBy.length > 0) {
-      rows.sort(sortByProperties(...this.#orderBy));
-    }
 
     return rows.slice(this.#startAt).slice(0, this.#limit ?? undefined);
   }

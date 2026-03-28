@@ -209,8 +209,6 @@ const lastId = Query.from(users)
   .scalar();
 ```
 
->When combining the `select()` and `orderBy()` methods, `orderBy()` must always be called afterward, as the sorting is applied only to the selected fields.
-
 ### Limiting results
 
 #### `limit(limit)`

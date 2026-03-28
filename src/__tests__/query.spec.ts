@@ -214,24 +214,14 @@ describe('Query', () => {
       expect(result).toEqual([2, 3, 1]);
     });
 
-    it('should override order defined previously', () => {
+    it('should override ordering when chaining', () => {
       const result = Query.from(users)
-        .select('id')
-        .orderBy('id')
+        .select('id', 'isActive')
         .orderBy('-id')
+        .orderBy('isActive')
         .column();
 
-      expect(result).toEqual([3, 2, 1]);
-    });
-
-    it('should clear order defined previously', () => {
-      const result = Query.from(users)
-        .select('id')
-        .orderBy('-id')
-        .orderBy()
-        .column();
-
-      expect(result).toEqual([1, 2, 3]);
+      expect(result).toEqual([2, 3, 1]);
     });
   });
 
