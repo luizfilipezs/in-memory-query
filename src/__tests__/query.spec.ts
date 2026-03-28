@@ -56,78 +56,141 @@ describe('Query', () => {
     });
   });
 
-  describe('where()', () => {
-    it('should filter using object conditions', () => {
-      const result = Query.from(users).where({ isActive: true }).all();
+  describe('filtering', () => {
+    describe('where()', () => {
+      it('should filter using object conditions', () => {
+        const result = Query.from(users).where({ isActive: true }).all();
 
-      expect(result).toHaveLength(2);
-      expect(result.every((u) => u.isActive)).toBe(true);
+        expect(result).toHaveLength(2);
+        expect(result.every((u) => u.isActive)).toBe(true);
+      });
+
+      it('should filter using function condition', () => {
+        const result = Query.from(users)
+          .where((user) => user.isAdmin())
+          .all();
+
+        expect(result).toHaveLength(1);
+        expect(result[0].id).toBe(1);
+      });
+
+      it('should combine multiple where calls', () => {
+        const result = Query.from(users)
+          .where({ isActive: true })
+          .where((user) => user.permissions.useCookies)
+          .all();
+
+        expect(result).toHaveLength(2);
+      });
     });
 
-    it('should filter using function condition', () => {
-      const result = Query.from(users)
-        .where((user) => user.isAdmin())
-        .all();
+    describe('nested where()', () => {
+      it('should filter using inner object conditions', () => {
+        const result = Query.from(users)
+          .where({
+            permissions: {
+              sendNotifications: true,
+            },
+          })
+          .all();
 
-      expect(result).toHaveLength(1);
-      expect(result[0].id).toBe(1);
+        expect(result).toHaveLength(2);
+      });
     });
 
-    it('should combine multiple where calls', () => {
-      const result = Query.from(users)
-        .where({ isActive: true })
-        .where((user) => user.permissions.useCookies)
-        .all();
+    describe('filterWhere()', () => {
+      it('should ignore null and undefined conditions', () => {
+        const isActive: boolean | undefined = undefined;
 
-      expect(result).toHaveLength(2);
+        const result = Query.from(users)
+          .filterWhere({
+            isActive,
+            id: 1,
+          })
+          .all();
+
+        expect(result).toHaveLength(1);
+        expect(result[0].id).toBe(1);
+      });
     });
   });
 
-  describe('nested where()', () => {
-    it('should filter using inner object conditions', () => {
-      const result = Query.from(users)
-        .where({
-          permissions: {
-            sendNotifications: true,
-          },
-        })
-        .all();
+  describe('selection', () => {
+    describe('select()', () => {
+      it('should select a single column', () => {
+        const result = Query.from(users).select('name').column();
 
-      expect(result).toHaveLength(2);
+        expect(result).toEqual(['John', 'Mary', 'Bob']);
+      });
+
+      it('should select multiple columns', () => {
+        const result = Query.from(users).select('id', 'name').values();
+
+        expect(result).toEqual([
+          [1, 'John'],
+          [2, 'Mary'],
+          [3, 'Bob'],
+        ]);
+      });
+
+      it('should return objects with only selected fields', () => {
+        const result = Query.from(users).select('id', 'name').all();
+
+        expect(result).toEqual([
+          { id: 1, name: 'John' },
+          { id: 2, name: 'Mary' },
+          { id: 3, name: 'Bob' },
+        ]);
+      });
+
+      it('should not include non-selected fields', () => {
+        const result = Query.from(users).select('id').first();
+
+        expect(result).toEqual({ id: 1 });
+        expect((result as any).name).toBeUndefined();
+      });
+
+      it('should preserve ordering of the selected columns', () => {
+        const ascOrderResult = Query.from(users)
+          .orderBy('name')
+          .select('name')
+          .column();
+
+        expect(ascOrderResult).toEqual(['Bob', 'John', 'Mary']);
+
+        const descOrderResult = Query.from(users)
+          .orderBy('-name')
+          .select('name')
+          .column();
+
+        expect(descOrderResult).toEqual(['Mary', 'John', 'Bob']);
+      });
     });
-  });
 
-  describe('filterWhere()', () => {
-    it('should ignore null and undefined conditions', () => {
-      const isActive: boolean | undefined = undefined;
+    describe('column()', () => {
+      it('should return an array of the first column values by default', () => {
+        const result = Query.from(users).column();
 
-      const result = Query.from(users)
-        .filterWhere({
-          isActive,
-          id: 1,
-        })
-        .all();
+        expect(result).toEqual([1, 2, 3]);
+      });
 
-      expect(result).toHaveLength(1);
-      expect(result[0].id).toBe(1);
-    });
-  });
+      it('should return an array of the specified column values', () => {
+        const result = Query.from(users).column('name');
 
-  describe('select()', () => {
-    it('should select a single column', () => {
-      const result = Query.from(users).select('name').column();
+        expect(result).toEqual(['John', 'Mary', 'Bob']);
+      });
 
-      expect(result).toEqual(['John', 'Mary', 'Bob']);
-    });
+      it('should preserve ordering', () => {
+        const result = Query.from(users).orderBy('name').column('name');
 
-    it('should select multiple columns', () => {
-      const result = Query.from(users).select(['id', 'name']).values();
+        expect(result).toEqual(['Bob', 'John', 'Mary']);
+      });
 
-      expect(result).toEqual([
-        [1, 'John'],
-        [2, 'Mary'],
-        [3, 'Bob'],
-      ]);
+      it('should return empty array if objects have no properties', () => {
+        const result = Query.from([{}]).column();
+
+        expect(result).toEqual([]);
+      });
     });
   });
 
@@ -146,8 +209,8 @@ describe('Query', () => {
 
     it('should order by multiple properties', () => {
       const result = Query.from(users)
+        .select('id', 'isActive')
         .orderBy('isActive', '-id')
-        .select('id')
         .column();
 
       expect(result).toEqual([2, 3, 1]);
@@ -155,9 +218,9 @@ describe('Query', () => {
 
     it('should override order defined previously', () => {
       const result = Query.from(users)
+        .select('id')
         .orderBy('id')
         .orderBy('-id')
-        .select('id')
         .column();
 
       expect(result).toEqual([3, 2, 1]);
@@ -165,9 +228,9 @@ describe('Query', () => {
 
     it('should clear order defined previously', () => {
       const result = Query.from(users)
+        .select('id')
         .orderBy('-id')
         .orderBy()
-        .select('id')
         .column();
 
       expect(result).toEqual([1, 2, 3]);
@@ -275,14 +338,28 @@ describe('Query', () => {
       expect(Query.from(users).first()?.id).toBe(1);
     });
 
-    it('last()', () => {
-      expect(Query.from(users).last()?.id).toBe(3);
+    describe('last()', () => {
+      it('should return the last object', () => {
+        expect(Query.from(users).last()?.id).toBe(3);
+      });
+
+      it('should return null if no results', () => {
+        expect(Query.from(users).where({ id: 99 }).last()).toBeNull();
+      });
     });
 
-    it('scalar()', () => {
-      const id = Query.from(users).select('id').scalar();
+    describe('scalar()', () => {
+      it('should return the first cell', () => {
+        const id = Query.from(users).select('id').scalar();
 
-      expect(id).toBe(1);
+        expect(id).toBe(1);
+      });
+
+      it('should return false if no results', () => {
+        const id = Query.from([]).scalar();
+
+        expect(id).toBe(false);
+      });
     });
 
     it('scalar() should return false if no results', () => {

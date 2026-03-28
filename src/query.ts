@@ -2,16 +2,13 @@ import type {
   QueryConditionsGroup,
   QueryConditionsGroupNullable,
 } from './core/types';
+import type { OrderingColumn } from './core/types/ordering-column';
 import { QueryRowValidator } from './core/validation';
 import { integer, min, validateNumbers } from './core/validation/decorators';
+import { getObjectPropertyNames } from './utils/functions/generic/get-object-property-names';
 import { sortByProperties } from './utils/functions/sort';
 import { isFunction } from './utils/functions/type-guards';
-import type {
-  addPrefixToObject,
-  PropertyOnly,
-  PropOf,
-  SortFunction,
-} from './utils/types';
+import type { PropOf } from './utils/types';
 
 /**
  * Allows filtering data from an array of objects.
@@ -66,24 +63,19 @@ export class Query<T extends object> {
   #rows: T[] = [];
 
   /**
-   * Selected columns.
-   */
-  #columns: PropOf<T>[] = [];
-
-  /**
    * Number of results to skip.
    */
   #startAt = 0;
 
   /**
-   * Function to order the results.
+   * Columns to order the results by.
    */
-  #sortFunction: SortFunction<T> | null = null;
+  #orderBy: OrderingColumn<T>[] = [];
 
   /**
    * Limit of results.
    */
-  #limit?: number;
+  #limit: number | null = null;
 
   /**
    * Indicates whether conditions with `null` and `undefined` values should be
@@ -118,10 +110,57 @@ export class Query<T extends object> {
    *
    * @returns Current query.
    */
-  select(columns: PropOf<T> | PropOf<T>[]): this {
-    this.#columns = Array.isArray(columns) ? columns : [columns];
+  select<TColumns extends PropOf<T>[]>(
+    ...columns: TColumns
+  ): Query<{ [P in TColumns[number]]: T[P] }> {
+    type _Row = { [P in TColumns[number]]: T[P] };
+    type _Column = TColumns[number];
 
-    return this;
+    // extract selected columns
+    const rows: _Row[] = [];
+
+    for (const row of this.#rows) {
+      const result = {} as _Row;
+
+      for (const column of columns) {
+        result[column] = row[column];
+      }
+
+      rows.push(result);
+    }
+
+    // create new query
+    const query = new Query(rows);
+
+    // copy ordering columns that are part of the selected columns
+    if (this.#orderBy.length > 0) {
+      const orderBy: OrderingColumn<_Row>[] = [];
+
+      for (const orderingColumn of this.#orderBy) {
+        if (columns.includes(orderingColumn)) {
+          orderBy.push(orderingColumn as OrderingColumn<_Row>);
+          continue;
+        }
+
+        let normalizedColumn = orderingColumn.toString();
+
+        if (normalizedColumn.startsWith('-')) {
+          normalizedColumn = normalizedColumn.slice(1);
+        }
+
+        if (columns.includes(normalizedColumn as _Column)) {
+          orderBy.push(orderingColumn as OrderingColumn<_Row>);
+        }
+      }
+
+      query.#orderBy = orderBy;
+    }
+
+    // copy the remaining query properties
+    query.#startAt = this.#startAt;
+    query.#limit = this.#limit;
+
+    return query;
   }
 
   /**
@@ -165,16 +204,29 @@ export class Query<T extends object> {
   /**
    * Adds ordering to the results.
    *
+   * This method should be called after `select()`; otherwise, the ordering will
+   * be applied only to the selected columns.
+   *
+   * @example
+   * ```ts
+   * // ❌ "age" will not be ordered, because it is not part of the selected columns
+   * const query = Query.from(users)
+   *   .orderBy('-age')
+   *   .select('name');
+   *
+   * // ✅ "age" will be ordered
+   * const query = Query.from(users)
+   *   .select('name', 'age')
+   *   .orderBy('-age');
+   * ```
+   *
    * @param columns Ascending or descending columns. To mark a field as
-   * descending, use `-` before its name.
+   * descending, prefix it with `-`.
    *
    * @returns Current query.
    */
-  orderBy(
-    ...columns: (PropOf<T> | keyof addPrefixToObject<PropertyOnly<T>, '-'>)[]
-  ): this {
-    this.#sortFunction =
-      columns.length > 0 ? sortByProperties(...columns) : null;
+  orderBy(...columns: OrderingColumn<T>[]): this {
+    this.#orderBy = columns;
 
     return this;
   }
@@ -240,7 +292,7 @@ export class Query<T extends object> {
   last(): T | null {
     const rows = this.getLimitedRows();
 
-    return rows[this.count() - 1] ?? null;
+    return rows[rows.length - 1] ?? null;
   }
 
   /**
@@ -261,9 +313,7 @@ export class Query<T extends object> {
     const firstObject = this.first();
     const firstColumn = this.getFirstColumn();
 
-    return firstObject && firstColumn
-      ? (firstObject[firstColumn] ?? false)
-      : false;
+    return firstObject && firstColumn ? firstObject[firstColumn] : false;
   }
 
   /**
@@ -271,14 +321,20 @@ export class Query<T extends object> {
    *
    * @returns Values from the first (selected) column.
    */
-  column(): T[PropOf<T>][] {
-    const firstColumn = this.getFirstColumn();
+  column(): T[PropOf<T>][];
+  column<TColumn extends PropOf<T>>(column: TColumn): T[TColumn][];
+  column(column?: PropOf<T>): T[PropOf<T>][] {
+    if (column === undefined) {
+      const firstColumn = this.getFirstColumn();
 
-    if (!firstColumn) {
-      return [];
+      if (!firstColumn) {
+        return [];
+      }
+
+      column = firstColumn;
     }
 
-    return this.getLimitedRows().map((row) => row[firstColumn]);
+    return this.getLimitedRows().map((row) => row[column]);
   }
 
   /**
@@ -288,10 +344,8 @@ export class Query<T extends object> {
    * @returns Array with the values of all rows.
    */
   values(): T[PropOf<T>][][] {
-    return this.getLimitedRows().map((row) =>
-      this.#columns.length > 0
-        ? this.#columns.map((column) => row[column])
-        : (Object.values(row) as T[PropOf<T>][])
+    return this.getLimitedRows().map(
+      (row) => Object.values(row) as T[PropOf<T>][]
     );
   }
 
@@ -336,11 +390,11 @@ export class Query<T extends object> {
   private getLimitedRows(): T[] {
     const rows = [...this.#rows];
 
-    if (this.#sortFunction !== null) {
-      rows.sort(this.#sortFunction);
+    if (this.#orderBy.length > 0) {
+      rows.sort(sortByProperties(...this.#orderBy));
     }
 
-    return rows.slice(this.#startAt).slice(0, this.#limit);
+    return rows.slice(this.#startAt).slice(0, this.#limit ?? undefined);
   }
 
   /**
@@ -349,13 +403,19 @@ export class Query<T extends object> {
    * @returns The first column or `null`, if none is selected  or there is no row.
    */
   private getFirstColumn(): PropOf<T> | null {
-    if (this.#columns.length > 0) {
-      return this.#columns[0]!;
+    const firstRow = this.first();
+
+    if (!firstRow) {
+      return null;
     }
 
-    const firstObject = this.first();
+    const columns = getObjectPropertyNames(firstRow);
 
-    return firstObject ? (Object.keys(firstObject)[0] as PropOf<T>) : null;
+    if (columns.length > 0) {
+      return columns[0]!;
+    }
+
+    return null;
   }
 
   /**
