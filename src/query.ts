@@ -76,14 +76,14 @@ export class Query<T extends object> {
   #startAt = 0;
 
   /**
-   * Limit of results.
-   */
-  #limit?: number;
-
-  /**
    * Function to order the results.
    */
   #sortFunction: SortFunction<T> | null = null;
+
+  /**
+   * Limit of results.
+   */
+  #limit?: number;
 
   /**
    * Indicates whether conditions with `null` and `undefined` values should be
@@ -177,6 +177,30 @@ export class Query<T extends object> {
       columns.length > 0 ? sortByProperties(...columns) : null;
 
     return this;
+  }
+
+  /**
+   * Groups the results by a specific key.
+   *
+   * @param key The key to group the results by.
+   *
+   * @returns A map with the grouped results.
+   */
+  groupBy<K extends keyof T>(key: K): Map<T[K], T[]> {
+    const rows = this.getLimitedRows();
+    const map = new Map<T[K], T[]>();
+
+    for (const row of rows) {
+      const index = row[key];
+
+      if (map.has(index)) {
+        map.get(index)!.push(row);
+      } else {
+        map.set(index, [row]);
+      }
+    }
+
+    return map;
   }
 
   /**

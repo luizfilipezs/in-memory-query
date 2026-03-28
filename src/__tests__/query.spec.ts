@@ -174,6 +174,66 @@ describe('Query', () => {
     });
   });
 
+  describe('grouping', () => {
+    it('should group rows by a simple property', () => {
+      const result = Query.from(users).groupBy('isActive');
+
+      expect(result.get(true)).toHaveLength(2);
+      expect(result.get(false)).toHaveLength(1);
+    });
+
+    it('should group rows by id', () => {
+      const result = Query.from(users).groupBy('id');
+
+      expect(result.get(1)?.[0].name).toBe('John');
+      expect(result.get(2)?.[0].name).toBe('Mary');
+      expect(result.get(3)?.[0].name).toBe('Bob');
+    });
+
+    it('should group rows after filtering', () => {
+      const result = Query.from(users)
+        .where({ isActive: true })
+        .groupBy('isActive');
+
+      expect(result.get(true)).toHaveLength(2);
+      expect(result.get(false)).toBeUndefined();
+    });
+
+    it('should group rows after ordering', () => {
+      const result = Query.from(users).orderBy('-id').groupBy('isActive');
+
+      const activeUsers = result.get(true)!;
+
+      expect(activeUsers[0].id).toBe(3);
+      expect(activeUsers[1].id).toBe(1);
+    });
+
+    it('should group rows respecting skip and limit', () => {
+      const result = Query.from(users)
+        .orderBy('id')
+        .skip(1)
+        .limit(1)
+        .groupBy('isActive');
+
+      // Só o usuário com id 2 deve estar presente
+      expect(result.size).toBe(1);
+      expect(result.get(false)).toHaveLength(1);
+      expect(result.get(false)?.[0].id).toBe(2);
+    });
+
+    it('should return an empty map if no rows', () => {
+      const result = Query.from(users).where({ id: 999 }).groupBy('id');
+
+      expect(result.size).toBe(0);
+    });
+
+    it('should group by Date property', () => {
+      const result = Query.from(users).groupBy('createdAt');
+
+      expect(result.size).toBe(3);
+    });
+  });
+
   describe('pagination', () => {
     it('should skip rows', () => {
       const result = Query.from(users).select('id').skip(1).column();
