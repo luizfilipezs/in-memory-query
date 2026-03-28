@@ -100,36 +100,30 @@ export function validateNumbers(
       // MIN
       if (rule.min !== undefined) {
         if (!isNumber(value) || value < rule.min) {
-          throw new InvalidArgumentError({
-            method: propertyKey,
-            param: rule.index,
-            argument: value,
-            expected: `equal or greater than ${rule.min}`,
-          });
+          throw new InvalidArgumentError(
+            `${String(value)} is not a valid argument to param ${rule.index} on ${propertyKey}(). ` +
+              `Expected value to be equal or greater than ${rule.min}.`
+          );
         }
       }
 
       // MAX
       if (rule.max !== undefined) {
         if (!isNumber(value) || value > rule.max) {
-          throw new InvalidArgumentError({
-            method: propertyKey,
-            param: rule.index,
-            argument: value,
-            expected: `equal or less than ${rule.max}`,
-          });
+          throw new InvalidArgumentError(
+            `${String(value)} is not a valid argument to param ${rule.index} on ${propertyKey}(). ` +
+              `Expected value to be equal or less than ${rule.max}.`
+          );
         }
       }
 
       // INTEGER
       if (rule.integer) {
         if (!Number.isSafeInteger(value)) {
-          throw new InvalidArgumentError({
-            method: propertyKey,
-            param: rule.index,
-            argument: value,
-            expected: 'an integer',
-          });
+          throw new InvalidArgumentError(
+            `${String(value)} is not a valid argument to param ${rule.index} on ${propertyKey}(). ` +
+              `Expected value to be an integer.`
+          );
         }
       }
     }
