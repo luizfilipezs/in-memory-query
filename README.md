@@ -148,13 +148,20 @@ const firstEmail = Query.from(users)
 
 #### `column()`
 
-It returns the values of the first properties of all objects.
+It returns the values of the first properties of all objects by default.
 
 ```ts
 const ids = Query.from(users).column();
 ```
 
-You can also use it with `select()`:
+You can also specify the column name:
+
+```ts
+
+const emails = Query.from(users).column('email');
+```
+
+Or combine it with `select()`:
 
 ```ts
 const emails = Query.from(users)
@@ -201,6 +208,8 @@ const lastId = Query.from(users)
   .orderBy('-id')
   .scalar();
 ```
+
+>When combining the `select()` and `orderBy()` methods, `orderBy()` must always be called afterward, as the sorting is applied only to the selected fields.
 
 ### Limiting results
 
