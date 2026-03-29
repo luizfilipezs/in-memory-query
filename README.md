@@ -108,7 +108,7 @@ const authorsWithFirstPostQuery = Query.from(authors)
   }));
 ```
 
-When dealing with simples scenarios, prefer `select()`:
+When dealing with simple scenarios, prefer `select()`:
 
 ```ts
 // ⚠️ More verbose than necessary
