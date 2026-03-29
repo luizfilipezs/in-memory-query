@@ -393,7 +393,7 @@ export class Query<T extends object> {
     const rows = this.#rows;
     const result: T[] = [];
 
-    if (isFunction<(obj: T) => boolean>(condition)) {
+    if (isFunction(condition)) {
       for (let i = 0; i < rows.length; i++) {
         const row = rows[i]!;
 

@@ -25,16 +25,4 @@ describe('isFunction', () => {
     expect(isFunction([])).toBe(false);
     expect(isFunction(true)).toBe(false);
   });
-
-  it('should narrow the type when returning true (type guard)', () => {
-    const value = () => 'hello';
-
-    if (isFunction<() => string>(value)) {
-      // If this compiles, the type guard works
-      const result = value();
-      expect(result).toBe('hello');
-    } else {
-      throw new Error('Expected value to be a function');
-    }
-  });
 });

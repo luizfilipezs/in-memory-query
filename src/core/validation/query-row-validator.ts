@@ -67,8 +67,8 @@ export class QueryRowValidator {
 
     const cellValue = row[column];
 
-    if (isFunction<AttributeValidationFunction<T, TColumn>>(condition)) {
-      return condition(cellValue);
+    if (isFunction(condition)) {
+      return (condition as AttributeValidationFunction<T, TColumn>)(cellValue);
     }
 
     if (Array.isArray(condition)) {
