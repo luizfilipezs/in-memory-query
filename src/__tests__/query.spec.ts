@@ -297,6 +297,13 @@ describe('Query', () => {
 
       expect(result.size).toBe(3);
     });
+
+    it('should group by callback', () => {
+      const result = Query.from(users).groupBy((user) => user.isActive);
+
+      expect(result.get(true)).toHaveLength(2);
+      expect(result.get(false)).toHaveLength(1);
+    });
   });
 
   describe('pagination', () => {

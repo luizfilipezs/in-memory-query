@@ -213,18 +213,28 @@ export class Query<T extends object> {
   }
 
   /**
-   * Groups the results by a specific key.
+   * Groups the results by a specific key or callback.
    *
-   * @param key The key to group the results by.
+   * @param key Key to group by.
    *
-   * @returns A map with the grouped results.
+   * @returns Grouped results.
    */
-  groupBy<K extends keyof T>(key: K): Map<T[K], T[]> {
+  groupBy<K extends keyof T>(key: K): Map<T[K], T[]>;
+  /**
+   * Groups the results by a specific key or callback.
+   *
+   * @param callback Callback to group by.
+   *
+   * @returns Grouped results.
+   */
+  groupBy<TGrouper>(callback: (row: T) => TGrouper): Map<TGrouper, T[]>;
+  groupBy(arg: keyof T | ((row: T) => unknown)): Map<unknown, T[]> {
     const rows = this.getLimitedRows();
-    const map = new Map<T[K], T[]>();
+    const map = new Map<unknown, T[]>();
+    const hasCallback = isFunction(arg);
 
     for (const row of rows) {
-      const index = row[key];
+      const index = hasCallback ? arg(row) : row[arg];
 
       if (map.has(index)) {
         map.get(index)!.push(row);
