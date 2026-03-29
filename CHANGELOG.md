@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.1.1
+
+- Rebuild v2.1.0, for `lib` was outdated.
+
 ## v2.1.0
 
 - Added method `map()` to `Query`, intended for data projection, but more flexible and better suited for complex transformations.
