@@ -277,3 +277,18 @@ Example output:
   [2, 'mary@gmail.com']
 ]
 ```
+
+---
+
+#### `groupBy(key)`
+
+Groups the items by the specified property and returns the result as a `Map`.
+
+- `key`: The property name to group by.
+
+The returned `Map` uses the property values as keys and arrays of matching items as values.
+
+```ts
+const usersByActiveStatus = Query.from(users).groupBy('active');
+// Map<boolean, User[]>
+```
