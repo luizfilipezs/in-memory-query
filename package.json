@@ -2,7 +2,26 @@
   "name": "querier-ts",
   "type": "module",
   "version": "2.3.0",
-  "description": "Query tool for analysing arrays of objects",
+  "description": "A lightweight, type-safe in-memory query engine for JavaScript and TypeScript",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/luizfilipezs/query-ts.git"
+  },
+  "keywords": [
+    "query",
+    "data filtering",
+    "in-memory"
+  ],
+  "author": {
+    "name": "Luiz Filipe da Silva",
+    "email": "luizfilipezs@proton.me",
+    "url": "https://github.com/luizfilipezs"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/luizfilipezs/query-ts/issues"
+  },
+  "homepage": "https://github.com/luizfilipezs/query-ts#readme",
   "files": [
     "dist",
     "README.md",
@@ -38,24 +57,6 @@
       "eslint --fix"
     ]
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/luizfilipezs/query-ts.git"
-  },
-  "keywords": [
-    "query",
-    "data filtering"
-  ],
-  "author": {
-    "name": "Luiz Filipe da Silva",
-    "email": "filipeluiz.bs@gmail.com",
-    "url": "https://blogdolipe.com.br"
-  },
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/luizfilipezs/query-ts/issues"
-  },
-  "homepage": "https://github.com/luizfilipezs/query-ts#readme",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@vitest/coverage-v8": "^4.1.2",
