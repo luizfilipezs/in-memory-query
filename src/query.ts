@@ -249,6 +249,108 @@ export class Query<T extends object> {
   }
 
   /**
+   * Returns all results.
+   *
+   * @returns All filtered rows.
+   */
+  all(): T[] {
+    return this.getLimitedRows();
+  }
+
+  /**
+   * Returns the first result.
+   *
+   * @returns The first result.
+   */
+  first(): T | null {
+    const rows = this.getLimitedRows();
+
+    return rows.length > 0 ? rows[0]! : null;
+  }
+
+  /**
+   * Returns the last result.
+   *
+   * @returns The last result.
+   */
+  last(): T | null {
+    const rows = this.getLimitedRows();
+
+    return rows[rows.length - 1] ?? null;
+  }
+
+  /**
+   * Returns the current number of rows.
+   *
+   * @return Filtered rows count.
+   */
+  count(): number {
+    return this.getLimitedRows().length;
+  }
+
+  /**
+   * Checks if there is at least one row compatible with the query.
+   *
+   * @returns Whether any row exists after filtering.
+   */
+  exists(): boolean {
+    return this.count() > 0;
+  }
+
+  /**
+   * Returns the value of the first (selected) column of the first row.
+   *
+   * @returns First value or `false`, if none row exists.
+   */
+  scalar(): T[PropOf<T>] | false {
+    const firstObject = this.first();
+    const firstColumn = this.getFirstColumn();
+
+    return firstObject && firstColumn ? firstObject[firstColumn] : false;
+  }
+
+  /**
+   * Returns the values of the first (selected) column of all rows.
+   *
+   * @param column (Optional) The column to get the values from.
+   *
+   * @returns Values from the first (selected) column.
+   */
+  column(): T[PropOf<T>][];
+  column<TColumn extends PropOf<T>>(column: TColumn): T[TColumn][];
+  column(column?: PropOf<T>): T[PropOf<T>][] {
+    if (column === undefined) {
+      const firstColumn = this.getFirstColumn();
+
+      if (!firstColumn) {
+        return [];
+      }
+
+      column = firstColumn;
+    }
+
+    return this.getLimitedRows().map((row) => row[column]);
+  }
+
+  /**
+   * Returns the values of the rows. If there are selected columns, only their
+   * values will be returned.
+   *
+   * @returns Array with the values of all rows.
+   */
+  values(): T[PropOf<T>][][] {
+    type _Values = T[PropOf<T>][];
+
+    const rows: _Values[] = [];
+
+    for (const row of this.getLimitedRows()) {
+      rows.push(Object.values(row) as _Values);
+    }
+
+    return rows;
+  }
+
+  /**
    * Groups the results by a specific key.
    *
    * @param key Key to group by.
@@ -307,108 +409,6 @@ export class Query<T extends object> {
     }
 
     return map;
-  }
-
-  /**
-   * Returns all results.
-   *
-   * @returns All filtered rows.
-   */
-  all(): T[] {
-    return this.getLimitedRows();
-  }
-
-  /**
-   * Returns the first result.
-   *
-   * @returns The first result.
-   */
-  first(): T | null {
-    const rows = this.getLimitedRows();
-
-    return rows.length > 0 ? rows[0]! : null;
-  }
-
-  /**
-   * Returns the last result.
-   *
-   * @returns The last result.
-   */
-  last(): T | null {
-    const rows = this.getLimitedRows();
-
-    return rows[rows.length - 1] ?? null;
-  }
-
-  /**
-   * Returns the value of the first (selected) column of the first row.
-   *
-   * @returns First value or `false`, if none row exists.
-   */
-  scalar(): T[PropOf<T>] | false {
-    const firstObject = this.first();
-    const firstColumn = this.getFirstColumn();
-
-    return firstObject && firstColumn ? firstObject[firstColumn] : false;
-  }
-
-  /**
-   * Returns the values of the first (selected) column of all rows.
-   *
-   * @param column (Optional) The column to get the values from.
-   *
-   * @returns Values from the first (selected) column.
-   */
-  column(): T[PropOf<T>][];
-  column<TColumn extends PropOf<T>>(column: TColumn): T[TColumn][];
-  column(column?: PropOf<T>): T[PropOf<T>][] {
-    if (column === undefined) {
-      const firstColumn = this.getFirstColumn();
-
-      if (!firstColumn) {
-        return [];
-      }
-
-      column = firstColumn;
-    }
-
-    return this.getLimitedRows().map((row) => row[column]);
-  }
-
-  /**
-   * Returns the values of the rows. If there are selected columns, only their
-   * values will be returned.
-   *
-   * @returns Array with the values of all rows.
-   */
-  values(): T[PropOf<T>][][] {
-    type _Values = T[PropOf<T>][];
-
-    const rows: _Values[] = [];
-
-    for (const row of this.getLimitedRows()) {
-      rows.push(Object.values(row) as _Values);
-    }
-
-    return rows;
-  }
-
-  /**
-   * Returns the current number of rows.
-   *
-   * @return Filtered rows count.
-   */
-  count(): number {
-    return this.getLimitedRows().length;
-  }
-
-  /**
-   * Checks if there is at least one row compatible with the query.
-   *
-   * @returns Whether any row exists after filtering.
-   */
-  exists(): boolean {
-    return this.count() > 0;
   }
 
   /**
