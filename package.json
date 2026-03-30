@@ -1,6 +1,6 @@
 {
   "name": "querier-ts",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Query tool for analysing arrays of objects",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
