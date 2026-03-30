@@ -2,8 +2,8 @@
 
 ## v2.3.1
 
-- Optimize build process with [tsup](https://tsup.egoist.dev/), tree-shaking and minification.
-- Remove `utility-types` from dependencies list.
+- Optimized build process with [tsup](https://tsup.egoist.dev/), tree-shaking and minification.
+- Removed `utility-types` from dependencies list.
 
 ## v2.3.0
 
