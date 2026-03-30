@@ -1,5 +1,17 @@
 # Changelog
 
+## v2.2.0
+
+### Features
+
+- Added an overload to `groupBy()` supporting both property keys and custom grouping functions.
+
+### Improvements
+
+- Internal code refactoring with no functional changes.
+- Updated the build process to ignore test files.
+- Updated `.npmignore` file contents.
+
 ## v2.1.1
 
 - Rebuild v2.1.0, for `lib` was outdated.
@@ -12,7 +24,7 @@
 
 This release includes minor internal refactoring. There are no new features or breaking changes.
 
-## Improvements
+## Improvementskv
 
 - Performed micro-optimizations on array operations.
 
