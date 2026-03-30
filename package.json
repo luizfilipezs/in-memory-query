@@ -56,9 +56,6 @@
     "url": "https://github.com/luizfilipezs/query-ts/issues"
   },
   "homepage": "https://github.com/luizfilipezs/query-ts#readme",
-  "dependencies": {
-    "utility-types": "^3.11.0"
-  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@vitest/coverage-v8": "^4.1.2",
