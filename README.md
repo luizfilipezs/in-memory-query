@@ -295,6 +295,6 @@ const usersByActiveStatus = Query.from(users).groupBy('active');
 // Map<boolean, User[]>
 
 // Grouping by callback
-const result = Query.from(users).groupBy((user) => user.isActive);
+const usersByActiveStatus = Query.from(users).groupBy((user) => user.isActive);
 // Map<boolean, User[]>
 ```
