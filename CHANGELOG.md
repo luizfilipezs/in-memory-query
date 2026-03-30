@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.3.1
+
+- Optimize build process with [tsup](https://tsup.egoist.dev/), tree-shaking and minification.
+
 ## v2.3.0
 
 ### Features
