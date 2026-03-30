@@ -1,6 +1,8 @@
 src
+.prettierrc
+.prretierignore
 tsconfig.json
+tsconfig.build.json
+tsconfig.eslint.json
 eslint.config.ts
 vitest.config.ts
-.prettierrc.json
-.prretierignore
