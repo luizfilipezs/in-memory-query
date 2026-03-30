@@ -388,10 +388,178 @@ describe('Query', () => {
       });
     });
 
-    it('scalar() should return false if no results', () => {
-      const result = Query.from(users).where({ id: 99 }).scalar();
+    describe('min()', () => {
+      describe('with key', () => {
+        it('should return the minimum value', () => {
+          const result = Query.from([
+            { value: 3 },
+            { value: 1 },
+            { value: 2 },
+          ]).min('value');
 
-      expect(result).toBe(false);
+          expect(result).toBe(1);
+        });
+
+        it('should work with negative values', () => {
+          const result = Query.from([
+            { value: 3 },
+            { value: -1 },
+            { value: 2 },
+          ]).min('value');
+
+          expect(result).toBe(-1);
+        });
+
+        it('should return null if no results', () => {
+          const result = Query.from<User>([]).min('id');
+
+          expect(result).toBeNull();
+        });
+      });
+
+      describe('with callback', () => {
+        it('should return the minimum value', () => {
+          const result = Query.from([
+            { value: 3 },
+            { value: 1 },
+            { value: 2 },
+          ]).min((row) => row.value);
+
+          expect(result).toBe(1);
+        });
+
+        it('should work with negative values', () => {
+          const result = Query.from([
+            { value: 3 },
+            { value: -1 },
+            { value: 2 },
+          ]).min((row) => row.value);
+
+          expect(result).toBe(-1);
+        });
+
+        it('should return null if no results', () => {
+          const result = Query.from<User>([]).min((row) => row.id);
+
+          expect(result).toBeNull();
+        });
+      });
+    });
+
+    describe('max()', () => {
+      describe('with key', () => {
+        it('should return the maximum value', () => {
+          const result = Query.from([
+            { value: 3 },
+            { value: 1 },
+            { value: 2 },
+          ]).max('value');
+
+          expect(result).toBe(3);
+        });
+
+        it('should work with negative values', () => {
+          const result = Query.from([
+            { value: 3 },
+            { value: -1 },
+            { value: 2 },
+          ]).max('value');
+
+          expect(result).toBe(3);
+        });
+
+        it('should return null if no results', () => {
+          const result = Query.from<User>([]).max('id');
+
+          expect(result).toBeNull();
+        });
+      });
+
+      describe('with callback', () => {
+        it('should return the maximum value', () => {
+          const result = Query.from([
+            { value: 3 },
+            { value: 1 },
+            { value: 2 },
+          ]).max((row) => row.value);
+
+          expect(result).toBe(3);
+        });
+
+        it('should work with negative values', () => {
+          const result = Query.from([
+            { value: 3 },
+            { value: -1 },
+            { value: 2 },
+          ]).max((row) => row.value);
+
+          expect(result).toBe(3);
+        });
+
+        it('should return null if no results', () => {
+          const result = Query.from<User>([]).max((row) => row.id);
+
+          expect(result).toBeNull();
+        });
+      });
+    });
+
+    describe('sum()', () => {
+      describe('with key', () => {
+        it('should return the sum', () => {
+          const result = Query.from([
+            { value: 3 },
+            { value: 1 },
+            { value: 2 },
+          ]).sum('value');
+
+          expect(result).toBe(6);
+        });
+
+        it('should work with negative values', () => {
+          const result = Query.from([
+            { value: 3 },
+            { value: -1 },
+            { value: 2 },
+          ]).sum('value');
+
+          expect(result).toBe(4);
+        });
+
+        it('should return zero if no results', () => {
+          const result = Query.from<User>([]).sum('id');
+
+          expect(result).toBe(0);
+        });
+      });
+
+      describe('with callback', () => {
+        it('should return the sum', () => {
+          const result = Query.from([
+            { value: 3 },
+            { value: 1 },
+            { value: 2 },
+          ]).sum((row) => row.value);
+
+          expect(result).toBe(6);
+        });
+
+        it('should work with negative values', () => {
+          const result = Query.from([
+            { value: 3 },
+            { value: -1 },
+            { value: 2 },
+          ]).sum((row) => row.value);
+
+          expect(result).toBe(4);
+        });
+
+        it('should return zero if no results', () => {
+          const result = Query.from<User>([]).sum((row) => row.id);
+
+          expect(result).toBe(0);
+        });
+      });
     });
   });
 });

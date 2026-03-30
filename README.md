@@ -315,3 +315,62 @@ const idsByNotificationPreference = Query.from(users).groupBy(
 );
 // Map<boolean, number[]>
 ```
+
+### Aggregating data
+
+#### `min(key | callback)`
+
+Returns the minimum numeric value from the results.
+
+- `key`: The numeric column to evaluate.
+- `callback`: A function that maps each row to a number.
+
+Returns `null` if no rows exist.
+
+```ts
+// Using a column
+const minAge = Query.from(users).min('age');
+
+// Using a callback
+const minNameLength = Query.from(users).min(
+  (user) => user.name.length
+);
+```
+
+#### `max(key | callback)`
+
+Returns the maximum numeric value from the results.
+
+- `key`: The numeric column to evaluate.
+- `callback`: A function that maps each row to a number.
+
+Returns `null` if no rows exist.
+
+```ts
+// Using a column
+const maxAge = Query.from(users).max('age');
+
+// Using a callback
+const maxNameLength = Query.from(users).max(
+  (user) => user.name.length
+);
+```
+
+#### `sum(key | callback)`
+
+Returns the sum of numeric values from the results.
+
+- `key`: The numeric column to evaluate.
+- `callback`: A function that maps each row to a number.
+
+Returns `0` if no rows exist.
+
+```ts
+// Using a column
+const totalAge = Query.from(users).sum('age');
+
+// Using a callback
+const totalNameLength = Query.from(users).sum(
+  (user) => user.name.length
+);
+```

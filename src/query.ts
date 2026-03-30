@@ -11,6 +11,7 @@ import { QueryRowValidator } from './core/validation/query-row-validator';
 import { getObjectPropertyNames } from './utils/functions/generic/get-object-property-names';
 import { sortByProperties } from './utils/functions/sort/sort-by-properties';
 import { isFunction } from './utils/functions/type-guards/is-function';
+import type { KeysOfType } from './utils/types/keys-of-type';
 import type { PropOf } from './utils/types/prop-of';
 
 /**
@@ -408,6 +409,98 @@ export class Query<T extends object> {
    */
   exists(): boolean {
     return this.count() > 0;
+  }
+
+  /**
+   * Returns the minimum value of a column.
+   *
+   * @param key Column to get the minimum value from.
+   * @returns Minimum value or `null`, if no rows exist.
+   */
+  min<K extends KeysOfType<T, number>>(key: K): number | null;
+  /**
+   * Returns the minimum value of the mapped rows by a callback.
+   *
+   * @param callback Callback to map the rows.
+   * @returns Minimum value or `null`, if no rows exist.
+   */
+  min(callback: (row: T) => number): number | null;
+  min(arg: KeysOfType<T, number> | ((row: T) => number)): number | null {
+    const rows = this.getLimitedRows();
+
+    if (rows.length === 0) {
+      return null;
+    }
+
+    const values = isFunction(arg)
+      ? rows.map((row) => arg(row))
+      : rows.map((row) => row[arg] as number);
+
+    if (values.length === 0) {
+      return null;
+    }
+
+    return Math.min(...values);
+  }
+
+  /**
+   * Returns the maximum value of a column.
+   *
+   * @param key Column to get the maximum value from.
+   * @returns Maximum value or `null`, if no rows exist.
+   */
+  max<K extends KeysOfType<T, number>>(key: K): number | null;
+  /**
+   * Returns the maximum value of the mapped rows by a callback.
+   *
+   * @param callback Callback to map the rows.
+   * @returns Maximum value or `null`, if no rows exist.
+   */
+  max(callback: (row: T) => number): number | null;
+  max(arg: KeysOfType<T, number> | ((row: T) => number)): number | null {
+    const rows = this.getLimitedRows();
+
+    if (rows.length === 0) {
+      return null;
+    }
+
+    const values = isFunction(arg)
+      ? rows.map((row) => arg(row))
+      : rows.map((row) => row[arg] as number);
+
+    if (values.length === 0) {
+      return null;
+    }
+
+    return Math.max(...values);
+  }
+
+  /**
+   * Returns the sum of the values of a column.
+   *
+   * @param key Column to get the sum from.
+   * @returns Sum.
+   */
+  sum<K extends KeysOfType<T, number>>(key: K): number;
+  /**
+   * Returns the sum of the mapped rows by a callback.
+   *
+   * @param callback Callback to map the rows.
+   * @returns Sum.
+   */
+  sum(callback: (row: T) => number): number;
+  sum(arg: KeysOfType<T, number> | ((row: T) => number)): number {
+    const rows = this.getLimitedRows();
+
+    if (rows.length === 0) {
+      return 0;
+    }
+
+    const values = isFunction(arg)
+      ? rows.map((row) => arg(row))
+      : rows.map((row) => row[arg] as number);
+
+    return values.reduce((total, value) => total + value, 0);
   }
 
   /**

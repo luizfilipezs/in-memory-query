@@ -1,5 +1,9 @@
 # Changelog
 
+## dev-master
+
+- Added `min()`, `max()` and `sum()` aggregate methods to `Query`.
+
 ## v2.3.1
 
 - Optimized build process with [tsup](https://tsup.egoist.dev/), tree-shaking and minification.
