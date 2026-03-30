@@ -11,7 +11,7 @@ pnpm install
 ### Checking build final size
 
 ```bash
-gzip -c lib/index.js | wc -c
+pnpm pack && ls -lh *.tgz && rm *.tgz
 ```
 
 ### Publishing a new version

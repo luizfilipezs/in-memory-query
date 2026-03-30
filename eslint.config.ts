@@ -8,10 +8,9 @@ export default defineConfig([
   {
     ignores: [
       './node_modules/**',
-      './lib/**',
+      './dist/**',
       '**/__tests__/**',
-      'eslint.config.ts',
-      'vitest.config.ts',
+      '*.config.ts',
     ],
   },
 
