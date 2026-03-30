@@ -374,3 +374,22 @@ const totalNameLength = Query.from(users).sum(
   (user) => user.name.length
 );
 ```
+
+#### `average(key | callback)`
+
+Returns the average of numeric values from the results.
+
+- `key`: The numeric column to evaluate.
+- `callback`: A function that maps each row to a number.
+
+Returns `null` if no rows exist.
+
+```ts
+// Using a column
+const averageAge = Query.from(users).average('age');
+
+// Using a callback
+const averageNameLength = Query.from(users).average(
+  (user) => user.name.length
+);
+```

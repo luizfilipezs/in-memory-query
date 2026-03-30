@@ -561,5 +561,63 @@ describe('Query', () => {
         });
       });
     });
+
+    describe('average()', () => {
+      describe('with key', () => {
+        it('should return the average', () => {
+          const result = Query.from([
+            { value: 3 },
+            { value: 1 },
+            { value: 2 },
+          ]).average('value');
+
+          expect(result).toBe(2);
+        });
+
+        it('should work with negative values', () => {
+          const result = Query.from([
+            { value: 3 },
+            { value: -1 },
+            { value: 2 },
+          ]).average('value');
+
+          expect(result).toBeCloseTo(1.33);
+        });
+
+        it('should return null if no results', () => {
+          const result = Query.from<User>([]).average('id');
+
+          expect(result).toBeNull();
+        });
+      });
+
+      describe('with callback', () => {
+        it('should return the average', () => {
+          const result = Query.from([
+            { value: 3 },
+            { value: 1 },
+            { value: 2 },
+          ]).average((row) => row.value);
+
+          expect(result).toBe(2);
+        });
+
+        it('should work with negative values', () => {
+          const result = Query.from([
+            { value: 3 },
+            { value: -1 },
+            { value: 2 },
+          ]).average((row) => row.value);
+
+          expect(result).toBeCloseTo(1.33);
+        });
+
+        it('should return null if no results', () => {
+          const result = Query.from<User>([]).average((row) => row.id);
+
+          expect(result).toBeNull();
+        });
+      });
+    });
   });
 });

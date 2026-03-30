@@ -2,7 +2,7 @@
 
 ## dev-master
 
-- Added `min()`, `max()` and `sum()` aggregate methods to `Query`.
+- Added `min()`, `max()`, `sum()`, and `average()` aggregate methods to `Query`.
 
 ## v2.3.1
 

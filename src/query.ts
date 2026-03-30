@@ -504,6 +504,32 @@ export class Query<T extends object> {
   }
 
   /**
+   * Returns the average of the values of a column.
+   *
+   * @param key Column to get the average from.
+   * @returns Average or `null`, if no rows exist.
+   */
+  average<K extends KeysOfType<T, number>>(key: K): number | null;
+  /**
+   * Returns the average of the mapped rows by a callback.
+   *
+   * @param callback Callback to map the rows.
+   * @returns Average or `null`, if no rows exist.
+   */
+  average(callback: (row: T) => number): number | null;
+  average(arg: KeysOfType<T, number> | ((row: T) => number)): number | null {
+    const count = this.count();
+
+    if (count === 0) {
+      return null;
+    }
+
+    const sum = isFunction(arg) ? this.sum(arg) : this.sum(arg);
+
+    return sum / count;
+  }
+
+  /**
    * Filters the rows according to the given conditions.
    *
    * @param condition Object or callback function.
