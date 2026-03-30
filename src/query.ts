@@ -213,6 +213,39 @@ export class Query<T extends object> {
   }
 
   /**
+   * Defines the number of rows to skip.
+   *
+   * @param numberOfRows Numbers of rows to skip. Only non negative integer numbers
+   * are allowed.
+   *
+   * @returns Current query.
+   *
+   * @throws {InvalidArgumentError} If the given number is less than 0.
+   */
+  @validateNumbers
+  skip(@integer @min(0) numberOfRows: number): this {
+    this.#startAt = numberOfRows;
+
+    return this;
+  }
+
+  /**
+   * Defines a limit for the number of results.
+   *
+   * @param limit Limit of results. Only non negative integer numbers are allowed.
+   *
+   * @returns Current query.
+   *
+   * @throws {InvalidArgumentError} If the given limit is less than 0.
+   */
+  @validateNumbers
+  limit(@integer @min(0) limit: number): this {
+    this.#limit = limit;
+
+    return this;
+  }
+
+  /**
    * Groups the results by a specific key or callback.
    *
    * @param key Key to group by.
@@ -247,21 +280,12 @@ export class Query<T extends object> {
   }
 
   /**
-   * Returns the current number of rows.
+   * Returns all results.
    *
-   * @return Filtered rows count.
+   * @returns All filtered rows.
    */
-  count(): number {
-    return this.getLimitedRows().length;
-  }
-
-  /**
-   * Checks if there is at least one row compatible with the query.
-   *
-   * @returns Whether any row exists after filtering.
-   */
-  exists(): boolean {
-    return this.count() > 0;
+  all(): T[] {
+    return this.getLimitedRows();
   }
 
   /**
@@ -284,15 +308,6 @@ export class Query<T extends object> {
     const rows = this.getLimitedRows();
 
     return rows[rows.length - 1] ?? null;
-  }
-
-  /**
-   * Returns all results.
-   *
-   * @returns All filtered rows.
-   */
-  all(): T[] {
-    return this.getLimitedRows();
   }
 
   /**
@@ -349,36 +364,21 @@ export class Query<T extends object> {
   }
 
   /**
-   * Defines the number of rows to skip.
+   * Returns the current number of rows.
    *
-   * @param numberOfRows Numbers of rows to skip. Only non negative integer numbers
-   * are allowed.
-   *
-   * @returns Current query.
-   *
-   * @throws {InvalidArgumentError} If the given number is less than 0.
+   * @return Filtered rows count.
    */
-  @validateNumbers
-  skip(@integer @min(0) numberOfRows: number): this {
-    this.#startAt = numberOfRows;
-
-    return this;
+  count(): number {
+    return this.getLimitedRows().length;
   }
 
   /**
-   * Defines a limit for the number of results.
+   * Checks if there is at least one row compatible with the query.
    *
-   * @param limit Limit of results. Only non negative integer numbers are allowed.
-   *
-   * @returns Current query.
-   *
-   * @throws {InvalidArgumentError} If the given limit is less than 0.
+   * @returns Whether any row exists after filtering.
    */
-  @validateNumbers
-  limit(@integer @min(0) limit: number): this {
-    this.#limit = limit;
-
-    return this;
+  exists(): boolean {
+    return this.count() > 0;
   }
 
   /**
