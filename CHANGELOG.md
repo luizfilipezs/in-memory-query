@@ -1,8 +1,17 @@
 # Changelog
 
-## dev-master
+## v2.4.0
 
-- Added `min()`, `max()`, `sum()`, and `average()` aggregate methods to `Query`.
+### Changes
+
+- [ ] Bug fixes
+- [ ] Code refactoring
+- [x] New features
+- [ ] Breaking changes
+
+### New Features
+
+- Added `min()`, `max()`, `sum()`, and `average()` methods to `Query`.
 
 ## v2.3.1
 
