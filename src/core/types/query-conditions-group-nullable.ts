@@ -1,4 +1,4 @@
-import type { PropertyOnly } from '../../utils/types';
+import type { PropertyOnly } from '../../utils/types/property-only';
 import type { NullableCondition } from './nullable-condition';
 
 export type QueryConditionsGroupNullable<T extends object> = {

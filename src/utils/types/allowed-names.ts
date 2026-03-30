@@ -1,4 +1,4 @@
-import type { FlagExcludedType } from '.';
+import type { FlagExcludedType } from './flag-excluded-type';
 
 /**
  * Gets the keys that are not flagged as 'never'.

@@ -1,4 +1,4 @@
-import { isObject } from '../type-guards';
+import { isObject } from '../type-guards/is-object';
 
 export const deepEqual = (a: unknown, b: unknown): boolean => {
   if (a === b) {

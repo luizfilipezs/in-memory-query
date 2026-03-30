@@ -1,4 +1,4 @@
-import type { AllowedNames } from '.';
+import type { AllowedNames } from './allowed-names';
 
 /**
  * Use this with a simple Pick to get the right interface, excluding the undesired type.

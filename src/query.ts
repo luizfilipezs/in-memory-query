@@ -1,15 +1,17 @@
-import type {
-  QueryConditionsGroup,
-  QueryConditionsGroupNullable,
-} from './core/types';
 import type { OrderingColumn } from './core/types/ordering-column';
+import type { QueryConditionsGroup } from './core/types/query-conditions-group';
+import type { QueryConditionsGroupNullable } from './core/types/query-conditions-group-nullable';
 import type { ValidationOptions } from './core/types/validation-options';
-import { QueryRowValidator } from './core/validation';
-import { integer, min, validateNumbers } from './core/validation/decorators';
+import {
+  integer,
+  min,
+  validateNumbers,
+} from './core/validation/decorators/number-validaton';
+import { QueryRowValidator } from './core/validation/query-row-validator';
 import { getObjectPropertyNames } from './utils/functions/generic/get-object-property-names';
-import { sortByProperties } from './utils/functions/sort';
-import { isFunction } from './utils/functions/type-guards';
-import type { PropOf } from './utils/types';
+import { sortByProperties } from './utils/functions/sort/sort-by-properties';
+import { isFunction } from './utils/functions/type-guards/is-function';
+import type { PropOf } from './utils/types/prop-of';
 
 /**
  * Allows filtering data from an array of objects.

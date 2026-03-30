@@ -1,5 +1,5 @@
-import { isNumber } from '../../../utils/functions/type-guards';
-import { InvalidArgumentError } from '../../errors';
+import { isNumber } from '../../../utils/functions/type-guards/is-number';
+import { InvalidArgumentError } from '../../errors/invalid-argument-error';
 
 interface ParameterConfig {
   index: number;

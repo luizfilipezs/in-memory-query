@@ -1,4 +1,4 @@
-import { InvalidArgumentError } from '../../../errors';
+import { InvalidArgumentError } from '../../../errors/invalid-argument-error';
 import { integer, max, min, validateNumbers } from '../number-validaton';
 
 class TestService {

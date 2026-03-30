@@ -1,4 +1,4 @@
-import type { PropertyOnly } from '../../utils/types';
+import type { PropertyOnly } from '../../utils/types/property-only';
 
 export type QueryConditionsGroup<T extends object> = {
   [P in keyof PropertyOnly<T>]?: T[P] extends object

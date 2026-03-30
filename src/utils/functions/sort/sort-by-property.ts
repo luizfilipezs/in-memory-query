@@ -1,9 +1,7 @@
-import type {
-  addPrefixToObject,
-  PropertyOnly,
-  PropOf,
-  SortFunction,
-} from '../../types';
+import type { addPrefixToObject } from '../../types/add-prefix-to-object';
+import type { PropOf } from '../../types/prop-of';
+import type { PropertyOnly } from '../../types/property-only';
+import type { SortFunction } from '../../types/sort-function';
 
 export function sortByProperty<T extends object>(
   property: PropOf<T> | keyof addPrefixToObject<PropertyOnly<T>, '-'>

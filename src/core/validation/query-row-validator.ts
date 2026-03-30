@@ -1,10 +1,10 @@
-import { compareArrays, getEntries } from '../../utils/functions/generic';
-import { isFunction, isObject } from '../../utils/functions/type-guards';
-import type {
-  AttributeValidationFunction,
-  QueryConditionsGroupNullable,
-} from '../types';
+import { compareArrays } from '../../utils/functions/generic/compare-arrays';
+import { getEntries } from '../../utils/functions/generic/get-entries';
+import { isFunction } from '../../utils/functions/type-guards/is-function';
+import { isObject } from '../../utils/functions/type-guards/is-object';
+import type { AttributeValidationFunction } from '../types/attribute-validation-function';
 import type { ColumnCondition } from '../types/column-condition';
+import type { QueryConditionsGroupNullable } from '../types/query-conditions-group-nullable';
 import type { ValidationOptions } from '../types/validation-options';
 
 /**

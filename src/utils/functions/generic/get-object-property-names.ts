@@ -1,4 +1,4 @@
-import type { PropOf } from '../../types';
+import type { PropOf } from '../../types/prop-of';
 
 export function getObjectPropertyNames<T extends object>(obj: T): PropOf<T>[] {
   return Object.keys(obj).filter(

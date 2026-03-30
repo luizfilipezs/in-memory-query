@@ -1,4 +1,4 @@
-import { InvalidArgumentError } from '../core/errors';
+import { InvalidArgumentError } from '../core/errors/invalid-argument-error';
 import { Query } from '../query';
 
 interface UserPermissions {
