@@ -7,11 +7,20 @@
 - [ ] Bug fixes
 - [ ] Code refactoring
 - [x] New features
+- [x] Build improvements
 - [ ] Breaking changes
 
 ### New Features
 
 - Added `min()`, `max()`, `sum()`, and `average()` methods to `Query`.
+
+### Build Improvements
+- Improved build output by introducing separate ESM and CJS bundles.
+- ESM files are now emitted to `dist/esm` and CJS files to `dist/cjs`.
+- Updated package exports to provide better compatibility with modern bundlers and Node.js.
+- Reduced bundle size through improved minification and build configuration.
+- Refactored build pipeline using multiple `tsup` configurations.
+- Ensured type declarations are emitted only once to avoid duplication.
 
 ## v2.3.1
 
