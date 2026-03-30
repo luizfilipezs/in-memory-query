@@ -298,11 +298,28 @@ describe('Query', () => {
       expect(result.size).toBe(3);
     });
 
+    it('should group by key and map results', () => {
+      const result = Query.from(users).groupBy('isActive', (user) => user.id);
+
+      expect(result.get(true)).toEqual([1, 3]);
+      expect(result.get(false)).toEqual([2]);
+    });
+
     it('should group by callback', () => {
       const result = Query.from(users).groupBy((user) => user.isActive);
 
       expect(result.get(true)).toHaveLength(2);
       expect(result.get(false)).toHaveLength(1);
+    });
+
+    it('should group by callback and map results', () => {
+      const result = Query.from(users).groupBy(
+        (user) => user.permissions.sendNotifications,
+        (user) => user.id
+      );
+
+      expect(result.get(true)).toEqual([1, 2]);
+      expect(result.get(false)).toEqual([3]);
     });
   });
 

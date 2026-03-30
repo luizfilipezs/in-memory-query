@@ -280,21 +280,38 @@ Example output:
 
 ---
 
-#### `groupBy(key | callback)`
+#### `groupBy(key | callback, mapFn?)`
 
 Groups the items by a specified property or a custom callback and returns the result as a `Map`.
 
 - `key`: The property name to group by.
 - `callback`: A function that returns the value to group each item by.
+- `mapFn` *(optional)*: A function to transform each item before adding it to the grouped result.
 
-The returned `Map` uses the resolved grouping values as keys and arrays of matching items as values.
+The returned `Map` uses the resolved grouping values as keys and arrays of matching (or mapped) items as values.
 
 ```ts
 // Grouping by property
-const usersByActiveStatus = Query.from(users).groupBy('active');
+const usersByActiveStatus = Query.from(users).groupBy('isActive');
 // Map<boolean, User[]>
 
+// Grouping by property with mapping
+const idsByActiveStatus = Query.from(users).groupBy(
+  'isActive',
+  (user) => user.id
+);
+// Map<boolean, number[]>
+
 // Grouping by callback
-const usersByActiveStatus = Query.from(users).groupBy((user) => user.isActive);
+const usersByActiveStatus = Query.from(users).groupBy(
+  (user) => user.isActive
+);
 // Map<boolean, User[]>
+
+// Grouping by callback with mapping
+const idsByNotificationPreference = Query.from(users).groupBy(
+  (user) => user.permissions.sendNotifications,
+  (user) => user.id
+);
+// Map<boolean, number[]>
 ```

@@ -254,6 +254,18 @@ export class Query<T extends object> {
    */
   groupBy<K extends keyof T>(key: K): Map<T[K], T[]>;
   /**
+   * Groups the results by a specific key.
+   *
+   * @param key Key to group by.
+   * @param mapFn Callback to map each row to a new value.
+   *
+   * @returns Grouped results.
+   */
+  groupBy<K extends keyof T, TReturn>(
+    key: K,
+    mapFn: (row: T) => TReturn
+  ): Map<T[K], TReturn[]>;
+  /**
    * Groups the results by a callback.
    *
    * @param groupFn Callback to group by.
@@ -261,18 +273,33 @@ export class Query<T extends object> {
    * @returns Grouped results.
    */
   groupBy<TGrouper>(groupFn: (row: T) => TGrouper): Map<TGrouper, T[]>;
-  groupBy(arg: keyof T | ((row: T) => unknown)): Map<unknown, T[]> {
+  /**
+   * Groups the results by a callback.
+   *
+   * @param groupFn Callback to group by.
+   *
+   * @returns Grouped results.
+   */
+  groupBy<TGrouper, TReturn>(
+    groupFn: (row: T) => TGrouper,
+    mapFn: (row: T) => TReturn
+  ): Map<TGrouper, TReturn[]>;
+  groupBy(
+    groupArg: keyof T | ((row: T) => unknown),
+    mapArg?: (row: T) => unknown
+  ): Map<unknown, unknown[]> {
     const rows = this.getLimitedRows();
-    const map = new Map<unknown, T[]>();
-    const hasCallback = isFunction(arg);
+    const map = new Map<unknown, unknown[]>();
+    const hasCallback = isFunction(groupArg);
 
     for (const row of rows) {
-      const index = hasCallback ? arg(row) : row[arg];
+      const index = hasCallback ? groupArg(row) : row[groupArg];
+      const value = mapArg ? mapArg(row) : row;
 
       if (map.has(index)) {
-        map.get(index)!.push(row);
+        map.get(index)!.push(value);
       } else {
-        map.set(index, [row]);
+        map.set(index, [value]);
       }
     }
 
