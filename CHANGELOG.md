@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.3.0
+
+### Features
+
+- Added optional `mapFn` to `groupBy()` method to transform grouped values.
+
 ## v2.2.0
 
 ### Features
