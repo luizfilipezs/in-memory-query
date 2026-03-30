@@ -11,7 +11,7 @@ pnpm install
 ### Checking build final size
 
 ```bash
-pnpm pack && ls -lh *.tgz && rm *.tgz
+pnpm pack && mkdir -p tmp && tar -xzf *.tgz -C tmp && find tmp -type f -exec wc -c {} + | tail -n1 | awk '{print $1/1000 " kB"}' && rm -rf tmp && rm *.tgz
 ```
 
 ### Publishing a new version
