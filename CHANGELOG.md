@@ -1,5 +1,19 @@
 # Changelog
 
+## Upcoming update
+
+- [ ] Bug fixes
+- [x] Code refactoring
+- [ ] New features
+- [x] General improvements
+- [ ] Breaking changes
+
+### Changes
+
+- Updated development dependencies.
+- Updated JSDoc for `Query`.
+- Removed redundant conditions and unecessary code.
+
 ## v2.4.0
 
 ### Changes
