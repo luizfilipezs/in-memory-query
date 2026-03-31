@@ -435,10 +435,6 @@ export class Query<T extends object> {
       ? rows.map((row) => arg(row))
       : rows.map((row) => row[arg] as number);
 
-    if (values.length === 0) {
-      return null;
-    }
-
     return Math.min(...values);
   }
 
@@ -466,10 +462,6 @@ export class Query<T extends object> {
     const values = isFunction(arg)
       ? rows.map((row) => arg(row))
       : rows.map((row) => row[arg] as number);
-
-    if (values.length === 0) {
-      return null;
-    }
 
     return Math.max(...values);
   }
@@ -588,11 +580,9 @@ export class Query<T extends object> {
    * @returns Rows within the specified limit.
    */
   private getLimitedRows(): T[] {
-    const rows = [...this.#rows];
-
-    return rows.slice(
+    return this.#rows.slice(
       this.#startAt,
-      this.#startAt + (this.#limit ?? rows.length)
+      this.#startAt + (this.#limit ?? this.#rows.length)
     );
   }
 
