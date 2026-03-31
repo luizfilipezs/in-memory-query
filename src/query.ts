@@ -15,50 +15,49 @@ import type { KeysOfType } from './utils/types/keys-of-type';
 import type { PropOf } from './utils/types/prop-of';
 
 /**
- * Allows filtering data from an array of objects.
+ * A fluent, immutable-like query builder for in-memory collections.
+ *
+ * Provides a set of methods to filter, transform, group, aggregate and
+ * retrieve data from an array of objects, inspired by database query APIs.
+ *
+ * All transformation methods (e.g. `select`, `map`) return a new `Query`
+ * instance, preserving the original query state. Filtering and stateful
+ * operations (e.g. `where`, `orderBy`, `skip`, `limit`) mutate the current instance.
+ *
+ * @typeParam T - The shape of the objects being queried.
  *
  * @example
  * ```ts
- * interface User {
- *   id: string;
- *   email: string;
- *   isActive: boolean;
- *   createdAt: string;
- *   updatedAt: string;
- * }
- *
- * const users: User[] = [];
- *
- * // Filtering objects
- *
- * const activeGmailUsers = Query.from(users)
+ * const results = Query.from(users)
  *   .where({
- *     isActive: true,
- *     email: (email) => email.endsWith('@gmail.com'),
- *   })
- *   .all();
- *
- * // Selecting specific data
- *
- * const userEmails = Query.from(users)
- *   .select('email')
- *   .column();
- *
- * const lastUserId = Query.from(users)
- *   .select('id')
+ *      active: true,
+ *      email: (email) => email.endsWith('@example.com'),
+ *    })
  *   .orderBy('-createdAt')
- *   .scalar();
- *
- * // Checking information
- *
- * const userExists = Query.from(users)
- *   .where({
- *     id: 'some-id',
- *   })
- *   .exists();
- *
- * const numberOfUsers = Query.from(users).count();
+ *   .select('id', 'name')
+ *   .skip(10)
+ *   .limit(5)
+ *   .all();
  * ```
+ *
+ * @example
+ * ```ts
+ * const total = Query.from(products)
+ *   .where(p => p.category === 'books')
+ *   .sum('price');
+ * ```
+ *
+ * @example
+ * ```ts
+ * const grouped = Query.from(users)
+ *   .groupBy('role');
+ * // Map<Role, User[]>
+ * ```
+ *
+ * @remarks
+ * - All operations are performed in memory.
+ * - Ordering is applied to the current dataset at the moment `orderBy` is called.
+ * - `skip` and `limit` are only applied when retrieving results (`all`, `first`, etc.).
  */
 export class Query<T extends object> {
   /**
