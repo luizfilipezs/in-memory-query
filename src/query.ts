@@ -591,7 +591,7 @@ export class Query<T extends object> {
    *
    * @param query Query to copy the state into.
    */
-  private cloneStateInto<T extends object>(query: Query<T>): void {
+  private cloneStateInto<O extends object>(query: Query<O>): void {
     query.#startAt = this.#startAt;
     query.#limit = this.#limit;
   }
