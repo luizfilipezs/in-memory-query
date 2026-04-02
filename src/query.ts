@@ -108,16 +108,18 @@ export class Query<T extends object> {
     type _Row = { [P in TColumns[number]]: T[P] };
 
     // extract selected columns
-    const rows: _Row[] = [];
+    const source = this.#rows;
+    const length = source.length;
+    const rows = new Array<_Row>(length);
 
-    for (const row of this.#rows) {
+    for (let i = 0; i < length; i++) {
       const result = {} as _Row;
 
       for (const column of columns) {
-        result[column] = row[column];
+        result[column] = source[i]![column];
       }
 
-      rows.push(result);
+      rows[i] = result;
     }
 
     // create new query
@@ -135,10 +137,12 @@ export class Query<T extends object> {
    */
   map<TReturn extends object>(callback: (obj: T) => TReturn): Query<TReturn> {
     // map rows
-    const rows = [];
+    const source = this.#rows;
+    const length = source.length;
+    const rows = new Array<TReturn>(length);
 
-    for (const row of this.#rows) {
-      rows.push(callback(row));
+    for (let i = 0; i < length; i++) {
+      rows[i] = callback(source[i]!);
     }
 
     // create new query
@@ -328,7 +332,20 @@ export class Query<T extends object> {
       column = firstColumn;
     }
 
-    return this.getLimitedRows().map((row) => row[column]);
+    const source = this.getLimitedRows();
+    const length = source.length;
+
+    if (length === 0) {
+      return [];
+    }
+
+    const values = new Array<T[PropOf<T>]>(length);
+
+    for (let i = 0; i < length; i++) {
+      values[i] = source[i]![column];
+    }
+
+    return values;
   }
 
   /**
@@ -340,10 +357,12 @@ export class Query<T extends object> {
   values(): T[PropOf<T>][][] {
     type _Values = T[PropOf<T>][];
 
-    const rows: _Values[] = [];
+    const source = this.getLimitedRows();
+    const length = source.length;
+    const rows = new Array<_Values>(length);
 
-    for (const row of this.getLimitedRows()) {
-      rows.push(Object.values(row) as _Values);
+    for (let i = 0; i < length; i++) {
+      rows[i] = Object.values(source[i]!) as _Values;
     }
 
     return rows;
@@ -396,14 +415,15 @@ export class Query<T extends object> {
     const map = new Map<unknown, unknown[]>();
     const hasCallback = isFunction(groupArg);
 
-    for (const row of rows) {
-      const index = hasCallback ? groupArg(row) : row[groupArg];
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i]!;
+      const key = hasCallback ? groupArg(row) : row[groupArg];
       const value = mapArg ? mapArg(row) : row;
 
-      if (map.has(index)) {
-        map.get(index)!.push(value);
+      if (map.has(key)) {
+        map.get(key)!.push(value);
       } else {
-        map.set(index, [value]);
+        map.set(key, [value]);
       }
     }
 
@@ -425,15 +445,24 @@ export class Query<T extends object> {
    */
   min(callback: (row: T) => number): number | null;
   min(arg: KeysOfType<T, number> | ((row: T) => number)): number | null {
-    const rows = this.getLimitedRows();
+    const source = this.getLimitedRows();
+    const length = source.length;
 
-    if (rows.length === 0) {
+    if (length === 0) {
       return null;
     }
 
-    const values = isFunction(arg)
-      ? rows.map((row) => arg(row))
-      : rows.map((row) => row[arg] as number);
+    const values = new Array<number>(length);
+
+    if (isFunction(arg)) {
+      for (let i = 0; i < length; i++) {
+        values[i] = arg(source[i]!);
+      }
+    } else {
+      for (let i = 0; i < length; i++) {
+        values[i] = source[i]![arg] as number;
+      }
+    }
 
     return Math.min(...values);
   }
@@ -453,15 +482,24 @@ export class Query<T extends object> {
    */
   max(callback: (row: T) => number): number | null;
   max(arg: KeysOfType<T, number> | ((row: T) => number)): number | null {
-    const rows = this.getLimitedRows();
+    const source = this.getLimitedRows();
+    const length = source.length;
 
-    if (rows.length === 0) {
+    if (length === 0) {
       return null;
     }
 
-    const values = isFunction(arg)
-      ? rows.map((row) => arg(row))
-      : rows.map((row) => row[arg] as number);
+    const values = new Array<number>(length);
+
+    if (isFunction(arg)) {
+      for (let i = 0; i < length; i++) {
+        values[i] = arg(source[i]!);
+      }
+    } else {
+      for (let i = 0; i < length; i++) {
+        values[i] = source[i]![arg] as number;
+      }
+    }
 
     return Math.max(...values);
   }
@@ -481,15 +519,24 @@ export class Query<T extends object> {
    */
   sum(callback: (row: T) => number): number;
   sum(arg: KeysOfType<T, number> | ((row: T) => number)): number {
-    const rows = this.getLimitedRows();
+    const source = this.getLimitedRows();
+    const length = source.length;
 
-    if (rows.length === 0) {
+    if (length === 0) {
       return 0;
     }
 
-    const values = isFunction(arg)
-      ? rows.map((row) => arg(row))
-      : rows.map((row) => row[arg] as number);
+    const values = new Array<number>(length);
+
+    if (isFunction(arg)) {
+      for (let i = 0; i < length; i++) {
+        values[i] = arg(source[i]!);
+      }
+    } else {
+      for (let i = 0; i < length; i++) {
+        values[i] = source[i]![arg] as number;
+      }
+    }
 
     return values.reduce((total, value) => total + value, 0);
   }
