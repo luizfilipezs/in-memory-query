@@ -2,16 +2,21 @@
 
 ## Upcoming update
 
+### Summary
+
 - [ ] Bug fixes
 - [x] Code refactoring
 - [ ] New features
-- [x] General improvements
+- [x] Compatibility fixes
 - [ ] Breaking changes
 
-### Changes
+### Code refactoring
 
 - Removed redundant conditions and unecessary code.
 - Updated JSDoc for `Query`.
+
+### Compatibility fixes
+
 - Updated development dependencies.
 
 ## v2.4.0
