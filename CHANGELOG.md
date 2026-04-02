@@ -15,7 +15,7 @@
 - Removed redundant conditions and unecessary code.
 - Optimized array iteration performance:
   - Pre-allocate arrays to avoid dynamic resizing.
-  - Replace Array.map() and `for...of` with indexed `for` loops.
+  - Replace `Array.map()` and `for...of` with indexed `for` loops.
 - Updated JSDoc for `Query`.
 
 ### Compatibility fixes
