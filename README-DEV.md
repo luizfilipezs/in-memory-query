@@ -41,3 +41,24 @@ To publish breaking changes:
 ```bash
 pnpm version major
 ```
+
+## Documenting changes
+
+When working on or publishing a new version, please update the `CHANGELOG.md` file like this:
+
+```md
+## Upcoming update
+
+- [ ] Bug fixes
+- [x] Code refactoring
+- [x] New features
+- [ ] General improvements
+- [ ] Breaking changes
+
+### Changes
+
+- Added feature X...
+- Updated existing feature Y...
+```
+
+> Replace "Upcoming update" with the new version name before publishing.
