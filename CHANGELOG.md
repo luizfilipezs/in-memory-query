@@ -10,9 +10,9 @@
 
 ### Changes
 
-- Updated development dependencies.
-- Updated JSDoc for `Query`.
 - Removed redundant conditions and unecessary code.
+- Updated JSDoc for `Query`.
+- Updated development dependencies.
 
 ## v2.4.0
 
