@@ -49,16 +49,22 @@ When working on or publishing a new version, please update the `CHANGELOG.md` fi
 ```md
 ## Upcoming update
 
+### Summary
+
 - [ ] Bug fixes
 - [x] Code refactoring
-- [x] New features
-- [ ] General improvements
+- [ ] New features
+- [x] Compatibility fixes
 - [ ] Breaking changes
 
-### Changes
+### Code refactoring
 
-- Added feature X...
-- Updated existing feature Y...
+- Removed redundant conditions and unecessary code.
+- Updated JSDoc for `Query`.
+
+### Compatibility fixes
+
+- Updated development dependencies.
 ```
 
 > Replace "Upcoming update" with the new version name before publishing.
