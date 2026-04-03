@@ -1,20 +1,25 @@
 # Changelog
 
-## Upcoming update
+## v2.5.0
 
 ### Summary
 
 - [ ] Bug fixes
-- [ ] Code refactoring
+- [x] Code refactoring
 - [x] New features
-- [x] Compatibility improvements
+- [x] Build and packaging updates
 - [ ] Breaking changes
 
 ### New features
 
 - Added `distinct()` method to `Query`.
 
-### Compatibility improvements
+### Code refactoring
+
+- Improve conditions order in `column()` method.
+- Added a new unit test for the `column()` method, covering no rows case.
+
+### Build and packaging updates
 
 - Updated development dependencies.
 
