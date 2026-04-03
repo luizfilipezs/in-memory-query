@@ -5,7 +5,7 @@
   "description": "A lightweight, type-safe in-memory query engine for JavaScript and TypeScript",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/luizfilipezs/query-ts.git"
+    "url": "git+https://github.com/luizfilipezs/querier-ts.git"
   },
   "keywords": [
     "query",
@@ -19,9 +19,9 @@
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/luizfilipezs/query-ts/issues"
+    "url": "https://github.com/luizfilipezs/querier-ts/issues"
   },
-  "homepage": "https://github.com/luizfilipezs/query-ts#readme",
+  "homepage": "https://github.com/luizfilipezs/querier-ts#readme",
   "files": [
     "dist",
     "README.md",
