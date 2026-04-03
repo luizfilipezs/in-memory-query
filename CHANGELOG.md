@@ -1,5 +1,19 @@
 # Changelog
 
+## Upcoming update
+
+### Summary
+
+- [ ] Bug fixes
+- [ ] Code refactoring
+- [ ] New features
+- [x] Compatibility improvements
+- [ ] Breaking changes
+
+### Compatibility improvements
+
+- Updated development dependencies.
+
 ## v2.4.1
 
 ### Summary
@@ -7,7 +21,7 @@
 - [ ] Bug fixes
 - [x] Code refactoring
 - [ ] New features
-- [x] Compatibility fixes
+- [x] Compatibility improvements
 - [ ] Breaking changes
 
 ### Code refactoring
@@ -18,7 +32,7 @@
   - Replace `Array.map()` and `for...of` with indexed `for` loops.
 - Updated JSDoc for `Query`.
 
-### Compatibility fixes
+### Compatibility improvements
 
 - Updated development dependencies.
 
