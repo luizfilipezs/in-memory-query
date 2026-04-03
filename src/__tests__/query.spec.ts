@@ -189,6 +189,12 @@ describe('Query', () => {
 
         expect(result).toEqual([]);
       });
+
+      it('should return empty array if no rows', () => {
+        const result = Query.from([]).column();
+
+        expect(result).toEqual([]);
+      });
     });
   });
 
