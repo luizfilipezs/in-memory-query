@@ -10,7 +10,7 @@ A lightweight, type-safe in-memory query engine for JavaScript and TypeScript.
 
 ## `Query`
 
-You can create a `Query` instance like this:
+Usage:
 
 ```ts
 const usersQuery = Query.from(users);
