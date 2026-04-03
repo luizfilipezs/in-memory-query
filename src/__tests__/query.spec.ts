@@ -192,6 +192,36 @@ describe('Query', () => {
     });
   });
 
+  describe('distinct()', () => {
+    it('should return distinct values by key', () => {
+      const result = Query.from(users)
+        .select('isActive')
+        .distinct('isActive')
+        .all();
+
+      expect(result).toEqual([{ isActive: true }, { isActive: false }]);
+    });
+
+    it('should return distinct values by callback', () => {
+      const result = Query.from(users)
+        .select('isActive')
+        .distinct((user) => user.isActive)
+        .all();
+
+      expect(result).toEqual([{ isActive: true }, { isActive: false }]);
+    });
+
+    it('should preserve ordering', () => {
+      const result = Query.from(users)
+        .select('isActive')
+        .distinct('isActive')
+        .orderBy('isActive')
+        .all();
+
+      expect(result).toEqual([{ isActive: false }, { isActive: true }]);
+    });
+  });
+
   describe('mapping', () => {
     it('should map each row to a new object', () => {
       const result = Query.from(users).map((user) => ({

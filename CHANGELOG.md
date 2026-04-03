@@ -6,9 +6,13 @@
 
 - [ ] Bug fixes
 - [ ] Code refactoring
-- [ ] New features
+- [x] New features
 - [x] Compatibility improvements
 - [ ] Breaking changes
+
+### New features
+
+- Added `distinct()` method to `Query`.
 
 ### Compatibility improvements
 

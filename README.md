@@ -79,6 +79,23 @@ const filteredUsers = Query.from(users)
 
 ---
 
+#### `distinct(key | callback)`
+
+Removes duplicate rows based on a key or a callback function.
+
+- `key`: The key to be used for comparison.
+- `callback`: A function that maps each row to a value.
+
+```ts
+const uniqueCountries = Query.from(addresses)
+  .distinct('country')
+  .column('country');
+
+const uniqueEmailProviders = Query.from(users)
+  .distinct((user) => user.email.split('@')[1])
+  .column('email');
+```
+
 ### Selecting data
 
 #### `select(columns)`
