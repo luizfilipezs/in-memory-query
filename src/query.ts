@@ -358,6 +358,13 @@ export class Query<T extends object> {
   column(): T[PropOf<T>][];
   column<TColumn extends PropOf<T>>(column: TColumn): T[TColumn][];
   column(column?: PropOf<T>): T[PropOf<T>][] {
+    const source = this.getLimitedRows();
+    const length = source.length;
+
+    if (length === 0) {
+      return [];
+    }
+
     if (column === undefined) {
       const firstColumn = this.getFirstColumn();
 
@@ -366,13 +373,6 @@ export class Query<T extends object> {
       }
 
       column = firstColumn;
-    }
-
-    const source = this.getLimitedRows();
-    const length = source.length;
-
-    if (length === 0) {
-      return [];
     }
 
     const values = new Array<T[PropOf<T>]>(length);
