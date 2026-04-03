@@ -220,8 +220,8 @@ describe('Query', () => {
     it('should preserve ordering', () => {
       const result = Query.from(users)
         .select('isActive')
-        .distinct('isActive')
         .orderBy('isActive')
+        .distinct('isActive')
         .all();
 
       expect(result).toEqual([{ isActive: false }, { isActive: true }]);
