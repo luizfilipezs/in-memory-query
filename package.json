@@ -47,7 +47,7 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "eslint \"src/**/*.ts\" --fix",
     "prepare": "husky",
-    "prepublishOnly": "pnpm test && pnpm lint",
+    "prepublishOnly": "pnpm build && pnpm test && pnpm lint",
     "preversion": "pnpm lint",
     "version": "pnpm format && git add -A src",
     "postversion": "git push && git push --tags"
