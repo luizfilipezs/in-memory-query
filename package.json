@@ -1,7 +1,7 @@
 {
   "name": "querier-ts",
   "type": "module",
-  "version": "2.5.2",
+  "version": "2.5.3",
   "description": "A lightweight, type-safe in-memory query engine for JavaScript and TypeScript",
   "repository": {
     "type": "git",
