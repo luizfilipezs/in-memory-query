@@ -349,14 +349,26 @@ export class Query<T extends object> {
   }
 
   /**
-   * Returns the values of the first (selected) column of all rows.
+   * Returns the values from the first column for all rows.
    *
-   * @param column (Optional) The column to get the values from.
-   *
-   * @returns Values from the first (selected) column.
+   * @returns An array containing the values of the first column for each row.
    */
   column(): T[PropOf<T>][];
+
+  /**
+   * Returns the values from a specific column for all rows.
+   *
+   * @param column The column whose values should be retrieved.
+   *
+   * @returns An array containing the values of the specified column for each row.
+   */
   column<TColumn extends PropOf<T>>(column: TColumn): T[TColumn][];
+  /**
+   * Internal implementation for retrieving column values.
+   *
+   * If no column is provided, the first available column is used.
+   * Returns an empty array if there are no rows or no columns.
+   */
   column(column?: PropOf<T>): T[PropOf<T>][] {
     const source = this.getLimitedRows();
     const length = source.length;

@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.5.3
+
+### Summary
+
+- [ ] Bug fixes
+- [x] Code refactoring
+- [ ] New features
+- [ ] Build and packaging updates
+- [ ] Breaking changes
+
+### Build and packaging updates
+
+- Improved JSDoc for `column()` method.
+
 ## v2.5.2
 
 ### Summary
