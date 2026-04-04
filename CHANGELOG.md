@@ -1,5 +1,21 @@
 # Changelog
 
+## v2.5.2
+
+### Summary
+
+- [ ] Bug fixes
+- [ ] Code refactoring
+- [ ] New features
+- [x] Build and packaging updates
+- [ ] Breaking changes
+
+### Build and packaging updates
+
+- Removed `tsup` settings that could make debugging harder.
+- Rebuilt `v2.5.1`, for `dist` was outdated.
+- Added `build` script to `prepublishOnly` script, ensuring build before publishing.
+
 ## v2.5.1
 
 ### Summary
