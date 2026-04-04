@@ -13,6 +13,7 @@
 ### Build and packaging updates
 
 - Updated development dependencies.
+- Added `pnpm-workspace.yaml` file with `allowBuils` configuration.
 
 ## v2.5.0
 
