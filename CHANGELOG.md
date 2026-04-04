@@ -1,5 +1,19 @@
 # Changelog
 
+## Pre-release
+
+### Summary
+
+- [ ] Bug fixes
+- [ ] Code refactoring
+- [ ] New features
+- [x] Build and packaging updates
+- [ ] Breaking changes
+
+### Build and packaging updates
+
+- Updated development dependencies.
+
 ## v2.5.0
 
 ### Summary
