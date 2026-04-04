@@ -1,6 +1,6 @@
 # Changelog
 
-## Pre-release
+## v2.5.1
 
 ### Summary
 
@@ -12,8 +12,9 @@
 
 ### Build and packaging updates
 
+- Updated target from `es2020` to `es2022`, improving performance and reducing bundle size.
+- Added `pnpm-workspace.yaml` file with `allowBuilds` configuration.
 - Updated development dependencies.
-- Added `pnpm-workspace.yaml` file with `allowBuils` configuration.
 
 ## v2.5.0
 
