@@ -202,27 +202,77 @@ Limits the number of results returned.
 
 #### `limitPerGroup(key | fn, limit)`
 
-Limits the number of results per group.
+Limits the number of rows per group.
 
 - `key`: The property name to group by.
-- `fn`: A function that maps each row to a value.
-- `limit`: The maximum number of results to return per group.
+- `fn`: A function that maps each row to a grouping value.
+- `limit`: The maximum number of rows to keep per group.
+
+> ⚠️ The rows kept depend on the current ordering of the query.
+> Use `orderBy()` beforehand to control which rows are selected.
 
 Examples:
 
 ```ts
 // with key
 const countries = Query.from(addresses)
-  .orderBy('country')
+  .orderBy('-createdAt')
   .limitPerGroup('country', 2)
-  .column('country'); // ['Argentina', 'Argentina', 'Brazil', 'Brazil', 'Chile', ...]
+  .column('country'); // ['Argentina', 'Argentina', 'Brazil', 'Brazil', 'Chile', 'Chile']
 
 // with callback
 const countries = Query.from(addresses)
-  .orderBy('country')
+  .orderBy('-createdAt')
   .limitPerGroup((row) => row.country, 2)
-  .column('country'); // ['Argentina', 'Argentina', 'Brazil', 'Brazil', 'Chile', ...]
+  .column('country');
 ```
+
+---
+
+#### `top(limit, options?)`
+
+Keeps the top N rows, optionally partitioned by a key or callback.
+
+- `limit`: The maximum number of rows to keep.
+- `options.partitionBy`: A property name or function to define groups.
+- `options.orderBy`: A column or list of columns to define ordering.
+
+If `partitionBy` is provided, the limit is applied per group.
+
+The rows kept depend on the ordering. Use `orderBy` (either here or before)
+to control which rows are selected.
+
+Examples:
+
+```ts
+// top N globally
+const ids = Query.from(addresses)
+  .orderBy('-createdAt')
+  .top(3)
+  .column('id'); // [6, 5, 4]
+
+// top N per group (key)
+const countries = Query.from(addresses)
+  .top(2, {
+    partitionBy: 'country',
+    orderBy: '-createdAt',
+  })
+  .column('country'); // ['Argentina', 'Argentina', 'Brazil', 'Brazil', 'Chile', 'Chile']
+
+// top N per group (callback)
+const countries = Query.from(addresses)
+  .top(1, {
+    partitionBy: (row) => row.country,
+    orderBy: '-createdAt',
+  })
+  .column('country'); // ['Argentina', 'Brazil', 'Chile']
+
+// without orderBy (keeps original order)
+const countries = Query.from(addresses)
+  .top(1, { partitionBy: 'country' })
+  .column('country'); // ['Brazil', 'Chile', 'Argentina']
+```
+
 
 ---
 
