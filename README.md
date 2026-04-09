@@ -227,6 +227,8 @@ const countries = Query.from(addresses)
   .column('country');
 ```
 
+> Passing a non-integer or a negative number to `limit` will throw an `InvalidArgumentError`.
+
 ---
 
 #### `top(limit, options?)`
@@ -273,6 +275,7 @@ const countries = Query.from(addresses)
   .column('country'); // ['Brazil', 'Chile', 'Argentina']
 ```
 
+> Passing a non-integer or a negative number to `limit` will throw an `InvalidArgumentError`.
 
 ---
 
