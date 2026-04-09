@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.5.4
+
+### Summary
+
+- [ ] Bug fixes
+- [x] Code refactoring
+- [ ] New features
+- [ ] Build and packaging updates
+- [ ] Breaking changes
+
+### Build and packaging updates
+
+- Replaced pre-allocated arrays by static arrays for improved performance.
+
 ## v2.5.3
 
 ### Summary
