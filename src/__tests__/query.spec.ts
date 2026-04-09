@@ -1,6 +1,8 @@
 import { InvalidArgumentError } from '../core/errors/invalid-argument-error';
 import { Query } from '../query';
 
+// MOCK DATA
+
 interface UserPermissions {
   useCookies: boolean;
   sendNotifications: boolean;
@@ -46,6 +48,26 @@ const users: User[] = [
     new Date('2023-03-01'),
     new Date('2023-03-10')
   ),
+];
+
+interface Address {
+  id: number;
+  country: string;
+  city: string;
+  createdAt: number;
+}
+
+const addresses: Address[] = [
+  { id: 1, country: 'Brazil', city: 'Brasília', createdAt: 1 },
+  { id: 2, country: 'Brazil', city: 'São Paulo', createdAt: 2 },
+  { id: 3, country: 'Brazil', city: 'Rio', createdAt: 3 },
+
+  { id: 4, country: 'Chile', city: 'Santiago', createdAt: 1 },
+  { id: 5, country: 'Chile', city: 'Valparaíso', createdAt: 2 },
+  { id: 6, country: 'Chile', city: 'Concepción', createdAt: 3 },
+
+  { id: 7, country: 'Argentina', city: 'Buenos Aires', createdAt: 1 },
+  { id: 8, country: 'Argentina', city: 'Córdoba', createdAt: 2 },
 ];
 
 describe('Query', () => {
@@ -384,6 +406,109 @@ describe('Query', () => {
 
     it('should throw if limit is not an integer', () => {
       expect(() => Query.from(users).limit(1.5)).toThrow(InvalidArgumentError);
+    });
+  });
+
+  describe('limitPerGroup()', () => {
+    it('should limit rows per group using key', () => {
+      const result = Query.from(addresses).limitPerGroup('country', 2).all();
+
+      expect(result).toHaveLength(6);
+
+      const grouped = Query.from(result).groupBy('country');
+
+      expect(grouped.get('Brazil')).toHaveLength(2);
+      expect(grouped.get('Chile')).toHaveLength(2);
+      expect(grouped.get('Argentina')).toHaveLength(2);
+    });
+
+    it('should limit rows per group using callback', () => {
+      const result = Query.from(addresses)
+        .limitPerGroup((a) => a.country, 1)
+        .all();
+
+      expect(result).toHaveLength(3);
+
+      const countries = result.map((r) => r.country);
+      expect(new Set(countries).size).toBe(3);
+    });
+
+    it('should respect ordering before limiting', () => {
+      const result = Query.from(addresses)
+        .orderBy('-createdAt')
+        .limitPerGroup('country', 1)
+        .all();
+
+      const grouped = Query.from(result).groupBy('country');
+
+      expect(grouped.get('Brazil')?.[0]?.createdAt).toBe(3);
+      expect(grouped.get('Chile')?.[0]?.createdAt).toBe(3);
+      expect(grouped.get('Argentina')?.[0]?.createdAt).toBe(2);
+    });
+
+    it('should return empty array if no rows', () => {
+      const result = Query.from<Address>([]).limitPerGroup('country', 2).all();
+
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('top()', () => {
+    it('should return top N globally', () => {
+      const result = Query.from(addresses).orderBy('-createdAt').top(3).all();
+
+      expect(result).toHaveLength(3);
+      expect(result[0]!.createdAt).toBeGreaterThanOrEqual(result[1]!.createdAt);
+    });
+
+    it('should return top N per group using key', () => {
+      const result = Query.from(addresses)
+        .top(2, {
+          partitionBy: 'country',
+          orderBy: '-createdAt',
+        })
+        .all();
+
+      const grouped = Query.from(result).groupBy('country');
+
+      expect(grouped.get('Brazil')).toHaveLength(2);
+      expect(grouped.get('Chile')).toHaveLength(2);
+      expect(grouped.get('Argentina')).toHaveLength(2);
+    });
+
+    it('should return top N per group using callback', () => {
+      const result = Query.from(addresses)
+        .top(1, {
+          partitionBy: (a) => a.country,
+          orderBy: '-createdAt',
+        })
+        .all();
+
+      expect(result).toHaveLength(3);
+
+      const grouped = Query.from(result).groupBy('country');
+
+      expect(grouped.get('Brazil')?.[0]?.createdAt).toBe(3);
+      expect(grouped.get('Chile')?.[0]?.createdAt).toBe(3);
+      expect(grouped.get('Argentina')?.[0]?.createdAt).toBe(2);
+    });
+
+    it('should work without orderBy (keep original order)', () => {
+      const result = Query.from(addresses)
+        .top(1, { partitionBy: 'country' })
+        .all();
+
+      expect(result).toEqual([
+        addresses[0], // Brazil
+        addresses[3], // Chile
+        addresses[6], // Argentina
+      ]);
+    });
+
+    it('should return empty if no rows', () => {
+      const result = Query.from<Address>([]).top(2).all();
+
+      expect(result).toEqual([]);
     });
   });
 

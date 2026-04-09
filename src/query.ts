@@ -286,6 +286,123 @@ export class Query<T extends object> {
   }
 
   /**
+   * Limits the number of rows per group.
+   *
+   * @param key Key to group by.
+   * @param limit Maximum number of rows per group.
+   *
+   * @returns Current query.
+   */
+  limitPerGroup<K extends keyof T>(key: K, limit: number): this;
+
+  /**
+   * Limits the number of rows per group using a callback.
+   *
+   * @param fn Function to define the group key.
+   * @param limit Maximum number of rows per group.
+   *
+   * @returns Current query.
+   */
+  limitPerGroup<TValue>(fn: (row: T) => TValue, limit: number): this;
+  limitPerGroup<K extends keyof T, TValue>(
+    arg: K | ((row: T) => TValue),
+    limit: number
+  ): this {
+    const counts = new Map<unknown, number>();
+    const result: T[] = [];
+
+    const rows = this.#rows;
+    const isFn = isFunction(arg);
+
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i]!;
+      const group = isFn ? arg(row) : row[arg];
+
+      const count = counts.get(group) ?? 0;
+
+      if (count < limit) {
+        result.push(row);
+        counts.set(group, count + 1);
+      }
+    }
+
+    this.#rows = result;
+
+    return this;
+  }
+
+  /**
+   * Keep the top N rows, optionally partitioned by a key or callback.
+   *
+   * @param limit Maximum number of rows per group (or globally if no partition is provided).
+   * @param options Options to define partitioning and ordering.
+   *
+   * @returns Current query.
+   */
+  top(limit: number): this;
+  top<K extends keyof T>(
+    limit: number,
+    options: {
+      partitionBy: K;
+      orderBy?: OrderingColumn<T> | OrderingColumn<T>[];
+    }
+  ): this;
+  top<TValue>(
+    limit: number,
+    options: {
+      partitionBy: (row: T) => TValue;
+      orderBy?: OrderingColumn<T> | OrderingColumn<T>[];
+    }
+  ): this;
+  top<K extends keyof T, TValue>(
+    limit: number,
+    options?: {
+      partitionBy?: K | ((row: T) => TValue);
+      orderBy?: OrderingColumn<T> | OrderingColumn<T>[];
+    }
+  ): this {
+    const rows = this.getLimitedRows();
+
+    if (rows.length === 0) {
+      return this;
+    }
+
+    const { partitionBy, orderBy } = options ?? {};
+
+    // normalize orderBy
+    if (orderBy) {
+      const columns = Array.isArray(orderBy) ? orderBy : [orderBy];
+      this.#rows = rows.sort(sortByProperties(...columns));
+    }
+
+    // no partition → simple global limit
+    if (!partitionBy) {
+      this.#rows = rows.slice(0, limit);
+      return this;
+    }
+
+    const isFn = isFunction(partitionBy);
+    const counts = new Map<unknown, number>();
+    const result: T[] = [];
+
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i]!;
+      const group = isFn ? partitionBy(row) : row[partitionBy];
+
+      const count = counts.get(group) ?? 0;
+
+      if (count < limit) {
+        result.push(row);
+        counts.set(group, count + 1);
+      }
+    }
+
+    this.#rows = result;
+
+    return this;
+  }
+
+  /**
    * Returns all results.
    *
    * @returns All filtered rows.
