@@ -10,7 +10,7 @@
 - [ ] Build and packaging updates
 - [ ] Breaking changes
 
-### Build and packaging updates
+### New features
 
 - Added `limitPerGroup()` and `top()` methods to `Query`.
 
