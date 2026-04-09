@@ -165,19 +165,7 @@ const lastId = Query.from(users)
 
 ---
 
-### Limiting results
-
-#### `limit(limit)`
-
-Limits the number of results returned.
-
-```ts
-.limit(100)
-```
-
-> Passing a non-integer or a negative number will throw an `InvalidArgumentError`.
-
----
+### Paginating results
 
 #### `skip(numberOfRows)`
 
@@ -197,6 +185,44 @@ const secondId = Query.from(users)
 ```
 
 > Passing a non-integer or a negative number will throw an `InvalidArgumentError`.
+
+---
+
+#### `limit(limit)`
+
+Limits the number of results returned.
+
+```ts
+.limit(100)
+```
+
+> Passing a non-integer or a negative number will throw an `InvalidArgumentError`.
+
+---
+
+#### `limitPerGroup(key | fn, limit)`
+
+Limits the number of results per group.
+
+- `key`: The property name to group by.
+- `fn`: A function that maps each row to a value.
+- `limit`: The maximum number of results to return per group.
+
+Examples:
+
+```ts
+// with key
+const countries = Query.from(addresses)
+  .orderBy('country')
+  .limitPerGroup('country', 2)
+  .column('country'); // ['Argentina', 'Argentina', 'Brazil', 'Brazil', 'Chile', ...]
+
+// with callback
+const countries = Query.from(addresses)
+  .orderBy('country')
+  .limitPerGroup((row) => row.country, 2)
+  .column('country'); // ['Argentina', 'Argentina', 'Brazil', 'Brazil', 'Chile', ...]
+```
 
 ---
 
