@@ -334,6 +334,15 @@ export class Query<T extends object> {
   }
 
   /**
+   * Keep the top N rows.
+   *
+   * @param limit Maximum number of rows per group.
+   *
+   * @returns Current query.
+   */
+  top(limit: number): this;
+
+  /**
    * Keep the top N rows, optionally partitioned by a key or callback.
    *
    * @param limit Maximum number of rows per group (or globally if no partition is provided).
@@ -341,8 +350,6 @@ export class Query<T extends object> {
    *
    * @returns Current query.
    */
-  top(limit: number): this;
-
   top<K extends keyof T>(
     limit: number,
     options: {
@@ -351,6 +358,14 @@ export class Query<T extends object> {
     }
   ): this;
 
+  /**
+   * Keep the top N rows, optionally partitioned by a key or callback.
+   *
+   * @param limit Maximum number of rows per group (or globally if no partition is provided).
+   * @param options Options to define partitioning and ordering.
+   *
+   * @returns Current query.
+   */
   top<TValue>(
     limit: number,
     options: {
