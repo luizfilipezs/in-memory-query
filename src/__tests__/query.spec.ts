@@ -133,6 +133,36 @@ describe('Query', () => {
         expect(result[0]!.id).toBe(1);
       });
     });
+
+    describe('distinct()', () => {
+      it('should return distinct values by key', () => {
+        const result = Query.from(users)
+          .select('isActive')
+          .distinct('isActive')
+          .all();
+
+        expect(result).toEqual([{ isActive: true }, { isActive: false }]);
+      });
+
+      it('should return distinct values by callback', () => {
+        const result = Query.from(users)
+          .select('isActive')
+          .distinct((user) => user.isActive)
+          .all();
+
+        expect(result).toEqual([{ isActive: true }, { isActive: false }]);
+      });
+
+      it('should preserve ordering', () => {
+        const result = Query.from(users)
+          .select('isActive')
+          .orderBy('isActive')
+          .distinct('isActive')
+          .all();
+
+        expect(result).toEqual([{ isActive: false }, { isActive: true }]);
+      });
+    });
   });
 
   describe('selection', () => {
@@ -185,68 +215,6 @@ describe('Query', () => {
 
         expect(descOrderResult).toEqual(['Mary', 'John', 'Bob']);
       });
-    });
-
-    describe('column()', () => {
-      it('should return an array of the first column values by default', () => {
-        const result = Query.from(users).column();
-
-        expect(result).toEqual([1, 2, 3]);
-      });
-
-      it('should return an array of the specified column values', () => {
-        const result = Query.from(users).column('name');
-
-        expect(result).toEqual(['John', 'Mary', 'Bob']);
-      });
-
-      it('should preserve ordering', () => {
-        const result = Query.from(users).orderBy('name').column('name');
-
-        expect(result).toEqual(['Bob', 'John', 'Mary']);
-      });
-
-      it('should return empty array if objects have no properties', () => {
-        const result = Query.from([{}]).column();
-
-        expect(result).toEqual([]);
-      });
-
-      it('should return empty array if no rows', () => {
-        const result = Query.from([]).column();
-
-        expect(result).toEqual([]);
-      });
-    });
-  });
-
-  describe('distinct()', () => {
-    it('should return distinct values by key', () => {
-      const result = Query.from(users)
-        .select('isActive')
-        .distinct('isActive')
-        .all();
-
-      expect(result).toEqual([{ isActive: true }, { isActive: false }]);
-    });
-
-    it('should return distinct values by callback', () => {
-      const result = Query.from(users)
-        .select('isActive')
-        .distinct((user) => user.isActive)
-        .all();
-
-      expect(result).toEqual([{ isActive: true }, { isActive: false }]);
-    });
-
-    it('should preserve ordering', () => {
-      const result = Query.from(users)
-        .select('isActive')
-        .orderBy('isActive')
-        .distinct('isActive')
-        .all();
-
-      expect(result).toEqual([{ isActive: false }, { isActive: true }]);
     });
   });
 
@@ -382,145 +350,157 @@ describe('Query', () => {
   });
 
   describe('pagination', () => {
-    it('should skip rows', () => {
-      const result = Query.from(users).select('id').skip(1).column();
+    describe('skip()', () => {
+      it('should skip rows', () => {
+        const result = Query.from(users).select('id').skip(1).column();
 
-      expect(result).toEqual([2, 3]);
+        expect(result).toEqual([2, 3]);
+      });
+
+      it('should throw if skip is negative', () => {
+        expect(() => Query.from(users).skip(-1)).toThrow(InvalidArgumentError);
+      });
     });
 
-    it('should limit rows', () => {
-      const result = Query.from(users).select('id').limit(2).column();
+    describe('limit()', () => {
+      it('should limit rows', () => {
+        const result = Query.from(users).select('id').limit(2).column();
 
-      expect(result).toEqual([1, 2]);
+        expect(result).toEqual([1, 2]);
+      });
+
+      it('should throw if limit is not an integer', () => {
+        expect(() => Query.from(users).limit(1.5)).toThrow(
+          InvalidArgumentError
+        );
+      });
     });
 
-    it('should combine skip and limit', () => {
-      const result = Query.from(users).select('id').skip(1).limit(1).column();
+    describe('limitPerGroup()', () => {
+      it('should limit rows per group using key', () => {
+        const result = Query.from(addresses).limitPerGroup('country', 2).all();
 
-      expect(result).toEqual([2]);
+        expect(result).toHaveLength(6);
+
+        const grouped = Query.from(result).groupBy('country');
+
+        expect(grouped.get('Brazil')).toHaveLength(2);
+        expect(grouped.get('Chile')).toHaveLength(2);
+        expect(grouped.get('Argentina')).toHaveLength(2);
+      });
+
+      it('should limit rows per group using callback', () => {
+        const result = Query.from(addresses)
+          .limitPerGroup((a) => a.country, 1)
+          .all();
+
+        expect(result).toHaveLength(3);
+
+        const countries = result.map((r) => r.country);
+        expect(new Set(countries).size).toBe(3);
+      });
+
+      it('should respect ordering before limiting', () => {
+        const result = Query.from(addresses)
+          .orderBy('-createdAt')
+          .limitPerGroup('country', 1)
+          .all();
+
+        const grouped = Query.from(result).groupBy('country');
+
+        expect(grouped.get('Brazil')?.[0]?.createdAt).toBe(3);
+        expect(grouped.get('Chile')?.[0]?.createdAt).toBe(3);
+        expect(grouped.get('Argentina')?.[0]?.createdAt).toBe(2);
+      });
+
+      it('should return empty array if no rows', () => {
+        const result = Query.from<Address>([])
+          .limitPerGroup('country', 2)
+          .all();
+
+        expect(result).toEqual([]);
+      });
+
+      it('should throw if limit is not an integer', () => {
+        expect(() =>
+          Query.from(addresses).limitPerGroup('country', 1.5)
+        ).toThrow(InvalidArgumentError);
+      });
     });
 
-    it('should throw if skip is negative', () => {
-      expect(() => Query.from(users).skip(-1)).toThrow(InvalidArgumentError);
+    describe('top()', () => {
+      it('should return top N globally', () => {
+        const result = Query.from(addresses).orderBy('-createdAt').top(3).all();
+
+        expect(result).toHaveLength(3);
+        expect(result[0]!.createdAt).toBeGreaterThanOrEqual(
+          result[1]!.createdAt
+        );
+      });
+
+      it('should return top N per group using key', () => {
+        const result = Query.from(addresses)
+          .top(2, {
+            partitionBy: 'country',
+            orderBy: '-createdAt',
+          })
+          .all();
+
+        const grouped = Query.from(result).groupBy('country');
+
+        expect(grouped.get('Brazil')).toHaveLength(2);
+        expect(grouped.get('Chile')).toHaveLength(2);
+        expect(grouped.get('Argentina')).toHaveLength(2);
+      });
+
+      it('should return top N per group using callback', () => {
+        const result = Query.from(addresses)
+          .top(1, {
+            partitionBy: (a) => a.country,
+            orderBy: '-createdAt',
+          })
+          .all();
+
+        expect(result).toHaveLength(3);
+
+        const grouped = Query.from(result).groupBy('country');
+
+        expect(grouped.get('Brazil')?.[0]?.createdAt).toBe(3);
+        expect(grouped.get('Chile')?.[0]?.createdAt).toBe(3);
+        expect(grouped.get('Argentina')?.[0]?.createdAt).toBe(2);
+      });
+
+      it('should work without orderBy (keep original order)', () => {
+        const result = Query.from(addresses)
+          .top(1, { partitionBy: 'country' })
+          .all();
+
+        expect(result).toEqual([
+          addresses[0], // Brazil
+          addresses[3], // Chile
+          addresses[6], // Argentina
+        ]);
+      });
+
+      it('should return empty if no rows', () => {
+        const result = Query.from<Address>([]).top(2).all();
+
+        expect(result).toEqual([]);
+      });
+
+      it('should throw if limit is not an integer', () => {
+        expect(() => Query.from(addresses).top(1.5)).toThrow(
+          InvalidArgumentError
+        );
+      });
     });
 
-    it('should throw if limit is not an integer', () => {
-      expect(() => Query.from(users).limit(1.5)).toThrow(InvalidArgumentError);
-    });
-  });
+    describe('combined methods', () => {
+      it('should combine skip and limit', () => {
+        const result = Query.from(users).select('id').skip(1).limit(1).column();
 
-  describe('limitPerGroup()', () => {
-    it('should limit rows per group using key', () => {
-      const result = Query.from(addresses).limitPerGroup('country', 2).all();
-
-      expect(result).toHaveLength(6);
-
-      const grouped = Query.from(result).groupBy('country');
-
-      expect(grouped.get('Brazil')).toHaveLength(2);
-      expect(grouped.get('Chile')).toHaveLength(2);
-      expect(grouped.get('Argentina')).toHaveLength(2);
-    });
-
-    it('should limit rows per group using callback', () => {
-      const result = Query.from(addresses)
-        .limitPerGroup((a) => a.country, 1)
-        .all();
-
-      expect(result).toHaveLength(3);
-
-      const countries = result.map((r) => r.country);
-      expect(new Set(countries).size).toBe(3);
-    });
-
-    it('should respect ordering before limiting', () => {
-      const result = Query.from(addresses)
-        .orderBy('-createdAt')
-        .limitPerGroup('country', 1)
-        .all();
-
-      const grouped = Query.from(result).groupBy('country');
-
-      expect(grouped.get('Brazil')?.[0]?.createdAt).toBe(3);
-      expect(grouped.get('Chile')?.[0]?.createdAt).toBe(3);
-      expect(grouped.get('Argentina')?.[0]?.createdAt).toBe(2);
-    });
-
-    it('should return empty array if no rows', () => {
-      const result = Query.from<Address>([]).limitPerGroup('country', 2).all();
-
-      expect(result).toEqual([]);
-    });
-
-    it('should throw if limit is not an integer', () => {
-      expect(() => Query.from(addresses).limitPerGroup('country', 1.5)).toThrow(
-        InvalidArgumentError
-      );
-    });
-  });
-
-  describe('top()', () => {
-    it('should return top N globally', () => {
-      const result = Query.from(addresses).orderBy('-createdAt').top(3).all();
-
-      expect(result).toHaveLength(3);
-      expect(result[0]!.createdAt).toBeGreaterThanOrEqual(result[1]!.createdAt);
-    });
-
-    it('should return top N per group using key', () => {
-      const result = Query.from(addresses)
-        .top(2, {
-          partitionBy: 'country',
-          orderBy: '-createdAt',
-        })
-        .all();
-
-      const grouped = Query.from(result).groupBy('country');
-
-      expect(grouped.get('Brazil')).toHaveLength(2);
-      expect(grouped.get('Chile')).toHaveLength(2);
-      expect(grouped.get('Argentina')).toHaveLength(2);
-    });
-
-    it('should return top N per group using callback', () => {
-      const result = Query.from(addresses)
-        .top(1, {
-          partitionBy: (a) => a.country,
-          orderBy: '-createdAt',
-        })
-        .all();
-
-      expect(result).toHaveLength(3);
-
-      const grouped = Query.from(result).groupBy('country');
-
-      expect(grouped.get('Brazil')?.[0]?.createdAt).toBe(3);
-      expect(grouped.get('Chile')?.[0]?.createdAt).toBe(3);
-      expect(grouped.get('Argentina')?.[0]?.createdAt).toBe(2);
-    });
-
-    it('should work without orderBy (keep original order)', () => {
-      const result = Query.from(addresses)
-        .top(1, { partitionBy: 'country' })
-        .all();
-
-      expect(result).toEqual([
-        addresses[0], // Brazil
-        addresses[3], // Chile
-        addresses[6], // Argentina
-      ]);
-    });
-
-    it('should return empty if no rows', () => {
-      const result = Query.from<Address>([]).top(2).all();
-
-      expect(result).toEqual([]);
-    });
-
-    it('should throw if limit is not an integer', () => {
-      expect(() => Query.from(addresses).top(1.5)).toThrow(
-        InvalidArgumentError
-      );
+        expect(result).toEqual([2]);
+      });
     });
   });
 
@@ -558,6 +538,38 @@ describe('Query', () => {
         const id = Query.from([]).scalar();
 
         expect(id).toBe(false);
+      });
+    });
+
+    describe('column()', () => {
+      it('should return an array of the first column values by default', () => {
+        const result = Query.from(users).column();
+
+        expect(result).toEqual([1, 2, 3]);
+      });
+
+      it('should return an array of the specified column values', () => {
+        const result = Query.from(users).column('name');
+
+        expect(result).toEqual(['John', 'Mary', 'Bob']);
+      });
+
+      it('should preserve ordering', () => {
+        const result = Query.from(users).orderBy('name').column('name');
+
+        expect(result).toEqual(['Bob', 'John', 'Mary']);
+      });
+
+      it('should return empty array if objects have no properties', () => {
+        const result = Query.from([{}]).column();
+
+        expect(result).toEqual([]);
+      });
+
+      it('should return empty array if no rows', () => {
+        const result = Query.from([]).column();
+
+        expect(result).toEqual([]);
       });
     });
 
