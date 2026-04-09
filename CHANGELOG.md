@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.6.0
+
+### Summary
+
+- [ ] Bug fixes
+- [ ] Code refactoring
+- [x] New features
+- [ ] Build and packaging updates
+- [ ] Breaking changes
+
+### Build and packaging updates
+
+- Added `limitPerGroup()` and `top()` methods to `Query`.
+
 ## v2.5.4
 
 ### Summary
