@@ -470,6 +470,23 @@ describe('Query', () => {
         expect(grouped.get('Argentina')?.[0]?.createdAt).toBe(2);
       });
 
+      it('should work with orderBy array', () => {
+        const result = Query.from(addresses)
+          .top(1, {
+            partitionBy: (a) => a.country,
+            orderBy: ['-createdAt'],
+          })
+          .all();
+
+        expect(result).toHaveLength(3);
+
+        const grouped = Query.from(result).groupBy('country');
+
+        expect(grouped.get('Brazil')?.[0]?.createdAt).toBe(3);
+        expect(grouped.get('Chile')?.[0]?.createdAt).toBe(3);
+        expect(grouped.get('Argentina')?.[0]?.createdAt).toBe(2);
+      });
+
       it('should work without orderBy (keep original order)', () => {
         const result = Query.from(addresses)
           .top(1, { partitionBy: 'country' })
