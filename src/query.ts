@@ -109,17 +109,16 @@ export class Query<T extends object> {
 
     // extract selected columns
     const source = this.#rows;
-    const length = source.length;
-    const rows = new Array<_Row>(length);
+    const rows: _Row[] = [];
 
-    for (let i = 0; i < length; i++) {
+    for (let i = 0; i < source.length; i++) {
       const result = {} as _Row;
 
       for (const column of columns) {
         result[column] = source[i]![column];
       }
 
-      rows[i] = result;
+      rows.push(result);
     }
 
     // create new query
@@ -138,11 +137,10 @@ export class Query<T extends object> {
   map<TReturn extends object>(callback: (obj: T) => TReturn): Query<TReturn> {
     // map rows
     const source = this.#rows;
-    const length = source.length;
-    const rows = new Array<TReturn>(length);
+    const rows: TReturn[] = [];
 
-    for (let i = 0; i < length; i++) {
-      rows[i] = callback(source[i]!);
+    for (let i = 0; i < source.length; i++) {
+      rows.push(callback(source[i]!));
     }
 
     // create new query
@@ -387,10 +385,10 @@ export class Query<T extends object> {
       column = firstColumn;
     }
 
-    const values = new Array<T[PropOf<T>]>(length);
+    const values: T[PropOf<T>][] = [];
 
     for (let i = 0; i < length; i++) {
-      values[i] = source[i]![column];
+      values.push(source[i]![column]);
     }
 
     return values;
@@ -406,11 +404,10 @@ export class Query<T extends object> {
     type _Values = T[PropOf<T>][];
 
     const source = this.getLimitedRows();
-    const length = source.length;
-    const rows = new Array<_Values>(length);
+    const rows: _Values[] = [];
 
-    for (let i = 0; i < length; i++) {
-      rows[i] = Object.values(source[i]!) as _Values;
+    for (let i = 0; i < source.length; i++) {
+      rows.push(Object.values(source[i]!) as _Values);
     }
 
     return rows;
@@ -500,15 +497,15 @@ export class Query<T extends object> {
       return null;
     }
 
-    const values = new Array<number>(length);
+    const values: number[] = [];
 
     if (isFunction(arg)) {
       for (let i = 0; i < length; i++) {
-        values[i] = arg(source[i]!);
+        values.push(arg(source[i]!));
       }
     } else {
       for (let i = 0; i < length; i++) {
-        values[i] = source[i]![arg] as number;
+        values.push(source[i]![arg] as number);
       }
     }
 
@@ -537,15 +534,15 @@ export class Query<T extends object> {
       return null;
     }
 
-    const values = new Array<number>(length);
+    const values: number[] = [];
 
     if (isFunction(arg)) {
       for (let i = 0; i < length; i++) {
-        values[i] = arg(source[i]!);
+        values.push(arg(source[i]!));
       }
     } else {
       for (let i = 0; i < length; i++) {
-        values[i] = source[i]![arg] as number;
+        values.push(source[i]![arg] as number);
       }
     }
 
@@ -574,15 +571,15 @@ export class Query<T extends object> {
       return 0;
     }
 
-    const values = new Array<number>(length);
+    const values: number[] = [];
 
     if (isFunction(arg)) {
       for (let i = 0; i < length; i++) {
-        values[i] = arg(source[i]!);
+        values.push(arg(source[i]!));
       }
     } else {
       for (let i = 0; i < length; i++) {
-        values[i] = source[i]![arg] as number;
+        values.push(source[i]![arg] as number);
       }
     }
 
