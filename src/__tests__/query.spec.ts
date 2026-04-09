@@ -451,6 +451,12 @@ describe('Query', () => {
 
       expect(result).toEqual([]);
     });
+
+    it('should throw if limit is not an integer', () => {
+      expect(() => Query.from(addresses).limitPerGroup('country', 1.5)).toThrow(
+        InvalidArgumentError
+      );
+    });
   });
 
   describe('top()', () => {
@@ -509,6 +515,12 @@ describe('Query', () => {
       const result = Query.from<Address>([]).top(2).all();
 
       expect(result).toEqual([]);
+    });
+
+    it('should throw if limit is not an integer', () => {
+      expect(() => Query.from(addresses).top(1.5)).toThrow(
+        InvalidArgumentError
+      );
     });
   });
 

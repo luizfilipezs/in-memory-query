@@ -304,9 +304,11 @@ export class Query<T extends object> {
    * @returns Current query.
    */
   limitPerGroup<TValue>(fn: (row: T) => TValue, limit: number): this;
+
+  @validateNumbers
   limitPerGroup<K extends keyof T, TValue>(
     arg: K | ((row: T) => TValue),
-    limit: number
+    @integer @min(0) limit: number
   ): this {
     const counts = new Map<unknown, number>();
     const result: T[] = [];
@@ -340,6 +342,7 @@ export class Query<T extends object> {
    * @returns Current query.
    */
   top(limit: number): this;
+
   top<K extends keyof T>(
     limit: number,
     options: {
@@ -347,6 +350,7 @@ export class Query<T extends object> {
       orderBy?: OrderingColumn<T> | OrderingColumn<T>[];
     }
   ): this;
+
   top<TValue>(
     limit: number,
     options: {
@@ -354,8 +358,10 @@ export class Query<T extends object> {
       orderBy?: OrderingColumn<T> | OrderingColumn<T>[];
     }
   ): this;
+
+  @validateNumbers
   top<K extends keyof T, TValue>(
-    limit: number,
+    @integer @min(0) limit: number,
     options?: {
       partitionBy?: K | ((row: T) => TValue);
       orderBy?: OrderingColumn<T> | OrderingColumn<T>[];
