@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.7.1
+
+### Summary
+
+- [x] Documentation updates
+- [ ] Bug fixes
+- [ ] Code refactoring
+- [ ] New features
+- [ ] Breaking changes
+
+### New features
+
+- Update `README.md` documentation for `orderBy()` method with new overload and examples.
+
 ## v2.7.0
 
 ### Summary
