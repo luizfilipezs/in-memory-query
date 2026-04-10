@@ -144,23 +144,30 @@ const query = Query.from()
 
 ### Ordering results
 
-#### `orderBy(...columns)`
+#### `orderBy(...columns | (callback, order?))`
 
-Sorts the results. You can pass multiple columns.
+Sorts the results.
+
+- `columns`: the columns to order by.
+- `callback`: A function that maps each row to a value.
+- `order`: The order to sort in.
+
+You can specify column names or a callback function to map each row to a value.
+
+Examples:
 
 ```ts
-.orderBy('name', 'id')
-```
+// Column names with ASC and DESC (-) order
+.orderBy('name', '-createdAt')
 
-In this example, `name` has higher priority than `id`.
+// callback with ASC order by default
+.orderBy((user) => user.address.country)
 
-You can also sort in descending order by prefixing the column with `-`:
+// callback with ASC order set explicitly
+.orderBy((user) => user.address.country, 'asc')
 
-```ts
-const lastId = Query.from(users)
-  .select('id')
-  .orderBy('-id')
-  .scalar();
+// callback with DESC order
+.orderBy((user) => user.address.country, 'desc')
 ```
 
 ---
