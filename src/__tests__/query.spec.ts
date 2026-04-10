@@ -264,6 +264,39 @@ describe('Query', () => {
 
       expect(result).toEqual([2, 3, 1]);
     });
+
+    it('should order by callback in ascending order by default', () => {
+      const result = Query.from(users)
+        .select('name')
+        .orderBy((user) => user.name)
+        .column();
+
+      expect(result).toEqual(['Bob', 'John', 'Mary']);
+    });
+
+    it('should order by callback in ascending order when it is specified', () => {
+      const result = Query.from(users)
+        .select('name')
+        .orderBy((user) => user.name)
+        .column();
+
+      expect(result).toEqual(['Bob', 'John', 'Mary']);
+    });
+
+    it('should order by callback in descending order when it is specified', () => {
+      const result = Query.from(users)
+        .select('name')
+        .orderBy((user) => user.name, 'desc')
+        .column();
+
+      expect(result).toEqual(['Mary', 'John', 'Bob']);
+    });
+
+    it('should keep original order if no argument is specified', () => {
+      const result = Query.from(users).select('name').orderBy().column();
+
+      expect(result).toEqual(['John', 'Mary', 'Bob']);
+    });
   });
 
   describe('grouping', () => {

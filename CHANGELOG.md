@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.7.0
+
+### Summary
+
+- [ ] Bug fixes
+- [ ] Code refactoring
+- [x] New features
+- [ ] Build and packaging updates
+- [ ] Breaking changes
+
+### New features
+
+- Added new overload to `orderBy()` method, allowing to specify a function that returns the values to be sorted and the order to be applied.
+
 ## v2.6.0
 
 ### Summary

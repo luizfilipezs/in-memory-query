@@ -1,96 +1,107 @@
 import { sortByProperty } from '../sort-by-property';
+import * as sortValuesModule from '../sort-values';
 
-describe('sortByProperty (improved)', () => {
-  describe('ascending order', () => {
-    it('sorts by numeric property', () => {
-      const data = [{ id: 3 }, { id: 1 }, { id: 2 }];
+interface TestEntity {
+  id: number;
+  name: string;
+  age?: number | null;
+}
 
-      data.sort(sortByProperty<(typeof data)[number]>('id'));
+describe('sortByProperty', () => {
+  const data: TestEntity[] = [
+    { id: 3, name: 'Charlie', age: 30 },
+    { id: 1, name: 'Alice', age: null },
+    { id: 2, name: 'Bob', age: 25 },
+  ];
 
-      expect(data).toEqual([{ id: 1 }, { id: 2 }, { id: 3 }]);
+  describe('ascending sort (default)', () => {
+    it('should sort by numeric property ascending', () => {
+      const result = [...data].sort(sortByProperty<TestEntity>('id'));
+
+      expect(result.map((x) => x.id)).toEqual([1, 2, 3]);
     });
 
-    it('sorts by string property', () => {
-      const data = [{ name: 'Charlie' }, { name: 'Alice' }, { name: 'Bob' }];
+    it('should sort by string property ascending', () => {
+      const result = [...data].sort(sortByProperty<TestEntity>('name'));
 
-      data.sort(sortByProperty<(typeof data)[number]>('name'));
-
-      expect(data).toEqual([
-        { name: 'Alice' },
-        { name: 'Bob' },
-        { name: 'Charlie' },
-      ]);
+      expect(result.map((x) => x.name)).toEqual(['Alice', 'Bob', 'Charlie']);
     });
   });
 
-  describe('descending order', () => {
-    it('sorts by numeric property descending', () => {
-      const data = [{ score: 10 }, { score: 30 }, { score: 20 }];
+  describe('descending sort (prefix "-")', () => {
+    it('should sort by numeric property descending', () => {
+      const result = [...data].sort(sortByProperty<TestEntity>('-id'));
 
-      data.sort(sortByProperty<(typeof data)[number]>('-score'));
-
-      expect(data).toEqual([{ score: 30 }, { score: 20 }, { score: 10 }]);
+      expect(result.map((x) => x.id)).toEqual([3, 2, 1]);
     });
 
-    it('sorts by string property descending', () => {
-      const data = [{ name: 'Alice' }, { name: 'Charlie' }, { name: 'Bob' }];
+    it('should sort by string property descending', () => {
+      const result = [...data].sort(sortByProperty<TestEntity>('-name'));
 
-      data.sort(sortByProperty<(typeof data)[number]>('-name'));
-
-      expect(data).toEqual([
-        { name: 'Charlie' },
-        { name: 'Bob' },
-        { name: 'Alice' },
-      ]);
+      expect(result.map((x) => x.name)).toEqual(['Charlie', 'Bob', 'Alice']);
     });
   });
 
   describe('null and undefined handling', () => {
-    it('places undefined values last', () => {
-      const data = [{ value: 2 }, { value: undefined }, { value: 1 }];
+    it('should place null/undefined last in ascending order', () => {
+      const result = [...data].sort(sortByProperty<TestEntity>('age'));
 
-      data.sort(sortByProperty<(typeof data)[number]>('value'));
-
-      expect(data).toEqual([{ value: 1 }, { value: 2 }, { value: undefined }]);
+      expect(result.map((x) => x.age)).toEqual([25, 30, null]);
     });
 
-    it('places null values last', () => {
-      const data = [{ value: 2 }, { value: null }, { value: 1 }];
+    it('should place null/undefined first in descending order', () => {
+      const result = [...data].sort(sortByProperty<TestEntity>('-age'));
 
-      data.sort(sortByProperty<(typeof data)[number]>('value'));
-
-      expect(data).toEqual([{ value: 1 }, { value: 2 }, { value: null }]);
-    });
-
-    it('returns 0 when both values are null', () => {
-      const comparator = sortByProperty<{ value: number | null }>('value');
-
-      expect(comparator({ value: null }, { value: null })).toBe(0);
-    });
-
-    it('returns 0 when both values are undefined', () => {
-      const comparator = sortByProperty<{ value?: number | undefined }>(
-        'value'
-      );
-
-      expect(comparator({ value: undefined }, { value: undefined })).toBe(0);
-    });
-
-    it('returns 0 when both values are nullish (null vs undefined)', () => {
-      const comparator = sortByProperty<{ value: number | null | undefined }>(
-        'value'
-      );
-
-      expect(comparator({ value: null }, { value: undefined })).toBe(0);
-      expect(comparator({ value: undefined }, { value: null })).toBe(0);
+      expect(result.map((x) => x.age)).toEqual([null, 30, 25]);
     });
   });
 
-  describe('equal values', () => {
-    it('returns 0 for equal property values', () => {
-      const comparator = sortByProperty<{ id: number }>('id');
+  describe('integration with sortValues', () => {
+    it('should call sortValues with correct arguments (ascending)', () => {
+      const spy = vi.spyOn(sortValuesModule, 'sortValues');
 
-      expect(comparator({ id: 1 }, { id: 1 })).toBe(0);
+      const sorter = sortByProperty<TestEntity>('id');
+      sorter({ id: 1, name: 'A' }, { id: 2, name: 'B' });
+
+      expect(spy).toHaveBeenCalledWith(1, 2, 1);
+    });
+
+    it('should call sortValues with correct arguments (descending)', () => {
+      const spy = vi.spyOn(sortValuesModule, 'sortValues');
+
+      const sorter = sortByProperty<TestEntity>('-id');
+      sorter({ id: 1, name: 'A' }, { id: 2, name: 'B' });
+
+      expect(spy).toHaveBeenCalledWith(1, 2, -1);
+    });
+  });
+
+  describe('edge cases', () => {
+    it('should return 0 when values are equal', () => {
+      const sorter = sortByProperty<TestEntity>('id');
+
+      const result = sorter({ id: 1, name: 'A' }, { id: 1, name: 'B' });
+
+      expect(result).toBe(0);
+    });
+
+    it('should handle missing properties gracefully (undefined)', () => {
+      const sorter = sortByProperty<TestEntity>('age');
+
+      const result = sorter(
+        { id: 1, name: 'A' },
+        { id: 2, name: 'B', age: 20 }
+      );
+
+      expect(result).toBe(1); // undefined treated as null -> goes last in ASC
+    });
+
+    it('should work with boolean values', () => {
+      const items = [{ value: true }, { value: false }];
+
+      const result = items.sort(sortByProperty<{ value: boolean }>('value'));
+
+      expect(result.map((x) => x.value)).toEqual([false, true]);
     });
   });
 

@@ -9,6 +9,7 @@ import {
 } from './core/validation/decorators/number-validaton';
 import { QueryRowValidator } from './core/validation/query-row-validator';
 import { getObjectPropertyNames } from './utils/functions/generic/get-object-property-names';
+import { sortByCallback } from './utils/functions/sort/sort-by-callback';
 import { sortByProperties } from './utils/functions/sort/sort-by-properties';
 import { isFunction } from './utils/functions/type-guards/is-function';
 import type { KeysOfType } from './utils/types/keys-of-type';
@@ -225,29 +226,35 @@ export class Query<T extends object> {
   /**
    * Adds ordering to the results.
    *
-   * This method should be called after `select()`; otherwise, the ordering will
-   * be applied only to the selected columns.
-   *
-   * @example
-   * ```ts
-   * // ❌ "age" will not be ordered, because it is not part of the selected columns
-   * const query = Query.from(users)
-   *   .orderBy('-age')
-   *   .select('name');
-   *
-   * // ✅ "age" will be ordered
-   * const query = Query.from(users)
-   *   .select('name', 'age')
-   *   .orderBy('-age');
-   * ```
-   *
    * @param columns Ascending or descending columns. To mark a field as
    * descending, prefix it with `-`.
    *
    * @returns Current query.
    */
-  orderBy(...columns: OrderingColumn<T>[]): this {
-    this.#rows = this.#rows.sort(sortByProperties(...columns));
+  orderBy(...columns: OrderingColumn<T>[]): this;
+  /**
+   * Adds ordering to the results.
+   *
+   * @param fn Function to map each row to a value.
+   * @param order Sort order. Defaults to `asc`.
+   *
+   * @returns Current query.
+   */
+  orderBy<TReturn>(fn: (row: T) => TReturn, order?: 'asc' | 'desc'): this;
+  orderBy(...arg: unknown[]): this {
+    if (arg.length === 0) {
+      return this;
+    }
+
+    if (isFunction(arg[0])) {
+      this.#rows = this.#rows.sort(
+        sortByCallback(arg[0], arg[1] === 'desc' ? -1 : 1)
+      );
+    } else {
+      this.#rows = this.#rows.sort(
+        sortByProperties(...(arg as OrderingColumn<T>[]))
+      );
+    }
 
     return this;
   }
