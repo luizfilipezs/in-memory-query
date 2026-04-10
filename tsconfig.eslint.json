@@ -4,9 +4,6 @@
     "noEmit": true
   },
   "include": [
-    "src/**/*.ts",
-  ],
-  "exclude": [
-    "lib",
+    "src/**/*.ts"
   ]
 }
