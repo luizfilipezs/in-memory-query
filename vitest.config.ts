@@ -8,5 +8,8 @@ export default defineConfig({
       '@': './src',
     },
     include: ['src/**/*.spec.ts'],
+    coverage: {
+      reporter: ['text', 'json', 'html', 'lcov'],
+    },
   },
 });
