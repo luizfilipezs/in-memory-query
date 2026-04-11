@@ -1,5 +1,18 @@
 # Changelog
 
+## dev-v2.8.1
+
+### Summary
+
+- [ ] Bug fixes
+- [x] Refactoring
+- [ ] New features
+- [ ] Breaking changes
+
+### Refactoring
+
+- Simplify `orderBy()` inner implementation.
+
 ## v2.8.0
 
 ### Summary
