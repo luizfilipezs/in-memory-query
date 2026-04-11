@@ -244,17 +244,11 @@ export class Query<T extends object> {
    */
   orderBy<TReturn>(fn: (row: T) => TReturn, order?: 'asc' | 'desc'): this;
   orderBy(...arg: unknown[]): this {
-    if (arg.length === 0) {
-      return this;
-    }
-
-    if (isFunction(arg[0])) {
+    if (arg.length > 0) {
       this.#rows = this.#rows.sort(
-        sortByCallback(arg[0], arg[1] === 'desc' ? -1 : 1)
-      );
-    } else {
-      this.#rows = this.#rows.sort(
-        sortByProperties(...(arg as OrderingColumn<T>[]))
+        isFunction(arg[0])
+          ? sortByCallback(arg[0], arg[1] === 'desc' ? -1 : 1)
+          : sortByProperties(...(arg as OrderingColumn<T>[]))
       );
     }
 
