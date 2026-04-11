@@ -116,6 +116,11 @@ Transforms each row into a new object using a callback function.
 
 Like `select()`, this method is intended for data projection, but it is more flexible and better suited for complex transformations:
 
+Callback arguments:
+
+- `row`: The current row.
+- `index`: The index of the current row.
+
 
 ```ts
 const authorsWithFirstPostQuery = Query.from(authors)

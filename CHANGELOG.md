@@ -1,5 +1,18 @@
 # Changelog
 
+## dev-master
+
+### Summary
+
+- [ ] Bug fixes
+- [ ] Code refactoring
+- [x] New features
+- [ ] Breaking changes
+
+### New features
+
+- Added row index as argument to `Query.map()` callback.
+
 ## v2.7.1
 
 ### Summary
@@ -10,7 +23,7 @@
 - [ ] New features
 - [ ] Breaking changes
 
-### New features
+### Documentation updates
 
 - Update `README.md` documentation for `orderBy()` method with new overload and examples.
 

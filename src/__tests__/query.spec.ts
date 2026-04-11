@@ -231,6 +231,20 @@ describe('Query', () => {
         { id: 3, name: 'Bob' },
       ]);
     });
+
+    it('should provide correct index to callback', () => {
+      const result = Query.from(users).map((user, index) => ({
+        id: user.id,
+        name: user.name,
+        index,
+      }));
+
+      expect(result.all()).toEqual([
+        { id: 1, name: 'John', index: 0 },
+        { id: 2, name: 'Mary', index: 1 },
+        { id: 3, name: 'Bob', index: 2 },
+      ]);
+    });
   });
 
   describe('ordering', () => {

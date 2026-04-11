@@ -135,13 +135,15 @@ export class Query<T extends object> {
    * @param callback Function to be called for each row.
    * @returns New query with the mapped rows.
    */
-  map<TReturn extends object>(callback: (obj: T) => TReturn): Query<TReturn> {
+  map<TReturn extends object>(
+    callback: (row: T, index: number) => TReturn
+  ): Query<TReturn> {
     // map rows
     const source = this.#rows;
     const rows: TReturn[] = [];
 
     for (let i = 0; i < source.length; i++) {
-      rows.push(callback(source[i]!));
+      rows.push(callback(source[i]!, i));
     }
 
     // create new query
