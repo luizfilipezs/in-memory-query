@@ -123,4 +123,19 @@ describe('number decorators', () => {
       expect(() => service.sum(1, '5' as any, 3)).toThrow(InvalidArgumentError);
     });
   });
+
+  describe('no parameter metadata', () => {
+    class NoMetadataService {
+      @validateNumbers
+      noValidation(a: number, b: number): number {
+        return a + b;
+      }
+    }
+
+    const service = new NoMetadataService();
+
+    it('should not throw when there are no parameter decorators', () => {
+      expect(service.noValidation(1, 2)).toBe(3);
+    });
+  });
 });
