@@ -6,7 +6,6 @@ A lightweight, type-safe in-memory query engine for JavaScript and TypeScript.
 <p>
 <p align="center">
   <a href="https://www.npmjs.com/package/querier-ts"><img src="https://img.shields.io/npm/v/querier-ts.svg" alt="current querier-ts version badge"></a>
-  <a href="https://www.npmjs.com/package/querier-ts"><img src="https://img.shields.io/npm/dm/querier-ts.svg"/></a>
   <a href="https://codecov.io/gh/luizfilipezs/querier-ts"><img alt="Codecov" src="https://img.shields.io/codecov/c/github/luizfilipezs/querier-ts.svg?style=flat-square"></a>
 <p>
 
