@@ -11,7 +11,7 @@
 
 ### Refactoring
 
-- Simplify `orderBy()` inner implementation.
+- Simplified `orderBy()` inner implementation without changing behavior.
 
 ## v2.8.0
 
@@ -38,7 +38,7 @@
 
 ### Documentation updates
 
-- Update `README.md` documentation for `orderBy()` method with new overload and examples.
+- Updated `README.md` documentation for `orderBy()` method with new overload and examples.
 
 ## v2.7.0
 
