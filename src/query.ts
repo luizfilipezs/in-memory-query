@@ -393,13 +393,12 @@ export class Query<T extends object> {
 
     const { partitionBy, orderBy } = options ?? {};
 
-    // normalize orderBy
     if (orderBy) {
       const columns = Array.isArray(orderBy) ? orderBy : [orderBy];
       this.#rows = rows.sort(sortByProperties(...columns));
     }
 
-    // no partition → simple global limit
+    // if no partition is provided, it's a simple global limit
     if (!partitionBy) {
       this.#rows = rows.slice(0, limit);
       return this;
