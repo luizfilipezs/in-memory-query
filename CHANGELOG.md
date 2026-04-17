@@ -11,7 +11,7 @@
 
 ### New features
 
-- Updated `Query.from()` method to accept `Iterable` and `ArrayLike` objects as input.
+- Updated `Query.from()` method to accept `Array` and `Iterable` objects as input.
 
 ### Refactoring
 
