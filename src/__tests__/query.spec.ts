@@ -1,3 +1,4 @@
+import { expectType } from 'tsd';
 import { InvalidArgumentError } from '../core/errors/invalid-argument-error';
 import { Query } from '../query';
 
@@ -75,6 +76,21 @@ describe('Query', () => {
     it('should create a query from array', () => {
       const query = Query.from(users);
       expect(query.all().length).toBe(3);
+      expectType<Query<User>>(query);
+    });
+
+    it('should create a query from iterable (Set)', () => {
+      const query = Query.from(new Set(users));
+      expect(query.all().length).toBe(3);
+      expectType<Query<User>>(query);
+    });
+
+    it('should create a query from valid iterable (Map.values())', () => {
+      const query = Query.from(new Map(users.map((u) => [u.id, u])).values());
+      expect(query.all().length).toBe(3);
+      expectType<Query<User>>(query);
+
+      Query.from<User>(Array.from({ length: 1 }));
     });
   });
 

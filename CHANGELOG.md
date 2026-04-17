@@ -1,13 +1,17 @@
 # Changelog
 
-## dev-v2.8.1
+## v2.9.0
 
 ### Summary
 
 - [ ] Bug fixes
 - [x] Refactoring
-- [ ] New features
+- [x] New features
 - [ ] Breaking changes
+
+### New features
+
+- Updated `Query.from()` method to accept `Iterable` and `ArrayLike` objects as input.
 
 ### Refactoring
 

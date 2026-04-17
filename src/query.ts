@@ -1,3 +1,4 @@
+import type { ArraySource } from './core/types/array-source';
 import type { OrderingColumn } from './core/types/ordering-column';
 import type { QueryConditionsGroup } from './core/types/query-conditions-group';
 import type { QueryConditionsGroupNullable } from './core/types/query-conditions-group-nullable';
@@ -92,8 +93,8 @@ export class Query<T extends object> {
    *
    * @returns Query to the given rows.
    */
-  static from<T extends object>(rows: T[]): Query<T> {
-    return new Query(rows);
+  static from<T extends object>(rows: ArraySource<T>): Query<T> {
+    return new Query(Array.from(rows));
   }
 
   /**
