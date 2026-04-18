@@ -1,5 +1,15 @@
 # Changelog
 
+## v2.9.1
+
+### Summary
+
+- [x] Documentation updates
+
+### Documentation updates
+
+- Updated `README.md` with new package name.
+
 ## v2.9.0
 
 ### Summary
