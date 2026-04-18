@@ -14,6 +14,8 @@ A lightweight, type-safe in-memory query engine for JavaScript and TypeScript.
 Usage:
 
 ```ts
+import { Query } from 'in-memory-query';
+
 const usersQuery = Query.from(users);
 ```
 
