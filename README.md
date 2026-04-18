@@ -1,5 +1,5 @@
 <h1 align="center">
-in-memory-query
+In-Memory Query
 </h1>
 <p align="center">
 A lightweight, type-safe in-memory query engine for JavaScript and TypeScript.
@@ -9,20 +9,24 @@ A lightweight, type-safe in-memory query engine for JavaScript and TypeScript.
   <a href="https://codecov.io/gh/luizfilipezs/in-memory-query"><img alt="Codecov" src="https://img.shields.io/codecov/c/github/luizfilipezs/in-memory-query.svg?style=flat-square"></a>
 <p>
 
-## `Query`
+## Getting started
 
-Usage:
+Install with `npm install in-memory-query`.
+
+## Usage
+
+### Creating a query
 
 ```ts
 import { Query } from 'in-memory-query';
 
+const users = [
+  { id: 1, name: 'John', email: 'john@icloud.com', isActive: true },
+  { id: 2, name: 'Mary', email: 'mary@gmail.com', isActive: true },
+  { id: 3, name: 'Bob', email: 'bob@outlook.com', isActive: false },
+];
+
 const usersQuery = Query.from(users);
-```
-
-TypeScript will automatically infer the query data type. You can also make it explicit:
-
-```ts
-const usersQuery = Query.from<User>(users);
 ```
 
 ---
