@@ -1,12 +1,12 @@
 <h1 align="center">
-querier-ts
+in-memory-query
 </h1>
 <p align="center">
 A lightweight, type-safe in-memory query engine for JavaScript and TypeScript.
 <p>
 <p align="center">
-  <a href="https://www.npmjs.com/package/querier-ts"><img src="https://img.shields.io/npm/v/querier-ts.svg" alt="current querier-ts version badge"></a>
-  <a href="https://codecov.io/gh/luizfilipezs/querier-ts"><img alt="Codecov" src="https://img.shields.io/codecov/c/github/luizfilipezs/querier-ts.svg?style=flat-square"></a>
+  <a href="https://www.npmjs.com/package/in-memory-query"><img src="https://img.shields.io/npm/v/in-memory-query.svg" alt="current in-memory-query version badge"></a>
+  <a href="https://codecov.io/gh/luizfilipezs/in-memory-query"><img alt="Codecov" src="https://img.shields.io/codecov/c/github/luizfilipezs/in-memory-query.svg?style=flat-square"></a>
 <p>
 
 ## `Query`

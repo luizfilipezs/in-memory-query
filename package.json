@@ -1,11 +1,11 @@
 {
-  "name": "querier-ts",
+  "name": "in-memory-query",
   "type": "module",
   "version": "2.9.0",
   "description": "A lightweight, type-safe in-memory query engine for JavaScript and TypeScript",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/luizfilipezs/querier-ts.git"
+    "url": "git+https://github.com/luizfilipezs/in-memory-query.git"
   },
   "keywords": [
     "query",
@@ -19,9 +19,9 @@
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/luizfilipezs/querier-ts/issues"
+    "url": "https://github.com/luizfilipezs/in-memory-query/issues"
   },
-  "homepage": "https://github.com/luizfilipezs/querier-ts#readme",
+  "homepage": "https://github.com/luizfilipezs/in-memory-query#readme",
   "files": [
     "dist",
     "README.md",
