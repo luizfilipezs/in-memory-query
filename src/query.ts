@@ -83,7 +83,7 @@ export class Query<T extends object> {
    * @param rows Rows to be queried.
    */
   private constructor(rows: T[]) {
-    this.#rows = [...rows];
+    this.#rows = rows;
   }
 
   /**
