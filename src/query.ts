@@ -595,7 +595,7 @@ export class Query<T extends object> {
   ): Map<TGrouper, TReturn[]>;
   groupBy(
     groupArg: keyof T | ((row: T) => unknown),
-    mapArg?: (row: T) => unknown
+    mapFn?: (row: T) => unknown
   ): Map<unknown, unknown[]> {
     const rows = this.getLimitedRows();
     const map = new Map<unknown, unknown[]>();
@@ -604,7 +604,7 @@ export class Query<T extends object> {
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i]!;
       const key = hasCallback ? groupArg(row) : row[groupArg];
-      const value = mapArg ? mapArg(row) : row;
+      const value = mapFn ? mapFn(row) : row;
 
       if (map.has(key)) {
         map.get(key)!.push(value);
