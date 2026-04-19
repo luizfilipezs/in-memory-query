@@ -4,6 +4,26 @@ import { Query } from '../query';
 
 // MOCK DATA
 
+interface Address {
+  id: number;
+  country: string;
+  city: string;
+  createdAt: number;
+}
+
+const addresses: Address[] = [
+  { id: 1, country: 'Brazil', city: 'Brasília', createdAt: 1 },
+  { id: 2, country: 'Brazil', city: 'São Paulo', createdAt: 2 },
+  { id: 3, country: 'Brazil', city: 'Rio de Janeiro', createdAt: 3 },
+
+  { id: 4, country: 'Chile', city: 'Santiago', createdAt: 1 },
+  { id: 5, country: 'Chile', city: 'Valparaíso', createdAt: 2 },
+  { id: 6, country: 'Chile', city: 'Concepción', createdAt: 3 },
+
+  { id: 7, country: 'Argentina', city: 'Buenos Aires', createdAt: 1 },
+  { id: 8, country: 'Argentina', city: 'Córdoba', createdAt: 2 },
+];
+
 interface UserPermissions {
   useCookies: boolean;
   sendNotifications: boolean;
@@ -16,7 +36,8 @@ class User {
     public permissions: UserPermissions,
     public isActive: boolean,
     public createdAt: Date,
-    public updatedAt: Date
+    public updatedAt: Date,
+    public address: Address
   ) {}
 
   isAdmin(): boolean {
@@ -31,7 +52,8 @@ const users: User[] = [
     { useCookies: true, sendNotifications: true },
     true,
     new Date('2023-01-01'),
-    new Date('2023-01-10')
+    new Date('2023-01-10'),
+    addresses[0]!
   ),
   new User(
     2,
@@ -39,7 +61,8 @@ const users: User[] = [
     { useCookies: false, sendNotifications: true },
     false,
     new Date('2023-02-01'),
-    new Date('2023-02-10')
+    new Date('2023-02-10'),
+    addresses[7]!
   ),
   new User(
     3,
@@ -47,28 +70,9 @@ const users: User[] = [
     { useCookies: true, sendNotifications: false },
     true,
     new Date('2023-03-01'),
-    new Date('2023-03-10')
+    new Date('2023-03-10'),
+    addresses[1]!
   ),
-];
-
-interface Address {
-  id: number;
-  country: string;
-  city: string;
-  createdAt: number;
-}
-
-const addresses: Address[] = [
-  { id: 1, country: 'Brazil', city: 'Brasília', createdAt: 1 },
-  { id: 2, country: 'Brazil', city: 'São Paulo', createdAt: 2 },
-  { id: 3, country: 'Brazil', city: 'Rio', createdAt: 3 },
-
-  { id: 4, country: 'Chile', city: 'Santiago', createdAt: 1 },
-  { id: 5, country: 'Chile', city: 'Valparaíso', createdAt: 2 },
-  { id: 6, country: 'Chile', city: 'Concepción', createdAt: 3 },
-
-  { id: 7, country: 'Argentina', city: 'Buenos Aires', createdAt: 1 },
-  { id: 8, country: 'Argentina', city: 'Córdoba', createdAt: 2 },
 ];
 
 describe('Query', () => {
@@ -394,6 +398,23 @@ describe('Query', () => {
       expect(result.get(false)).toEqual([2]);
     });
 
+    it('should group by key, map results and aggregate them', () => {
+      const groupKeys: string[] = [];
+      const result = Query.from(addresses).groupBy(
+        'country',
+        (address) => address,
+        (addresses, groupKey) => {
+          groupKeys.push(groupKey);
+          return addresses.length;
+        }
+      );
+
+      expect(groupKeys).toEqual(['Brazil', 'Chile', 'Argentina']);
+      expect(result.get('Brazil')).toEqual(3);
+      expect(result.get('Chile')).toEqual(3);
+      expect(result.get('Argentina')).toEqual(2);
+    });
+
     it('should group by callback', () => {
       const result = Query.from(users).groupBy((user) => user.isActive);
 
@@ -409,6 +430,22 @@ describe('Query', () => {
 
       expect(result.get(true)).toEqual([1, 2]);
       expect(result.get(false)).toEqual([3]);
+    });
+
+    it('should group by callback, map results and aggregate them', () => {
+      const groupKeys: string[] = [];
+      const result = Query.from(users).groupBy(
+        (user) => user.address.country,
+        (user) => user.address,
+        (addresses, groupKey) => {
+          groupKeys.push(groupKey);
+          return addresses.length;
+        }
+      );
+
+      expect(groupKeys).toEqual(['Brazil', 'Argentina']);
+      expect(result.get('Brazil')).toEqual(2);
+      expect(result.get('Argentina')).toEqual(1);
     });
   });
 

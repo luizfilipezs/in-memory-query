@@ -562,6 +562,7 @@ export class Query<T extends object> {
    * @returns Grouped results.
    */
   groupBy<K extends keyof T>(key: K): Map<T[K], T[]>;
+
   /**
    * Groups the results by a specific key.
    *
@@ -574,6 +575,22 @@ export class Query<T extends object> {
     key: K,
     mapFn: (row: T) => TReturn
   ): Map<T[K], TReturn[]>;
+
+  /**
+   * Groups the results by a specific key.
+   *
+   * @param key Key to group by.
+   * @param mapFn Callback to map each row to a new value.
+   * @param aggregateFn Callback to aggregate each group.
+   *
+   * @returns Grouped results.
+   */
+  groupBy<K extends keyof T, TMapped, TReturn>(
+    key: K,
+    mapFn: (row: T) => TMapped,
+    aggregateFn: (values: TMapped[], groupKey: T[K]) => TReturn
+  ): Map<T[K], TReturn[]>;
+
   /**
    * Groups the results by a callback.
    *
@@ -582,10 +599,12 @@ export class Query<T extends object> {
    * @returns Grouped results.
    */
   groupBy<TGrouper>(groupFn: (row: T) => TGrouper): Map<TGrouper, T[]>;
+
   /**
    * Groups the results by a callback.
    *
    * @param groupFn Callback to group by.
+   * @param mapFn Callback to map each row to a new value.
    *
    * @returns Grouped results.
    */
@@ -593,10 +612,27 @@ export class Query<T extends object> {
     groupFn: (row: T) => TGrouper,
     mapFn: (row: T) => TReturn
   ): Map<TGrouper, TReturn[]>;
+
+  /**
+   * Groups the results by a callback.
+   *
+   * @param groupFn Callback to group by.
+   * @param mapFn Callback to map each row to a new value.
+   * @param aggregateFn Callback to aggregate each group.
+   *
+   * @returns Grouped results.
+   */
+  groupBy<TGrouper, TMapped, TReturn>(
+    groupFn: (row: T) => TGrouper,
+    mapFn: (row: T) => TMapped,
+    aggregateFn: (values: TMapped[], groupKey: TGrouper) => TReturn
+  ): Map<TGrouper, TReturn>;
+
   groupBy(
     groupArg: keyof T | ((row: T) => unknown),
-    mapFn?: (row: T) => unknown
-  ): Map<unknown, unknown[]> {
+    mapFn?: (row: T) => unknown,
+    aggregateFn?: (values: unknown[], groupKey: unknown) => unknown
+  ): Map<unknown, unknown> {
     const rows = this.getLimitedRows();
     const map = new Map<unknown, unknown[]>();
     const hasCallback = isFunction(groupArg);
@@ -611,6 +647,16 @@ export class Query<T extends object> {
       } else {
         map.set(key, [value]);
       }
+    }
+
+    if (aggregateFn) {
+      const aggrMap = new Map<unknown, unknown>();
+
+      for (const [key, values] of map) {
+        aggrMap.set(key, aggregateFn(values, key));
+      }
+
+      return aggrMap;
     }
 
     return map;

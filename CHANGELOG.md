@@ -1,5 +1,22 @@
 # Changelog
 
+## dev-main
+
+### Summary
+
+- [ ] Bug fixes
+- [x] Refactoring
+- [x] New features
+- [ ] Breaking changes
+
+### New features
+
+- Added optional parameter `aggregateFn` to `groupBy()` method.
+
+### Refactoring
+
+- Removed redundant array spread operation from `constructor()` method, since `from()` method already does it.
+
 ## v2.9.1
 
 ### Summary
