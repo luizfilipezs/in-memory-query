@@ -424,7 +424,7 @@ const countByActiveStatus = Query.from(users).groupBy(
   (user) => user.id,
   (ids) => ids.length
 )
-// Map<boolean, number[]>
+// Map<boolean, number>
 
 // Grouping by callback
 const usersByActiveStatus = Query.from(users).groupBy(
@@ -445,7 +445,7 @@ const countByNotificationPreference = Query.from(users).groupBy(
   (user) => user.id,
   (ids) => ids.length
 )
-// Map<boolean, number[]>
+// Map<boolean, number>
 ```
 
 ### Aggregating data
