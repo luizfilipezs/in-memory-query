@@ -1,6 +1,6 @@
 # Changelog
 
-## dev-main
+## v2.10.0
 
 ### Summary
 
