@@ -246,7 +246,7 @@ const countries = Query.from(addresses)
   .column('country');
 ```
 
-> Passing a non-integer or a negative number to `limit` will throw an `InvalidArgumentError`.
+> Passing a non-integer or a negative number to `limitPerGroup` will throw an `InvalidArgumentError`.
 
 ---
 
