@@ -323,7 +323,6 @@ export class Query<T extends object> {
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i]!;
       const group = isFn ? arg(row) : row[arg];
-
       const count = counts.get(group) ?? 0;
 
       if (count < limit) {
@@ -649,17 +648,17 @@ export class Query<T extends object> {
       }
     }
 
-    if (aggregateFn) {
-      const aggrMap = new Map<unknown, unknown>();
-
-      for (const [key, values] of map) {
-        aggrMap.set(key, aggregateFn(values, key));
-      }
-
-      return aggrMap;
+    if (!aggregateFn) {
+      return map;
     }
 
-    return map;
+    const aggrMap = new Map<unknown, unknown>();
+
+    for (const [key, values] of map) {
+      aggrMap.set(key, aggregateFn(values, key));
+    }
+
+    return aggrMap;
   }
 
   /**
@@ -685,15 +684,11 @@ export class Query<T extends object> {
     }
 
     const values: number[] = [];
+    const isFn = isFunction(arg);
 
-    if (isFunction(arg)) {
-      for (let i = 0; i < length; i++) {
-        values.push(arg(source[i]!));
-      }
-    } else {
-      for (let i = 0; i < length; i++) {
-        values.push(source[i]![arg] as number);
-      }
+    for (let i = 0; i < length; i++) {
+      const row = source[i]!;
+      values.push(isFn ? arg(row) : (row[arg] as number));
     }
 
     return Math.min(...values);
@@ -722,15 +717,11 @@ export class Query<T extends object> {
     }
 
     const values: number[] = [];
+    const isFn = isFunction(arg);
 
-    if (isFunction(arg)) {
-      for (let i = 0; i < length; i++) {
-        values.push(arg(source[i]!));
-      }
-    } else {
-      for (let i = 0; i < length; i++) {
-        values.push(source[i]![arg] as number);
-      }
+    for (let i = 0; i < length; i++) {
+      const row = source[i]!;
+      values.push(isFn ? arg(row) : (row[arg] as number));
     }
 
     return Math.max(...values);
@@ -759,15 +750,11 @@ export class Query<T extends object> {
     }
 
     const values: number[] = [];
+    const isFn = isFunction(arg);
 
-    if (isFunction(arg)) {
-      for (let i = 0; i < length; i++) {
-        values.push(arg(source[i]!));
-      }
-    } else {
-      for (let i = 0; i < length; i++) {
-        values.push(source[i]![arg] as number);
-      }
+    for (let i = 0; i < length; i++) {
+      const row = source[i]!;
+      values.push(isFn ? arg(row) : (row[arg] as number));
     }
 
     return values.reduce((total, value) => total + value, 0);
@@ -810,22 +797,16 @@ export class Query<T extends object> {
   ): void {
     const rows = this.#rows;
     const result: T[] = [];
+    const isFn = isFunction(condition);
 
-    if (isFunction(condition)) {
-      for (let i = 0; i < rows.length; i++) {
-        const row = rows[i]!;
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i]!;
+      const validated = isFn
+        ? condition(row)
+        : QueryRowValidator.validate(row, condition, options);
 
-        if (condition(row)) {
-          result.push(row);
-        }
-      }
-    } else {
-      for (let i = 0; i < rows.length; i++) {
-        const row = rows[i]!;
-
-        if (QueryRowValidator.validate(row, condition, options)) {
-          result.push(row);
-        }
+      if (validated) {
+        result.push(row);
       }
     }
 
