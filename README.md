@@ -417,8 +417,8 @@ const idsByActiveStatus = Query.from(users).groupBy(
 // Grouping by property with mapping and aggregation
 const countByActiveStatus = Query.from(users).groupBy(
   'isActive',
-  (user) => user.id,
-  (ids) => ids.length
+  (user) => user,
+  (group) => group.length
 )
 // Map<boolean, number>
 
@@ -438,8 +438,8 @@ const idsByNotificationPreference = Query.from(users).groupBy(
 // Grouping by callback with mapping and aggregation
 const countByNotificationPreference = Query.from(users).groupBy(
   (user) => user.permissions.sendNotifications,
-  (user) => user.id,
-  (ids) => ids.length
+  (user) => user,
+  (group) => group.length
 )
 // Map<boolean, number>
 ```
