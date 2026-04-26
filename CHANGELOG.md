@@ -1,5 +1,18 @@
 # Changelog
 
+## `main`
+
+### Summary
+
+- [ ] Bug fixes
+- [x] Refactoring
+- [ ] New features
+- [ ] Breaking changes
+
+### Refactoring
+
+- Removed branching from methods with loops.
+
 ## v2.10.0
 
 ### Summary
