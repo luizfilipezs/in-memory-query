@@ -1,13 +1,17 @@
 # Changelog
 
-## `main`
+## v2.11.0
 
 ### Summary
 
 - [ ] Bug fixes
 - [x] Refactoring
-- [ ] New features
+- [x] New features
 - [ ] Breaking changes
+
+### New features
+
+- Enabled `column()` method to accept a map function as input.
 
 ### Refactoring
 

@@ -350,26 +350,22 @@ Returns `false` if no value is found.
 
 ---
 
-#### `column()`
+#### `column(column | mapFn?)`
 
-Returns the values of the first property from all results by default.
+Returns the values of the first property from all results by default, but also allows you to specify a column name or map function.
 
-```ts
-const ids = Query.from(users).column();
-```
-
-You can specify a column:
+- `column`: The name of the column to retrieve.
+- `mapFn`: A function that maps each row to a new value.
 
 ```ts
+// default
+const ids = Query.from(users).column(); // assuming `id` is the first column
+
+// with column
 const emails = Query.from(users).column('email');
-```
 
-Or combine it with `select()`:
-
-```ts
-const emails = Query.from(users)
-  .select('email')
-  .column();
+// with map function
+const countries = Query.from(users).column((user) => user.address.country);
 ```
 
 ---

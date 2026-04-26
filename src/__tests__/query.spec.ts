@@ -671,6 +671,12 @@ describe('Query', () => {
         expect(result).toEqual(['John', 'Mary', 'Bob']);
       });
 
+      it('should return an array of the mapped column values', () => {
+        const result = Query.from(users).column((user) => user.name);
+
+        expect(result).toEqual(['John', 'Mary', 'Bob']);
+      });
+
       it('should preserve ordering', () => {
         const result = Query.from(users).orderBy('name').column('name');
 

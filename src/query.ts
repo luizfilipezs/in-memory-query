@@ -501,13 +501,22 @@ export class Query<T extends object> {
    * @returns An array containing the values of the specified column for each row.
    */
   column<TColumn extends PropOf<T>>(column: TColumn): T[TColumn][];
+
+  /**
+   * Returns an array with the rows mapped by a callback.
+   *
+   * @param mapFn Callback to map the rows.
+   * @returns An array containing the mapped rows.
+   */
+  column<TReturn>(mapFn: (row: T) => TReturn): TReturn[];
+
   /**
    * Internal implementation for retrieving column values.
    *
    * If no column is provided, the first available column is used.
    * Returns an empty array if there are no rows or no columns.
    */
-  column(column?: PropOf<T>): T[PropOf<T>][] {
+  column(columnOrMapFn?: PropOf<T> | ((row: T) => unknown)): unknown[] {
     const source = this.getLimitedRows();
     const length = source.length;
 
@@ -515,20 +524,24 @@ export class Query<T extends object> {
       return [];
     }
 
-    if (column === undefined) {
+    if (columnOrMapFn === undefined) {
       const firstColumn = this.getFirstColumn();
 
       if (!firstColumn) {
         return [];
       }
 
-      column = firstColumn;
+      columnOrMapFn = firstColumn;
     }
 
-    const values: T[PropOf<T>][] = [];
+    const values: unknown[] = [];
 
     for (let i = 0; i < length; i++) {
-      values.push(source[i]![column]);
+      const row = source[i]!;
+
+      values.push(
+        isFunction(columnOrMapFn) ? columnOrMapFn(row) : row[columnOrMapFn]
+      );
     }
 
     return values;
