@@ -579,6 +579,34 @@ export class Query<T extends object> {
    * Groups the results by a specific key.
    *
    * @param key Key to group by.
+   * @param mapKey Key to map each row to.
+   *
+   * @returns Grouped results.
+   */
+  groupBy<KGroup extends keyof T, KValue extends keyof T>(
+    key: KGroup,
+    mapKey: KValue
+  ): Map<T[KGroup], T[KValue][]>;
+
+  /**
+   * Groups the results by a specific key.
+   *
+   * @param key Key to group by.
+   * @param mapKey Key to map each row to.
+   * @param aggregateFn Callback to aggregate each group.
+   *
+   * @returns Grouped results.
+   */
+  groupBy<KGroup extends keyof T, KValue extends keyof T, TAggregated>(
+    key: KGroup,
+    mapKey: KValue,
+    aggregateFn: (values: T[KValue][], groupKey: T[KGroup]) => TAggregated
+  ): Map<T[KGroup], TAggregated>;
+
+  /**
+   * Groups the results by a specific key.
+   *
+   * @param key Key to group by.
    * @param mapFn Callback to map each row to a new value.
    *
    * @returns Grouped results.
@@ -597,11 +625,11 @@ export class Query<T extends object> {
    *
    * @returns Grouped results.
    */
-  groupBy<K extends keyof T, TMapped, TReturn>(
+  groupBy<K extends keyof T, TMapped, TAggregated>(
     key: K,
     mapFn: (row: T) => TMapped,
-    aggregateFn: (values: TMapped[], groupKey: T[K]) => TReturn
-  ): Map<T[K], TReturn[]>;
+    aggregateFn: (values: TMapped[], groupKey: T[K]) => TAggregated
+  ): Map<T[K], TAggregated>;
 
   /**
    * Groups the results by a callback.
@@ -616,14 +644,42 @@ export class Query<T extends object> {
    * Groups the results by a callback.
    *
    * @param groupFn Callback to group by.
+   * @param mapKey Key to map each row to.
+   *
+   * @returns Grouped results.
+   */
+  groupBy<TGrouper, KMapped extends keyof T>(
+    groupFn: (row: T) => TGrouper,
+    mapKey: KMapped
+  ): Map<TGrouper, T[]>;
+
+  /**
+   * Groups the results by a callback.
+   *
+   * @param groupFn Callback to group by.
    * @param mapFn Callback to map each row to a new value.
    *
    * @returns Grouped results.
    */
-  groupBy<TGrouper, TReturn>(
+  groupBy<TGrouper, TMapped>(
     groupFn: (row: T) => TGrouper,
-    mapFn: (row: T) => TReturn
-  ): Map<TGrouper, TReturn[]>;
+    mapFn: (row: T) => TMapped
+  ): Map<TGrouper, TMapped[]>;
+
+  /**
+   * Groups the results by a callback.
+   *
+   * @param groupFn Callback to group by.
+   * @param mapKey Key to map each row to.
+   * @param aggregateFn Callback to aggregate each group.
+   *
+   * @returns Grouped results.
+   */
+  groupBy<TGrouper, KMapped extends keyof T, TAggregated>(
+    groupFn: (row: T) => TGrouper,
+    mapKey: KMapped,
+    aggregateFn: (values: T[KMapped][], groupKey: TGrouper) => TAggregated
+  ): Map<TGrouper, TAggregated>;
 
   /**
    * Groups the results by a callback.
@@ -634,25 +690,26 @@ export class Query<T extends object> {
    *
    * @returns Grouped results.
    */
-  groupBy<TGrouper, TMapped, TReturn>(
+  groupBy<TGrouper, TMapped, TAggregated>(
     groupFn: (row: T) => TGrouper,
     mapFn: (row: T) => TMapped,
-    aggregateFn: (values: TMapped[], groupKey: TGrouper) => TReturn
-  ): Map<TGrouper, TReturn>;
+    aggregateFn: (values: TMapped[], groupKey: TGrouper) => TAggregated
+  ): Map<TGrouper, TAggregated>;
 
   groupBy(
     groupArg: keyof T | ((row: T) => unknown),
-    mapFn?: (row: T) => unknown,
+    mapArg?: keyof T | ((row: T) => unknown),
     aggregateFn?: (values: unknown[], groupKey: unknown) => unknown
   ): Map<unknown, unknown> {
     const rows = this.getLimitedRows();
     const map = new Map<unknown, unknown[]>();
     const hasCallback = isFunction(groupArg);
+    const hasMapCallback = isFunction(mapArg);
 
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i]!;
       const key = hasCallback ? groupArg(row) : row[groupArg];
-      const value = mapFn ? mapFn(row) : row;
+      const value = mapArg ? (hasMapCallback ? mapArg(row) : row[mapArg]) : row;
 
       if (map.has(key)) {
         map.get(key)!.push(value);

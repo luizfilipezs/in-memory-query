@@ -391,7 +391,31 @@ describe('Query', () => {
       expect(result.size).toBe(3);
     });
 
-    it('should group by key and map results', () => {
+    it('shold group by key and map results by another key', () => {
+      const result = Query.from(users).groupBy('isActive', 'id');
+
+      expect(result.get(true)).toEqual([1, 3]);
+      expect(result.get(false)).toEqual([2]);
+    });
+
+    it('should group by key, map results by another key and aggregate them', () => {
+      const groupKeys: string[] = [];
+      const result = Query.from(addresses).groupBy(
+        'country',
+        'city',
+        (cities, groupKey) => {
+          groupKeys.push(groupKey);
+          return cities.length;
+        }
+      );
+
+      expect(groupKeys).toEqual(['Brazil', 'Chile', 'Argentina']);
+      expect(result.get('Brazil')).toEqual(3);
+      expect(result.get('Chile')).toEqual(3);
+      expect(result.get('Argentina')).toEqual(2);
+    });
+
+    it('should group by key and map results by callback', () => {
       const result = Query.from(users).groupBy('isActive', (user) => user.id);
 
       expect(result.get(true)).toEqual([1, 3]);
@@ -422,7 +446,17 @@ describe('Query', () => {
       expect(result.get(false)).toHaveLength(1);
     });
 
-    it('should group by callback and map results', () => {
+    it('should group by callback and map results by key', () => {
+      const result = Query.from(users).groupBy(
+        (user) => user.permissions.sendNotifications,
+        'id'
+      );
+
+      expect(result.get(true)).toEqual([1, 2]);
+      expect(result.get(false)).toEqual([3]);
+    });
+
+    it('should group by callback and map results by callback', () => {
       const result = Query.from(users).groupBy(
         (user) => user.permissions.sendNotifications,
         (user) => user.id
@@ -432,14 +466,30 @@ describe('Query', () => {
       expect(result.get(false)).toEqual([3]);
     });
 
-    it('should group by callback, map results and aggregate them', () => {
+    it('should group by callback, map results by key and aggregate them', () => {
+      const groupKeys: string[] = [];
+      const result = Query.from(users).groupBy(
+        (user) => user.address.country,
+        'id',
+        (ids, groupKey) => {
+          groupKeys.push(groupKey);
+          return ids.length;
+        }
+      );
+
+      expect(groupKeys).toEqual(['Brazil', 'Argentina']);
+      expect(result.get('Brazil')).toEqual(2);
+      expect(result.get('Argentina')).toEqual(1);
+    });
+
+    it('should group by callback, map results by callback and aggregate them', () => {
       const groupKeys: string[] = [];
       const result = Query.from(users).groupBy(
         (user) => user.address.country,
         (user) => user.address,
-        (addresses, groupKey) => {
+        (values, groupKey) => {
           groupKeys.push(groupKey);
-          return addresses.length;
+          return values.length;
         }
       );
 

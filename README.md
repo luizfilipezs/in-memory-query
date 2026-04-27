@@ -414,13 +414,12 @@ Example output:
 
 ---
 
-#### `groupBy(key | callback, mapFn?, aggregateFn?)`
+#### `groupBy(key | groupFn, mapKey | mapFn?, aggregateFn?)`
 
 Groups the items by a specified property or a custom callback and returns the result as a `Map`.
 
-- `key`: The property name to group by.
-- `callback`: A function that returns the value to group each item by.
-- `mapFn` *(optional)*: A function to transform each item before adding it to the grouped result.
+- `key|groupFn`: The property name to group by or a function that returns the value to group each item by.
+- `mapKey|mapFn` *(optional)*: A property name or function to transform each item before adding it to the grouped result.
 - `aggregateFn` *(optional)*: A function to aggregate the values of each group.
 
 The returned `Map` uses the resolved grouping values as keys and arrays of matching (or mapped) items as values; except when an `aggregateFn` is provided, in which case the values are aggregated into a single value using the `aggregateFn`.
@@ -432,14 +431,26 @@ Examples:
 const usersByActiveStatus = Query.from(users).groupBy('isActive');
 // Map<boolean, User[]>
 
-// Grouping by property with mapping
+// Grouping by property with mapping by key
+const idsByActiveStatus = Query.from(users).groupBy('isActive', 'id');
+// Map<boolean, number[]>
+
+// Grouping by property with mapping by key and aggregation
+const maxIdByActiveStatus = Query.from(users).groupBy(
+  'isActive',
+  'id',
+  (groupIds) => Math.max(...groupIds)
+);
+// Map<boolean, number>
+
+// Grouping by property with mapping by callback
 const idsByActiveStatus = Query.from(users).groupBy(
   'isActive',
   (user) => user.id
 );
 // Map<boolean, number[]>
 
-// Grouping by property with mapping and aggregation
+// Grouping by property with mapping by callback and aggregation
 const countByActiveStatus = Query.from(users).groupBy(
   'isActive',
   (user) => user,
@@ -453,12 +464,26 @@ const usersByActiveStatus = Query.from(users).groupBy(
 );
 // Map<boolean, User[]>
 
-// Grouping by callback with mapping
+// Grouping by callback with mapping by key
+const idsByActiveStatus = Query.from(users).groupBy(
+  (user) => user.isActive,
+  'id'
+);
+// Map<boolean, number[]>
+
+// Grouping by callback with mapping by callback
 const idsByNotificationPreference = Query.from(users).groupBy(
   (user) => user.permissions.sendNotifications,
   (user) => user.id
 );
 // Map<boolean, number[]>
+
+// Grouping by callback with mapping by key and aggregation
+const maxIdByNotificationPreference = Query.from(users).groupBy(
+  (user) => user.permissions.sendNotifications,
+  'id',
+  (groupIds) => Math.max(...groupIds)
+)
 
 // Grouping by callback with mapping and aggregation
 const countByNotificationPreference = Query.from(users).groupBy(

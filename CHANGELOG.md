@@ -1,5 +1,18 @@
 # Changelog
 
+## v2.12.0
+
+### Summary
+
+- [ ] Bug fixes
+- [x] Refactoring
+- [x] New features
+- [ ] Breaking changes
+
+### New features
+
+- Enabled `groupBy()` method to accept either a map function or key as second argument.
+
 ## v2.11.0
 
 ### Summary
