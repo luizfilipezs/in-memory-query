@@ -455,7 +455,7 @@ const countByActiveStatus = Query.from(users).groupBy(
   'isActive',
   (user) => user,
   (group) => group.length
-)
+);
 // Map<boolean, number>
 
 // Grouping by callback
@@ -483,14 +483,15 @@ const maxIdByNotificationPreference = Query.from(users).groupBy(
   (user) => user.permissions.sendNotifications,
   'id',
   (groupIds) => Math.max(...groupIds)
-)
+);
+// Map<boolean, number>
 
 // Grouping by callback with mapping and aggregation
 const countByNotificationPreference = Query.from(users).groupBy(
   (user) => user.permissions.sendNotifications,
   (user) => user,
   (group) => group.length
-)
+);
 // Map<boolean, number>
 ```
 
