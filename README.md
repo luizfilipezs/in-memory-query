@@ -9,9 +9,25 @@ A lightweight, type-safe in-memory query engine for JavaScript and TypeScript.
   <a href="https://codecov.io/gh/luizfilipezs/in-memory-query"><img alt="Codecov" src="https://img.shields.io/codecov/c/github/luizfilipezs/in-memory-query.svg?style=flat-square"></a>
 <p>
 
-## Getting started
+## Installation
 
-Install with `npm install in-memory-query`.
+### npm
+
+```bash
+npm install in-memory-query
+```
+
+### pnpm
+
+```bash
+pnpm add in-memory-query
+```
+
+### yarn
+
+```bash
+yarn add in-memory-query
+```
 
 ## Usage
 
@@ -68,16 +84,18 @@ It also supports nested objects:
 
 Unlike `where()`, `filterWhere()`:
 
-* Accepts only an object
-* Ignores properties whose values are `null` or `undefined`
+* Accepts only an object.
+* Ignores properties whose values are `null` or `undefined`.
+
+It is particularly useful when filtering data based on user input.
 
 ```ts
-let isActive: boolean; // undefined
+let isActive; // undefined
 
 const filteredUsers = Query.from(users)
   .filterWhere({
     id: 1,
-    isActive: isActive, // ignored
+    isActive: isActive, // condition ignored
   })
   .all();
 ```
@@ -332,10 +350,10 @@ Returns a boolean indicating whether any results exist.
 
 #### `scalar()`
 
-Returns the value of the first property of the first result.
+Returns the value of the first cell, or `false` if there are no results.
 
 ```ts
-const firstId = Query.from(users).scalar();
+const firstId = Query.from(users).scalar(); // assuming `id` is the first column
 ```
 
 You can combine it with `select()` to retrieve a specific property:
@@ -344,9 +362,12 @@ You can combine it with `select()` to retrieve a specific property:
 const firstEmail = Query.from(users)
   .select('email')
   .scalar();
-```
 
-Returns `false` if no value is found.
+const lastEmail = Query.from(users)
+  .select('email')
+  .orderBy('-id')
+  .scalar();
+```
 
 ---
 
@@ -357,11 +378,13 @@ Returns the values of the first property from all results by default, but also a
 - `column`: The name of the column to retrieve.
 - `mapFn`: A function that maps each row to a new value.
 
+Examples:
+
 ```ts
 // default
 const ids = Query.from(users).column(); // assuming `id` is the first column
 
-// with column
+// with column name
 const emails = Query.from(users).column('email');
 
 // with map function
@@ -401,6 +424,8 @@ Groups the items by a specified property or a custom callback and returns the re
 - `aggregateFn` *(optional)*: A function to aggregate the values of each group.
 
 The returned `Map` uses the resolved grouping values as keys and arrays of matching (or mapped) items as values; except when an `aggregateFn` is provided, in which case the values are aggregated into a single value using the `aggregateFn`.
+
+Examples:
 
 ```ts
 // Grouping by property
