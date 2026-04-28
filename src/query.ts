@@ -161,6 +161,7 @@ export class Query<T extends object> {
    * @returns Current query.
    */
   distinct<K extends PropOf<T>>(key: K): this;
+
   /**
    * Removes duplicate rows based on a function.
    *
@@ -168,6 +169,7 @@ export class Query<T extends object> {
    * @returns Current query.
    */
   distinct<TValue>(fn: (row: T) => TValue): this;
+
   distinct<K extends PropOf<T>, TValue>(arg: K | ((row: T) => TValue)): this {
     const seen = new Set<unknown>();
     const result: T[] = [];
@@ -235,6 +237,7 @@ export class Query<T extends object> {
    * @returns Current query.
    */
   orderBy(...columns: OrderingColumn<T>[]): this;
+
   /**
    * Adds ordering to the results.
    *
@@ -244,6 +247,7 @@ export class Query<T extends object> {
    * @returns Current query.
    */
   orderBy<TReturn>(fn: (row: T) => TReturn, order?: 'asc' | 'desc'): this;
+
   orderBy(...arg: unknown[]): this {
     if (arg.length > 0) {
       this.#rows = this.#rows.sort(
@@ -738,6 +742,7 @@ export class Query<T extends object> {
    * @returns Minimum value or `null`, if no rows exist.
    */
   min<K extends KeysOfType<T, number>>(key: K): number | null;
+
   /**
    * Returns the minimum value of the mapped rows by a callback.
    *
@@ -745,6 +750,7 @@ export class Query<T extends object> {
    * @returns Minimum value or `null`, if no rows exist.
    */
   min(callback: (row: T) => number): number | null;
+
   min(arg: KeysOfType<T, number> | ((row: T) => number)): number | null {
     const source = this.getLimitedRows();
     const length = source.length;
@@ -771,6 +777,7 @@ export class Query<T extends object> {
    * @returns Maximum value or `null`, if no rows exist.
    */
   max<K extends KeysOfType<T, number>>(key: K): number | null;
+
   /**
    * Returns the maximum value of the mapped rows by a callback.
    *
@@ -778,6 +785,7 @@ export class Query<T extends object> {
    * @returns Maximum value or `null`, if no rows exist.
    */
   max(callback: (row: T) => number): number | null;
+
   max(arg: KeysOfType<T, number> | ((row: T) => number)): number | null {
     const source = this.getLimitedRows();
     const length = source.length;
@@ -804,6 +812,7 @@ export class Query<T extends object> {
    * @returns Sum.
    */
   sum<K extends KeysOfType<T, number>>(key: K): number;
+
   /**
    * Returns the sum of the mapped rows by a callback.
    *
@@ -811,6 +820,7 @@ export class Query<T extends object> {
    * @returns Sum.
    */
   sum(callback: (row: T) => number): number;
+
   sum(arg: KeysOfType<T, number> | ((row: T) => number)): number {
     const source = this.getLimitedRows();
     const length = source.length;
@@ -837,6 +847,7 @@ export class Query<T extends object> {
    * @returns Average or `null`, if no rows exist.
    */
   average<K extends KeysOfType<T, number>>(key: K): number | null;
+
   /**
    * Returns the average of the mapped rows by a callback.
    *
@@ -844,6 +855,7 @@ export class Query<T extends object> {
    * @returns Average or `null`, if no rows exist.
    */
   average(callback: (row: T) => number): number | null;
+
   average(arg: KeysOfType<T, number> | ((row: T) => number)): number | null {
     const count = this.count();
 
