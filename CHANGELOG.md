@@ -1,5 +1,16 @@
 # Changelog
 
+## v2.12.1
+
+### Summary
+
+- [ ] Bug fixes
+- [x] Refactoring
+- [ ] New features
+- [ ] Breaking changes
+
+There are no new features or breaking changes in this release, only refactoring and documentation improvements.
+
 ## v2.12.0
 
 ### Summary
