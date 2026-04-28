@@ -1,8 +1,8 @@
 import type { ArraySource } from './core/types/array-source';
+import type { FilterWhereCondition } from './core/types/filter-where-condition';
 import type { OrderingColumn } from './core/types/ordering-column';
-import type { QueryConditionsGroup } from './core/types/query-conditions-group';
-import type { QueryConditionsGroupNullable } from './core/types/query-conditions-group-nullable';
 import type { ValidationOptions } from './core/types/validation-options';
+import type { WhereCondition } from './core/types/where-condition';
 import {
   integer,
   min,
@@ -203,7 +203,7 @@ export class Query<T extends object> {
    *
    * @returns Current query.
    */
-  where(condition: QueryConditionsGroup<T> | ((obj: T) => boolean)): this {
+  where(condition: WhereCondition<T>): this {
     this.filterRows(condition);
 
     return this;
@@ -220,7 +220,7 @@ export class Query<T extends object> {
    *
    * @returns Current query.
    */
-  filterWhere(condition: QueryConditionsGroupNullable<T>): this {
+  filterWhere(condition: FilterWhereCondition<T>): this {
     this.filterRows(condition, { ignoreNullValues: true });
 
     return this;
@@ -862,20 +862,16 @@ export class Query<T extends object> {
    * @param condition Object or callback function.
    */
   private filterRows(
-    condition: QueryConditionsGroupNullable<T> | ((obj: T) => boolean),
+    condition: WhereCondition<T>,
     options?: ValidationOptions
   ): void {
     const rows = this.#rows;
     const result: T[] = [];
-    const isFn = isFunction(condition);
 
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i]!;
-      const validated = isFn
-        ? condition(row)
-        : QueryRowValidator.validate(row, condition, options);
 
-      if (validated) {
+      if (QueryRowValidator.validate(row, condition, options)) {
         result.push(row);
       }
     }

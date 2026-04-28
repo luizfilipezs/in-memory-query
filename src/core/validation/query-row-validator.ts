@@ -4,8 +4,8 @@ import { isFunction } from '../../utils/functions/type-guards/is-function';
 import { isObject } from '../../utils/functions/type-guards/is-object';
 import type { AttributeValidationFunction } from '../types/attribute-validation-function';
 import type { ColumnCondition } from '../types/column-condition';
-import type { QueryConditionsGroupNullable } from '../types/query-conditions-group-nullable';
 import type { ValidationOptions } from '../types/validation-options';
+import type { WhereCondition } from '../types/where-condition';
 
 /**
  * Validates a row in the query.
@@ -22,9 +22,13 @@ export class QueryRowValidator {
    */
   static validate<T extends object>(
     row: T,
-    condition: QueryConditionsGroupNullable<T>,
+    condition: WhereCondition<T>,
     options?: ValidationOptions
   ): boolean {
+    if (isFunction(condition)) {
+      return condition(row);
+    }
+
     for (const [column, columnCondition] of getEntries(condition)) {
       const validated = this.validateColumnCondition(
         row,

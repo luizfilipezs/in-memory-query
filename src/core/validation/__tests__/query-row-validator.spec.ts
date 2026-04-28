@@ -1,6 +1,24 @@
 import { QueryRowValidator } from '../query-row-validator';
 
 describe('QueryRowValidator', () => {
+  describe('callback condition', () => {
+    it('should return true when callback returns true', () => {
+      const row = { id: 1 };
+
+      const result = QueryRowValidator.validate(row, () => true);
+
+      expect(result).toBe(true);
+    });
+
+    it('should return false when callback returns false', () => {
+      const row = { id: 1 };
+
+      const result = QueryRowValidator.validate(row, () => false);
+
+      expect(result).toBe(false);
+    });
+  });
+
   describe('primitive comparisons', () => {
     it('should validate equality for primitive values', () => {
       const row = { id: 1, name: 'Alice' };
