@@ -11,10 +11,6 @@ import type { WhereCondition } from '../types/where-condition';
  * Validates a row in the query.
  */
 export class QueryRowValidator {
-  static #defaultOptions: ValidationOptions = {
-    ignoreNullValues: false,
-  };
-
   /**
    * Validates all conditions of the row.
    *
@@ -25,16 +21,27 @@ export class QueryRowValidator {
     condition: WhereCondition<T>,
     options?: ValidationOptions
   ): boolean {
+    options = {
+      ignoreNullValues: false,
+      ...options,
+    };
+
     if (isFunction(condition)) {
       return condition(row);
     }
 
-    for (const [column, columnCondition] of getEntries(condition)) {
+    for (const [propName, propCondition] of getEntries(condition)) {
+      if (
+        options.ignoreNullValues &&
+        (propCondition === null || propCondition === undefined)
+      ) {
+        continue;
+      }
+
       const validated = this.validateColumnCondition(
         row,
-        column,
-        columnCondition,
-        options ?? this.#defaultOptions
+        propName,
+        propCondition
       );
 
       if (!validated) {
@@ -46,7 +53,7 @@ export class QueryRowValidator {
   }
 
   /**
-   * Validate a condition to a specific column.
+   * Validate a condition for a row column.
    *
    * @param columnName Column name.
    * @param condition Condition to be validated.
@@ -56,19 +63,7 @@ export class QueryRowValidator {
   private static validateColumnCondition<
     T extends object,
     TColumn extends keyof T,
-  >(
-    row: T,
-    column: TColumn,
-    condition: ColumnCondition<T, TColumn>,
-    options: ValidationOptions
-  ): boolean {
-    if (
-      options.ignoreNullValues &&
-      (condition === null || condition === undefined)
-    ) {
-      return true;
-    }
-
+  >(row: T, column: TColumn, condition: ColumnCondition<T, TColumn>): boolean {
     const cellValue = row[column];
 
     if (isFunction(condition)) {
