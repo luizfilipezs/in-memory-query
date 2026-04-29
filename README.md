@@ -486,7 +486,7 @@ const maxIdByNotificationPreference = Query.from(users).groupBy(
 );
 // Map<boolean, number>
 
-// Grouping by callback with mapping and aggregation
+// Grouping by callback with mapping by callback and aggregation
 const countByNotificationPreference = Query.from(users).groupBy(
   (user) => user.permissions.sendNotifications,
   (user) => user,
