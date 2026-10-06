@@ -8,7 +8,7 @@ This file defines the global rules, architectural constraints, and non-negotiabl
 
 `in-memory-query` is an extremely lightweight, strongly typed in-memory data query engine in TypeScript, inspired by database query APIs.
 
-- **Package Manager**: `pnpm` (`pnpm@12.6.0`).
+- **Package Manager**: `pnpm` (`pnpm@12.x`).
 - **Language**: TypeScript (target `es2022`, module `ESNext`/`Bundler`).
 - **Build**: `tsdown` (dual output: ESM in `dist/esm` with `.d.ts` and CJS in `dist/cjs`).
 - **Testing**: `vitest` (co-located `*.spec.ts` files).
