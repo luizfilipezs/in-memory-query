@@ -32,6 +32,7 @@
     - [`distinct(key | callback)`](#distinctkey--callback)
   - [Selecting & Projecting](#selecting--projecting)
     - [`select(...columns)`](#selectcolumns)
+    - [`omit(...columns)`](#omitcolumns)
     - [`map(callback)`](#mapcallback)
   - [Ordering & Sorting](#ordering--sorting)
     - [`orderBy(...)`](#orderby)
@@ -40,6 +41,7 @@
     - [`limit(limit)`](#limitlimit)
     - [`limitPerGroup(key | callback, limit)`](#limitpergroupkey--callback-limit)
     - [`top(limit, options?)`](#toplimit-options)
+    - [`chunk(size)`](#chunksize)
   - [Executing & Retrieving Results](#executing--retrieving-results)
     - [`all()`](#all)
     - [`first()`](#first)
@@ -246,6 +248,20 @@ const summary = Query.from(users)
 
 ---
 
+#### `omit(...columns)`
+
+Removes specific columns from the output objects, returning a **new `Query` instance** with objects containing all keys except the omitted ones.
+
+```ts
+const safeUsers = Query.from(users)
+  .omit('permissions', 'address')
+  .all();
+
+// Output shape: Omit<User, 'permissions' | 'address'>[]
+```
+
+---
+
 #### `map(callback)`
 
 Transforms each row into a new object structure using a mapping function. Returns a **new `Query` instance**.
@@ -365,6 +381,21 @@ const topPerCountry = Query.from(addresses)
   })
   .all();
 ```
+
+---
+
+#### `chunk(size)`
+
+Splits the query results into an array of row batches (`T[][]`) of specified size.
+
+```ts
+const userBatches = Query.from(users)
+  .where({ isActive: true })
+  .chunk(10);
+// Returns batches of up to 10 users per array
+```
+
+> ⚠️ Throws an `InvalidArgumentError` if `size` is not an integer or is less than 1.
 
 ---
 

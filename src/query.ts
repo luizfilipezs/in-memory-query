@@ -132,6 +132,45 @@ export class Query<T extends object> {
   }
 
   /**
+   * Omits specific columns from the rows and returns a new query.
+   *
+   * @param columns Columns to be omitted.
+   *
+   * @returns New query with the specified columns omitted from each row.
+   */
+  omit<TColumns extends PropOf<T>[]>(
+    ...columns: TColumns
+  ): Query<Omit<T, TColumns[number]>> {
+    type _Row = Omit<T, TColumns[number]>;
+
+    const omitSet = new Set<unknown>(columns);
+    const source = this.#rows;
+    const rows: _Row[] = [];
+
+    for (let i = 0; i < source.length; i++) {
+      const originalRow = source[i]!;
+      const result = {} as _Row;
+      const propNames = getObjectPropertyNames(originalRow);
+
+      for (let j = 0; j < propNames.length; j++) {
+        const prop = propNames[j]!;
+
+        if (!omitSet.has(prop)) {
+          (result as Record<string, unknown>)[prop as string] =
+            originalRow[prop];
+        }
+      }
+
+      rows.push(result);
+    }
+
+    const query = new Query(rows);
+    this.cloneStateInto(query);
+
+    return query;
+  }
+
+  /**
    * Maps each row to a new object and returns a new query.
    *
    * @param callback Function to be called for each row.
@@ -553,6 +592,27 @@ export class Query<T extends object> {
     }
 
     return rows;
+  }
+
+  /**
+   * Splits the query results into chunks of specified size.
+   *
+   * @param size Maximum number of rows per chunk. Must be an integer greater than 0.
+   *
+   * @returns Array of row chunks.
+   *
+   * @throws {InvalidArgumentError} If the given size is not an integer or is less than 1.
+   */
+  @validateNumbers
+  chunk(@integer @min(1) size: number): T[][] {
+    const rows = this.getLimitedRows();
+    const chunks: T[][] = [];
+
+    for (let i = 0; i < rows.length; i += size) {
+      chunks.push(rows.slice(i, i + size));
+    }
+
+    return chunks;
   }
 
   /**

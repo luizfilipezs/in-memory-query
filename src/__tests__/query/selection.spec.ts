@@ -53,6 +53,31 @@ describe('Query', () => {
         expect(descOrderResult).toEqual(['Mary', 'John', 'Bob']);
       });
     });
+
+    describe('omit()', () => {
+      it('should omit a single column', () => {
+        const result = Query.from(users).omit('permissions').first();
+
+        expect(result).toBeDefined();
+        expect(
+          (result as Record<string, unknown>)['permissions']
+        ).toBeUndefined();
+        expect((result as Record<string, unknown>)['id']).toBe(1);
+        expect((result as Record<string, unknown>)['name']).toBe('John');
+      });
+
+      it('should omit multiple columns', () => {
+        const result = Query.from(users)
+          .omit('permissions', 'address', 'createdAt', 'updatedAt')
+          .all();
+
+        expect(result).toEqual([
+          { id: 1, name: 'John', isActive: true },
+          { id: 2, name: 'Mary', isActive: false },
+          { id: 3, name: 'Bob', isActive: true },
+        ]);
+      });
+    });
   });
 
   describe('mapping', () => {

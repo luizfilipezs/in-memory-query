@@ -173,5 +173,32 @@ describe('Query', () => {
         expect(result).toEqual([2]);
       });
     });
+
+    describe('chunk()', () => {
+      it('should split rows into chunks of specified size', () => {
+        const chunks = Query.from(addresses).chunk(3);
+
+        expect(chunks).toHaveLength(3);
+        expect(chunks[0]).toHaveLength(3);
+        expect(chunks[1]).toHaveLength(3);
+        expect(chunks[2]).toHaveLength(2);
+      });
+
+      it('should return empty array if no rows', () => {
+        const chunks = Query.from([]).chunk(2);
+
+        expect(chunks).toEqual([]);
+      });
+
+      it('should throw if size is less than 1', () => {
+        expect(() => Query.from(users).chunk(0)).toThrow(InvalidArgumentError);
+      });
+
+      it('should throw if size is not an integer', () => {
+        expect(() => Query.from(users).chunk(1.5)).toThrow(
+          InvalidArgumentError
+        );
+      });
+    });
   });
 });
