@@ -1,5 +1,22 @@
 # Changelog
 
+## v2.13.0
+
+### Summary
+
+- [ ] Bug fixes
+- [ ] Refactoring
+- [x] New features
+- [ ] Breaking changes
+- [ ] Chore
+
+### New features
+
+Added two new methods to the `Query` class:
+
+- **`omit(...columns)`**: Allows excluding specific properties from objects in query results, returning a new `Query` instance strongly typed with `Omit<T, TColumns[number]>`.
+- **`chunk(size)`**: Splits query results into an array of row batches (`T[][]`) of a specified positive integer size.
+
 ## v2.12.8
 
 ### Summary
