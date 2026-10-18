@@ -149,6 +149,28 @@ describe('Query', () => {
         expect(result).toHaveLength(1);
         expect(result[0]!.id).toBe(3);
       });
+
+      it('should filter using attribute-level $not operator', () => {
+        const result = Query.from(users)
+          .where({
+            name: { $not: 'John' },
+          })
+          .all();
+
+        expect(result).toHaveLength(2);
+        expect(result.map((u) => u.name)).toEqual(['Mary', 'Bob']);
+      });
+
+      it('should filter using attribute-level $not with callback', () => {
+        const result = Query.from(users)
+          .where({
+            id: { $not: (id) => id === 1 },
+          })
+          .all();
+
+        expect(result).toHaveLength(2);
+        expect(result.map((u) => u.id)).toEqual([2, 3]);
+      });
     });
 
     describe('filterWhere()', () => {

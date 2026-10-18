@@ -138,6 +138,23 @@ export class QueryRowValidator {
         return false;
       }
 
+      if ('$not' in condition) {
+        const notCondition = (condition as { $not?: unknown }).$not;
+
+        if (
+          options.ignoreNullValues &&
+          (notCondition === null || notCondition === undefined)
+        ) {
+          return true;
+        }
+
+        return !this.validateValue(
+          value,
+          notCondition as ColumnCondition<T, K>,
+          options
+        );
+      }
+
       return isObject(value)
         ? this.validate(
             value,

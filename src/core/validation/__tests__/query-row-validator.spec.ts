@@ -637,4 +637,83 @@ describe('QueryRowValidator', () => {
       expect(result).toBe(false);
     });
   });
+
+  describe('attribute-level $not operator', () => {
+    it('should negate literal values at attribute level', () => {
+      const row = { status: 'active', role: 'admin' };
+
+      const result = QueryRowValidator.validate(row, {
+        status: { $not: 'deleted' },
+      });
+
+      expect(result).toBe(true);
+
+      const failResult = QueryRowValidator.validate(row, {
+        status: { $not: 'active' },
+      });
+
+      expect(failResult).toBe(false);
+    });
+
+    it('should negate callback functions at attribute level', () => {
+      const row = { age: 25 };
+
+      const result = QueryRowValidator.validate(row, {
+        age: { $not: (a) => a < 18 },
+      });
+
+      expect(result).toBe(true);
+
+      const failResult = QueryRowValidator.validate(row, {
+        age: { $not: (a) => a > 20 },
+      });
+
+      expect(failResult).toBe(false);
+    });
+
+    it('should negate operators like $in at attribute level', () => {
+      const row = { id: 4 };
+
+      const result = QueryRowValidator.validate(row, {
+        id: { $not: { $in: [1, 2, 3] } },
+      });
+
+      expect(result).toBe(true);
+
+      const failResult = QueryRowValidator.validate(row, {
+        id: { $not: { $in: [3, 4, 5] } },
+      });
+
+      expect(failResult).toBe(false);
+    });
+
+    it('should ignore null/undefined $not when ignoreNullValues is true', () => {
+      const row = { status: 'active' };
+
+      const result = QueryRowValidator.validate(
+        row,
+        {
+          status: { $not: undefined },
+        },
+        { ignoreNullValues: true }
+      );
+
+      expect(result).toBe(true);
+    });
+
+    it('should fail null/undefined $not when ignoreNullValues is false', () => {
+      const row = { status: 'active' };
+
+      const result = QueryRowValidator.validate(
+        row,
+        {
+          status: { $not: undefined },
+        },
+        { ignoreNullValues: false }
+      );
+
+      // !validateValue('active', undefined) => !(active === undefined) => !false => true
+      expect(result).toBe(true);
+    });
+  });
 });
