@@ -55,6 +55,14 @@ export class QueryRowValidator {
         continue;
       }
 
+      if (propName === '$not') {
+        if (this.validate(row, propCondition as WhereCondition<T>, options)) {
+          return false;
+        }
+
+        continue;
+      }
+
       const key = propName as unknown as keyof T;
       const propValue = row[key];
 

@@ -114,6 +114,30 @@ describe('Query', () => {
         expect(result).toHaveLength(2);
         expect(result.map((u) => u.name)).toEqual(['John', 'Bob']);
       });
+
+      it('should filter using $not operator', () => {
+        const result = Query.from(users)
+          .where({
+            $not: {
+              $or: [{ id: 1 }, { id: 3 }],
+            },
+          })
+          .all();
+
+        expect(result).toHaveLength(1);
+        expect(result[0]!.id).toBe(2);
+      });
+
+      it('should filter using $not with callback and nested conditions', () => {
+        const result = Query.from(users)
+          .where({
+            $not: (user) => user.isAdmin(),
+          })
+          .all();
+
+        expect(result).toHaveLength(2);
+        expect(result.map((u) => u.id)).toEqual([2, 3]);
+      });
     });
 
     describe('filterWhere()', () => {
@@ -207,6 +231,18 @@ describe('Query', () => {
           .all();
 
         expect(result).toHaveLength(3);
+      });
+
+      it('should ignore null/undefined $not with filterWhere', () => {
+        const result = Query.from(users)
+          .filterWhere({
+            id: 1,
+            $not: undefined,
+          })
+          .all();
+
+        expect(result).toHaveLength(1);
+        expect(result[0]!.id).toBe(1);
       });
     });
 

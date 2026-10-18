@@ -435,4 +435,101 @@ describe('QueryRowValidator', () => {
       expect(result).toBe(false);
     });
   });
+
+  describe('$not operator', () => {
+    it('should negate a condition and return true when inner condition fails', () => {
+      const row = { id: 2, isActive: false };
+
+      const result = QueryRowValidator.validate(row, {
+        $not: { id: 1 },
+      });
+
+      expect(result).toBe(true);
+    });
+
+    it('should negate a condition and return false when inner condition passes', () => {
+      const row = { id: 1, isActive: true };
+
+      const result = QueryRowValidator.validate(row, {
+        $not: { id: 1 },
+      });
+
+      expect(result).toBe(false);
+    });
+
+    it('should negate an $or condition group', () => {
+      const row = { id: 2, isAdmin: false };
+
+      const result = QueryRowValidator.validate(row, {
+        $not: {
+          $or: [{ id: 1 }, { isAdmin: true }],
+        },
+      });
+
+      expect(result).toBe(true);
+
+      const matchingRow = { id: 1, isAdmin: false };
+      const failResult = QueryRowValidator.validate(matchingRow, {
+        $not: {
+          $or: [{ id: 1 }, { isAdmin: true }],
+        },
+      });
+
+      expect(failResult).toBe(false);
+    });
+
+    it('should negate callback predicates', () => {
+      const row = { age: 15 };
+
+      const result = QueryRowValidator.validate(row, {
+        $not: (r) => r.age >= 18,
+      });
+
+      expect(result).toBe(true);
+    });
+
+    it('should combine standard conditions with $not', () => {
+      const row = { id: 2, isActive: true, role: 'guest' };
+
+      const result = QueryRowValidator.validate(row, {
+        isActive: true,
+        $not: { role: 'admin' },
+      });
+
+      expect(result).toBe(true);
+
+      const adminRow = { id: 3, isActive: true, role: 'admin' };
+      const failResult = QueryRowValidator.validate(adminRow, {
+        isActive: true,
+        $not: { role: 'admin' },
+      });
+
+      expect(failResult).toBe(false);
+    });
+
+    it('should ignore null/undefined $not when ignoreNullValues is true', () => {
+      const row = { id: 1 };
+
+      const resultWithNull = QueryRowValidator.validate(
+        row,
+        {
+          id: 1,
+          $not: null as any,
+        },
+        { ignoreNullValues: true }
+      );
+
+      const resultWithUndefined = QueryRowValidator.validate(
+        row,
+        {
+          id: 1,
+          $not: undefined,
+        },
+        { ignoreNullValues: true }
+      );
+
+      expect(resultWithNull).toBe(true);
+      expect(resultWithUndefined).toBe(true);
+    });
+  });
 });

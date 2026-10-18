@@ -13,4 +13,5 @@ export type QueryConditionsGroupNullable<T extends object> =
           : NullableCondition<T[P]>;
       } & {
         $or?: WhereCondition<T>[] | undefined;
+        $not?: WhereCondition<T> | undefined;
       };
