@@ -351,4 +351,88 @@ describe('QueryRowValidator', () => {
       expect(resultWithUndefined).toBe(true);
     });
   });
+
+  describe('$in operator', () => {
+    it('should return true when primitive value is present in $in array', () => {
+      const row = { id: 2, status: 'active' };
+
+      const result = QueryRowValidator.validate(row, {
+        id: { $in: [1, 2, 3] },
+      });
+
+      expect(result).toBe(true);
+    });
+
+    it('should return false when primitive value is not present in $in array', () => {
+      const row = { id: 5, status: 'active' };
+
+      const result = QueryRowValidator.validate(row, {
+        id: { $in: [1, 2, 3] },
+      });
+
+      expect(result).toBe(false);
+    });
+
+    it('should support object comparison in $in array using deepEqual', () => {
+      const row = { meta: { role: 'admin', level: 1 } };
+
+      const result = QueryRowValidator.validate(row, {
+        meta: {
+          $in: [
+            { role: 'viewer', level: 0 },
+            { role: 'admin', level: 1 },
+          ],
+        },
+      });
+
+      expect(result).toBe(true);
+    });
+
+    it('should return false for empty $in array', () => {
+      const row = { id: 1 };
+
+      const result = QueryRowValidator.validate(row, {
+        id: { $in: [] },
+      });
+
+      expect(result).toBe(false);
+    });
+
+    it('should ignore null/undefined $in when ignoreNullValues is true', () => {
+      const row = { id: 1 };
+
+      const resultWithNull = QueryRowValidator.validate(
+        row,
+        {
+          id: { $in: null as any },
+        },
+        { ignoreNullValues: true }
+      );
+
+      const resultWithUndefined = QueryRowValidator.validate(
+        row,
+        {
+          id: { $in: undefined },
+        },
+        { ignoreNullValues: true }
+      );
+
+      expect(resultWithNull).toBe(true);
+      expect(resultWithUndefined).toBe(true);
+    });
+
+    it('should fail null/undefined $in when ignoreNullValues is false', () => {
+      const row = { id: 1 };
+
+      const result = QueryRowValidator.validate(
+        row,
+        {
+          id: { $in: undefined },
+        },
+        { ignoreNullValues: false }
+      );
+
+      expect(result).toBe(false);
+    });
+  });
 });

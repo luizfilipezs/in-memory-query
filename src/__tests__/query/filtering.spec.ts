@@ -91,6 +91,29 @@ describe('Query', () => {
         expect(result).toHaveLength(2);
         expect(result.map((u) => u.id)).toEqual([1, 3]);
       });
+
+      it('should filter using $in operator', () => {
+        const result = Query.from(users)
+          .where({
+            id: { $in: [1, 3] },
+          })
+          .all();
+
+        expect(result).toHaveLength(2);
+        expect(result.map((u) => u.id)).toEqual([1, 3]);
+      });
+
+      it('should combine $in operator with other conditions and $or', () => {
+        const result = Query.from(users)
+          .where({
+            id: { $in: [1, 2, 3] },
+            $or: [{ name: 'John' }, { name: 'Bob' }],
+          })
+          .all();
+
+        expect(result).toHaveLength(2);
+        expect(result.map((u) => u.name)).toEqual(['John', 'Bob']);
+      });
     });
 
     describe('filterWhere()', () => {
@@ -174,6 +197,16 @@ describe('Query', () => {
 
         expect(result).toHaveLength(1);
         expect(result[0]!.id).toBe(1);
+      });
+
+      it('should ignore null/undefined $in with filterWhere', () => {
+        const result = Query.from(users)
+          .filterWhere({
+            id: { $in: undefined },
+          })
+          .all();
+
+        expect(result).toHaveLength(3);
       });
     });
 

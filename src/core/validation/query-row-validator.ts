@@ -1,4 +1,5 @@
 import { compareArrays } from '../../utils/functions/generic/compare-arrays';
+import { deepEqual } from '../../utils/functions/generic/deep-equal';
 import { getEntries } from '../../utils/functions/generic/get-entries';
 import { isFunction } from '../../utils/functions/type-guards/is-function';
 import { isObject } from '../../utils/functions/type-guards/is-object';
@@ -93,6 +94,23 @@ export class QueryRowValidator {
     }
 
     if (isObject(condition)) {
+      if ('$in' in condition) {
+        const inValues = (condition as { $in?: unknown[] }).$in;
+
+        if (Array.isArray(inValues)) {
+          return inValues.some((inVal) => deepEqual(value, inVal));
+        }
+
+        if (
+          options.ignoreNullValues &&
+          (inValues === null || inValues === undefined)
+        ) {
+          return true;
+        }
+
+        return false;
+      }
+
       return isObject(value)
         ? this.validate(
             value,
