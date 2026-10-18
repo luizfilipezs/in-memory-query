@@ -716,4 +716,185 @@ describe('QueryRowValidator', () => {
       expect(result).toBe(true);
     });
   });
+
+  describe('relational operators ($gt, $gte, $lt, $lte, $ne)', () => {
+    describe('$gt operator', () => {
+      it('should validate numbers correctly', () => {
+        expect(
+          QueryRowValidator.validate({ age: 20 }, { age: { $gt: 18 } })
+        ).toBe(true);
+        expect(
+          QueryRowValidator.validate({ age: 18 }, { age: { $gt: 18 } })
+        ).toBe(false);
+        expect(
+          QueryRowValidator.validate({ age: 15 }, { age: { $gt: 18 } })
+        ).toBe(false);
+      });
+
+      it('should validate Date objects correctly', () => {
+        const d1 = new Date('2023-01-02');
+        const d2 = new Date('2023-01-01');
+
+        expect(
+          QueryRowValidator.validate({ date: d1 }, { date: { $gt: d2 } })
+        ).toBe(true);
+        expect(
+          QueryRowValidator.validate({ date: d2 }, { date: { $gt: d1 } })
+        ).toBe(false);
+      });
+
+      it('should validate strings correctly', () => {
+        expect(
+          QueryRowValidator.validate({ name: 'b' }, { name: { $gt: 'a' } })
+        ).toBe(true);
+        expect(
+          QueryRowValidator.validate({ name: 'a' }, { name: { $gt: 'b' } })
+        ).toBe(false);
+      });
+
+      it('should handle ignoreNullValues', () => {
+        expect(
+          QueryRowValidator.validate(
+            { age: 20 },
+            { age: { $gt: undefined } },
+            { ignoreNullValues: true }
+          )
+        ).toBe(true);
+        expect(
+          QueryRowValidator.validate(
+            { age: 20 },
+            { age: { $gt: undefined } },
+            { ignoreNullValues: false }
+          )
+        ).toBe(false);
+      });
+    });
+
+    describe('$gte operator', () => {
+      it('should validate numbers correctly', () => {
+        expect(
+          QueryRowValidator.validate({ age: 20 }, { age: { $gte: 18 } })
+        ).toBe(true);
+        expect(
+          QueryRowValidator.validate({ age: 18 }, { age: { $gte: 18 } })
+        ).toBe(true);
+        expect(
+          QueryRowValidator.validate({ age: 17 }, { age: { $gte: 18 } })
+        ).toBe(false);
+      });
+
+      it('should validate Date objects correctly', () => {
+        const d1 = new Date('2023-01-01');
+        const d1Same = new Date('2023-01-01');
+
+        expect(
+          QueryRowValidator.validate({ date: d1 }, { date: { $gte: d1Same } })
+        ).toBe(true);
+      });
+    });
+
+    describe('$lt operator', () => {
+      it('should validate numbers correctly', () => {
+        expect(
+          QueryRowValidator.validate({ age: 17 }, { age: { $lt: 18 } })
+        ).toBe(true);
+        expect(
+          QueryRowValidator.validate({ age: 18 }, { age: { $lt: 18 } })
+        ).toBe(false);
+        expect(
+          QueryRowValidator.validate({ age: 20 }, { age: { $lt: 18 } })
+        ).toBe(false);
+      });
+
+      it('should validate Date objects correctly', () => {
+        const d1 = new Date('2023-01-01');
+        const d2 = new Date('2023-01-02');
+
+        expect(
+          QueryRowValidator.validate({ date: d1 }, { date: { $lt: d2 } })
+        ).toBe(true);
+        expect(
+          QueryRowValidator.validate({ date: d2 }, { date: { $lt: d1 } })
+        ).toBe(false);
+      });
+    });
+
+    describe('$lte operator', () => {
+      it('should validate numbers correctly', () => {
+        expect(
+          QueryRowValidator.validate({ age: 18 }, { age: { $lte: 18 } })
+        ).toBe(true);
+        expect(
+          QueryRowValidator.validate({ age: 17 }, { age: { $lte: 18 } })
+        ).toBe(true);
+        expect(
+          QueryRowValidator.validate({ age: 19 }, { age: { $lte: 18 } })
+        ).toBe(false);
+      });
+
+      it('should validate Date objects correctly', () => {
+        const d1 = new Date('2023-01-01');
+        const d1Same = new Date('2023-01-01');
+
+        expect(
+          QueryRowValidator.validate({ date: d1 }, { date: { $lte: d1Same } })
+        ).toBe(true);
+      });
+    });
+
+    describe('$ne operator', () => {
+      it('should validate primitive inequality correctly', () => {
+        expect(
+          QueryRowValidator.validate(
+            { role: 'admin' },
+            { role: { $ne: 'guest' } }
+          )
+        ).toBe(true);
+        expect(
+          QueryRowValidator.validate(
+            { role: 'admin' },
+            { role: { $ne: 'admin' } }
+          )
+        ).toBe(false);
+      });
+
+      it('should validate deep object inequality correctly', () => {
+        expect(
+          QueryRowValidator.validate(
+            { meta: { level: 1 } },
+            { meta: { $ne: { level: 2 } } }
+          )
+        ).toBe(true);
+        expect(
+          QueryRowValidator.validate(
+            { meta: { level: 1 } },
+            { meta: { $ne: { level: 1 } } }
+          )
+        ).toBe(false);
+      });
+    });
+
+    describe('combined relational operators', () => {
+      it('should support range filtering ($gte and $lte together)', () => {
+        expect(
+          QueryRowValidator.validate(
+            { score: 75 },
+            { score: { $gte: 70, $lte: 80 } }
+          )
+        ).toBe(true);
+        expect(
+          QueryRowValidator.validate(
+            { score: 69 },
+            { score: { $gte: 70, $lte: 80 } }
+          )
+        ).toBe(false);
+        expect(
+          QueryRowValidator.validate(
+            { score: 81 },
+            { score: { $gte: 70, $lte: 80 } }
+          )
+        ).toBe(false);
+      });
+    });
+  });
 });

@@ -171,6 +171,42 @@ describe('Query', () => {
         expect(result).toHaveLength(2);
         expect(result.map((u) => u.id)).toEqual([2, 3]);
       });
+
+      it('should filter using $gt and $lt operators', () => {
+        const result = Query.from(users)
+          .where({
+            id: { $gt: 1, $lt: 3 },
+          })
+          .all();
+
+        expect(result).toHaveLength(1);
+        expect(result[0]!.id).toBe(2);
+      });
+
+      it('should filter using $gte and $lte operators with Date values', () => {
+        const result = Query.from(users)
+          .where({
+            createdAt: {
+              $gte: new Date('2023-01-01'),
+              $lte: new Date('2023-02-01'),
+            },
+          })
+          .all();
+
+        expect(result).toHaveLength(2);
+        expect(result.map((u) => u.id)).toEqual([1, 2]);
+      });
+
+      it('should filter using $ne operator', () => {
+        const result = Query.from(users)
+          .where({
+            id: { $ne: 1 },
+          })
+          .all();
+
+        expect(result).toHaveLength(2);
+        expect(result.map((u) => u.id)).toEqual([2, 3]);
+      });
     });
 
     describe('filterWhere()', () => {

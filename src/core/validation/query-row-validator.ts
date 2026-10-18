@@ -104,55 +104,171 @@ export class QueryRowValidator {
     }
 
     if (isObject(condition)) {
+      let isOperatorMatch = false;
+
       if ('$in' in condition) {
+        isOperatorMatch = true;
         const inValues = (condition as { $in?: unknown[] }).$in;
 
         if (Array.isArray(inValues)) {
-          return inValues.some((inVal) => deepEqual(value, inVal));
-        }
-
-        if (
-          options.ignoreNullValues &&
-          (inValues === null || inValues === undefined)
+          if (!inValues.some((inVal) => deepEqual(value, inVal))) {
+            return false;
+          }
+        } else if (
+          !options.ignoreNullValues ||
+          (inValues !== null && inValues !== undefined)
         ) {
-          return true;
+          return false;
         }
-
-        return false;
       }
 
       if ('$nin' in condition) {
+        isOperatorMatch = true;
         const ninValues = (condition as { $nin?: unknown[] }).$nin;
 
         if (Array.isArray(ninValues)) {
-          return !ninValues.some((ninVal) => deepEqual(value, ninVal));
-        }
-
-        if (
-          options.ignoreNullValues &&
-          (ninValues === null || ninValues === undefined)
+          if (ninValues.some((ninVal) => deepEqual(value, ninVal))) {
+            return false;
+          }
+        } else if (
+          !options.ignoreNullValues ||
+          (ninValues !== null && ninValues !== undefined)
         ) {
-          return true;
+          return false;
         }
-
-        return false;
       }
 
       if ('$not' in condition) {
+        isOperatorMatch = true;
         const notCondition = (condition as { $not?: unknown }).$not;
 
         if (
-          options.ignoreNullValues &&
-          (notCondition === null || notCondition === undefined)
+          !options.ignoreNullValues ||
+          (notCondition !== null && notCondition !== undefined)
         ) {
-          return true;
+          if (
+            this.validateValue(
+              value,
+              notCondition as ColumnCondition<T, K>,
+              options
+            )
+          ) {
+            return false;
+          }
+        }
+      }
+
+      const compareRelational = (
+        a: unknown,
+        b: unknown,
+        operator: '$gt' | '$gte' | '$lt' | '$lte'
+      ): boolean => {
+        if (a == null || b == null) {
+          return false;
         }
 
-        return !this.validateValue(
-          value,
-          notCondition as ColumnCondition<T, K>,
-          options
-        );
+        const normA =
+          a instanceof Date
+            ? a.getTime()
+            : typeof a === 'number' ||
+                typeof a === 'string' ||
+                typeof a === 'bigint' ||
+                typeof a === 'boolean'
+              ? a
+              : null;
+
+        const normB =
+          b instanceof Date
+            ? b.getTime()
+            : typeof b === 'number' ||
+                typeof b === 'string' ||
+                typeof b === 'bigint' ||
+                typeof b === 'boolean'
+              ? b
+              : null;
+
+        if (normA == null || normB == null) {
+          return false;
+        }
+
+        if (operator === '$gt') return normA > normB;
+        if (operator === '$gte') return normA >= normB;
+        if (operator === '$lt') return normA < normB;
+        return normA <= normB;
+      };
+
+      if ('$gt' in condition) {
+        isOperatorMatch = true;
+        const target = (condition as { $gt?: unknown }).$gt;
+
+        if (
+          !options.ignoreNullValues ||
+          (target !== null && target !== undefined)
+        ) {
+          if (!compareRelational(value, target, '$gt')) {
+            return false;
+          }
+        }
+      }
+
+      if ('$gte' in condition) {
+        isOperatorMatch = true;
+        const target = (condition as { $gte?: unknown }).$gte;
+
+        if (
+          !options.ignoreNullValues ||
+          (target !== null && target !== undefined)
+        ) {
+          if (!compareRelational(value, target, '$gte')) {
+            return false;
+          }
+        }
+      }
+
+      if ('$lt' in condition) {
+        isOperatorMatch = true;
+        const target = (condition as { $lt?: unknown }).$lt;
+
+        if (
+          !options.ignoreNullValues ||
+          (target !== null && target !== undefined)
+        ) {
+          if (!compareRelational(value, target, '$lt')) {
+            return false;
+          }
+        }
+      }
+
+      if ('$lte' in condition) {
+        isOperatorMatch = true;
+        const target = (condition as { $lte?: unknown }).$lte;
+
+        if (
+          !options.ignoreNullValues ||
+          (target !== null && target !== undefined)
+        ) {
+          if (!compareRelational(value, target, '$lte')) {
+            return false;
+          }
+        }
+      }
+
+      if ('$ne' in condition) {
+        isOperatorMatch = true;
+        const target = (condition as { $ne?: unknown }).$ne;
+
+        if (
+          !options.ignoreNullValues ||
+          (target !== null && target !== undefined)
+        ) {
+          if (deepEqual(value, target)) {
+            return false;
+          }
+        }
+      }
+
+      if (isOperatorMatch) {
+        return true;
       }
 
       return isObject(value)
