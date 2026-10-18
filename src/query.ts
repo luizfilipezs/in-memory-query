@@ -225,9 +225,9 @@ export class Query<T extends object> {
    * If an object is provided, its properties must be attributes of `T` and their
    * corresponding values must be the expected values for the attributes, a
    * callback function that returns a boolean value, or comparison operators
-   * such as `{ $in: [...] }`. The object may also include an optional `$or` operator
-   * containing an array of conditions where at least one must be satisfied, or a `$not`
-   * operator to negate an entire condition group or predicate.
+   * such as `{ $in: [...] }` or `{ $nin: [...] }`. The object may also include an optional
+   * `$or` operator containing an array of conditions where at least one must be satisfied,
+   * or a `$not` operator to negate an entire condition group or predicate.
    *
    * @returns Current query.
    */

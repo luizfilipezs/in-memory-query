@@ -350,6 +350,16 @@ describe('QueryRowValidator', () => {
       expect(resultWithNull).toBe(true);
       expect(resultWithUndefined).toBe(true);
     });
+
+    it('should return false if $or is not an array at runtime', () => {
+      const row = { id: 1 };
+
+      const result = QueryRowValidator.validate(row, {
+        $or: { id: 1 } as any,
+      });
+
+      expect(result).toBe(false);
+    });
   });
 
   describe('$in operator', () => {
@@ -530,6 +540,101 @@ describe('QueryRowValidator', () => {
 
       expect(resultWithNull).toBe(true);
       expect(resultWithUndefined).toBe(true);
+    });
+  });
+
+  describe('$nin operator', () => {
+    it('should return true when primitive value is not present in $nin array', () => {
+      const row = { id: 5, status: 'active' };
+
+      const result = QueryRowValidator.validate(row, {
+        id: { $nin: [1, 2, 3] },
+      });
+
+      expect(result).toBe(true);
+    });
+
+    it('should return false when primitive value is present in $nin array', () => {
+      const row = { id: 2, status: 'active' };
+
+      const result = QueryRowValidator.validate(row, {
+        id: { $nin: [1, 2, 3] },
+      });
+
+      expect(result).toBe(false);
+    });
+
+    it('should support object comparison in $nin array using deepEqual', () => {
+      const row = { meta: { role: 'admin', level: 1 } };
+
+      const result = QueryRowValidator.validate(row, {
+        meta: {
+          $nin: [
+            { role: 'viewer', level: 0 },
+            { role: 'guest', level: -1 },
+          ],
+        },
+      });
+
+      expect(result).toBe(true);
+
+      const failResult = QueryRowValidator.validate(row, {
+        meta: {
+          $nin: [
+            { role: 'viewer', level: 0 },
+            { role: 'admin', level: 1 },
+          ],
+        },
+      });
+
+      expect(failResult).toBe(false);
+    });
+
+    it('should return true for empty $nin array', () => {
+      const row = { id: 1 };
+
+      const result = QueryRowValidator.validate(row, {
+        id: { $nin: [] },
+      });
+
+      expect(result).toBe(true);
+    });
+
+    it('should ignore null/undefined $nin when ignoreNullValues is true', () => {
+      const row = { id: 1 };
+
+      const resultWithNull = QueryRowValidator.validate(
+        row,
+        {
+          id: { $nin: null as any },
+        },
+        { ignoreNullValues: true }
+      );
+
+      const resultWithUndefined = QueryRowValidator.validate(
+        row,
+        {
+          id: { $nin: undefined },
+        },
+        { ignoreNullValues: true }
+      );
+
+      expect(resultWithNull).toBe(true);
+      expect(resultWithUndefined).toBe(true);
+    });
+
+    it('should fail null/undefined $nin when ignoreNullValues is false', () => {
+      const row = { id: 1 };
+
+      const result = QueryRowValidator.validate(
+        row,
+        {
+          id: { $nin: undefined },
+        },
+        { ignoreNullValues: false }
+      );
+
+      expect(result).toBe(false);
     });
   });
 });

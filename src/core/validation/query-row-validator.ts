@@ -41,15 +41,17 @@ export class QueryRowValidator {
       }
 
       if (propName === '$or') {
-        if (Array.isArray(propCondition)) {
-          const conditions = propCondition as WhereCondition<T>[];
+        if (!Array.isArray(propCondition)) {
+          return false;
+        }
 
-          if (
-            conditions.length > 0 &&
-            !conditions.some((cond) => this.validate(row, cond, options))
-          ) {
-            return false;
-          }
+        const conditions = propCondition as WhereCondition<T>[];
+
+        if (
+          conditions.length > 0 &&
+          !conditions.some((cond) => this.validate(row, cond, options))
+        ) {
+          return false;
         }
 
         continue;
@@ -112,6 +114,23 @@ export class QueryRowValidator {
         if (
           options.ignoreNullValues &&
           (inValues === null || inValues === undefined)
+        ) {
+          return true;
+        }
+
+        return false;
+      }
+
+      if ('$nin' in condition) {
+        const ninValues = (condition as { $nin?: unknown[] }).$nin;
+
+        if (Array.isArray(ninValues)) {
+          return !ninValues.some((ninVal) => deepEqual(value, ninVal));
+        }
+
+        if (
+          options.ignoreNullValues &&
+          (ninValues === null || ninValues === undefined)
         ) {
           return true;
         }

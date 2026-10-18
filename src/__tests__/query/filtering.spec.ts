@@ -138,6 +138,17 @@ describe('Query', () => {
         expect(result).toHaveLength(2);
         expect(result.map((u) => u.id)).toEqual([2, 3]);
       });
+
+      it('should filter using $nin operator', () => {
+        const result = Query.from(users)
+          .where({
+            id: { $nin: [1, 2] },
+          })
+          .all();
+
+        expect(result).toHaveLength(1);
+        expect(result[0]!.id).toBe(3);
+      });
     });
 
     describe('filterWhere()', () => {
@@ -243,6 +254,16 @@ describe('Query', () => {
 
         expect(result).toHaveLength(1);
         expect(result[0]!.id).toBe(1);
+      });
+
+      it('should ignore null/undefined $nin with filterWhere', () => {
+        const result = Query.from(users)
+          .filterWhere({
+            id: { $nin: undefined },
+          })
+          .all();
+
+        expect(result).toHaveLength(3);
       });
     });
 

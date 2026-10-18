@@ -3,4 +3,5 @@
  */
 export type ComparisonOperators<T> = {
   $in?: T[] | undefined;
+  $nin?: T[] | undefined;
 };
