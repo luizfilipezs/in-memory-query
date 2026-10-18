@@ -1,4 +1,5 @@
 import { compareArrays } from '../../utils/functions/generic/compare-arrays';
+import { compareRelational } from '../../utils/functions/generic/compare-relational';
 import { deepEqual } from '../../utils/functions/generic/deep-equal';
 import { getEntries } from '../../utils/functions/generic/get-entries';
 import { isFunction } from '../../utils/functions/type-guards/is-function';
@@ -33,10 +34,7 @@ export class QueryRowValidator {
     }
 
     for (const [propName, propCondition] of getEntries(condition)) {
-      if (
-        options.ignoreNullValues &&
-        (propCondition === null || propCondition === undefined)
-      ) {
+      if (this.shouldIgnoreCondition(propCondition, options)) {
         continue;
       }
 
@@ -114,10 +112,7 @@ export class QueryRowValidator {
           if (!inValues.some((inVal) => deepEqual(value, inVal))) {
             return false;
           }
-        } else if (
-          !options.ignoreNullValues ||
-          (inValues !== null && inValues !== undefined)
-        ) {
+        } else if (!this.shouldIgnoreCondition(inValues, options)) {
           return false;
         }
       }
@@ -130,10 +125,7 @@ export class QueryRowValidator {
           if (ninValues.some((ninVal) => deepEqual(value, ninVal))) {
             return false;
           }
-        } else if (
-          !options.ignoreNullValues ||
-          (ninValues !== null && ninValues !== undefined)
-        ) {
+        } else if (!this.shouldIgnoreCondition(ninValues, options)) {
           return false;
         }
       }
@@ -142,10 +134,7 @@ export class QueryRowValidator {
         isOperatorMatch = true;
         const notCondition = (condition as { $not?: unknown }).$not;
 
-        if (
-          !options.ignoreNullValues ||
-          (notCondition !== null && notCondition !== undefined)
-        ) {
+        if (!this.shouldIgnoreCondition(notCondition, options)) {
           if (
             this.validateValue(
               value,
@@ -158,56 +147,15 @@ export class QueryRowValidator {
         }
       }
 
-      const compareRelational = (
-        a: unknown,
-        b: unknown,
-        operator: '$gt' | '$gte' | '$lt' | '$lte'
-      ): boolean => {
-        if (a == null || b == null) {
-          return false;
-        }
-
-        const normA =
-          a instanceof Date
-            ? a.getTime()
-            : typeof a === 'number' ||
-                typeof a === 'string' ||
-                typeof a === 'bigint' ||
-                typeof a === 'boolean'
-              ? a
-              : null;
-
-        const normB =
-          b instanceof Date
-            ? b.getTime()
-            : typeof b === 'number' ||
-                typeof b === 'string' ||
-                typeof b === 'bigint' ||
-                typeof b === 'boolean'
-              ? b
-              : null;
-
-        if (normA == null || normB == null) {
-          return false;
-        }
-
-        if (operator === '$gt') return normA > normB;
-        if (operator === '$gte') return normA >= normB;
-        if (operator === '$lt') return normA < normB;
-        return normA <= normB;
-      };
-
       if ('$gt' in condition) {
         isOperatorMatch = true;
         const target = (condition as { $gt?: unknown }).$gt;
 
         if (
-          !options.ignoreNullValues ||
-          (target !== null && target !== undefined)
+          !this.shouldIgnoreCondition(target, options) &&
+          !compareRelational(value, target, '$gt')
         ) {
-          if (!compareRelational(value, target, '$gt')) {
-            return false;
-          }
+          return false;
         }
       }
 
@@ -216,12 +164,10 @@ export class QueryRowValidator {
         const target = (condition as { $gte?: unknown }).$gte;
 
         if (
-          !options.ignoreNullValues ||
-          (target !== null && target !== undefined)
+          !this.shouldIgnoreCondition(target, options) &&
+          !compareRelational(value, target, '$gte')
         ) {
-          if (!compareRelational(value, target, '$gte')) {
-            return false;
-          }
+          return false;
         }
       }
 
@@ -230,12 +176,10 @@ export class QueryRowValidator {
         const target = (condition as { $lt?: unknown }).$lt;
 
         if (
-          !options.ignoreNullValues ||
-          (target !== null && target !== undefined)
+          !this.shouldIgnoreCondition(target, options) &&
+          !compareRelational(value, target, '$lt')
         ) {
-          if (!compareRelational(value, target, '$lt')) {
-            return false;
-          }
+          return false;
         }
       }
 
@@ -244,12 +188,10 @@ export class QueryRowValidator {
         const target = (condition as { $lte?: unknown }).$lte;
 
         if (
-          !options.ignoreNullValues ||
-          (target !== null && target !== undefined)
+          !this.shouldIgnoreCondition(target, options) &&
+          !compareRelational(value, target, '$lte')
         ) {
-          if (!compareRelational(value, target, '$lte')) {
-            return false;
-          }
+          return false;
         }
       }
 
@@ -258,12 +200,10 @@ export class QueryRowValidator {
         const target = (condition as { $ne?: unknown }).$ne;
 
         if (
-          !options.ignoreNullValues ||
-          (target !== null && target !== undefined)
+          !this.shouldIgnoreCondition(target, options) &&
+          deepEqual(value, target)
         ) {
-          if (deepEqual(value, target)) {
-            return false;
-          }
+          return false;
         }
       }
 
@@ -281,5 +221,23 @@ export class QueryRowValidator {
     }
 
     return value === condition;
+  }
+
+  /**
+   * Determines if a condition value should be ignored based on options.
+   *
+   * @param conditionValue The condition value to inspect.
+   * @param options Validation options.
+   *
+   * @returns `true` if null/undefined conditions should be skipped.
+   */
+  private static shouldIgnoreCondition(
+    conditionValue: unknown,
+    options: ValidationOptions
+  ): boolean {
+    return Boolean(
+      options.ignoreNullValues &&
+      (conditionValue === null || conditionValue === undefined)
+    );
   }
 }
