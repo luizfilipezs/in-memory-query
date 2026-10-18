@@ -52,6 +52,45 @@ describe('Query', () => {
 
         expect(result).toHaveLength(2);
       });
+
+      it('should filter using $or operator', () => {
+        const result = Query.from(users)
+          .where({
+            $or: [{ id: 1 }, { id: 2 }],
+          })
+          .all();
+
+        expect(result).toHaveLength(2);
+        expect(result.map((u) => u.id)).toEqual([1, 2]);
+      });
+
+      it('should filter combining standard properties and $or operator', () => {
+        const result = Query.from(users)
+          .where({
+            isActive: true,
+            $or: [{ id: 1 }, { id: 2 }],
+          })
+          .all();
+
+        expect(result).toHaveLength(1);
+        expect(result[0]!.id).toBe(1);
+      });
+
+      it('should filter using nested $or with callbacks and deep conditions', () => {
+        const result = Query.from(users)
+          .where({
+            $or: [
+              (u) => u.isAdmin(),
+              {
+                address: { city: 'São Paulo' },
+              },
+            ],
+          })
+          .all();
+
+        expect(result).toHaveLength(2);
+        expect(result.map((u) => u.id)).toEqual([1, 3]);
+      });
     });
 
     describe('filterWhere()', () => {
@@ -123,6 +162,18 @@ describe('Query', () => {
         const query = Query.from([{ fn: (): void => {} }]).filterWhere({});
 
         expectType<Query<{ fn: () => void }>>(query);
+      });
+
+      it('should ignore null/undefined conditions for $or with filterWhere', () => {
+        const result = Query.from(users)
+          .filterWhere({
+            id: 1,
+            $or: undefined,
+          })
+          .all();
+
+        expect(result).toHaveLength(1);
+        expect(result[0]!.id).toBe(1);
       });
     });
 

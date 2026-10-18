@@ -258,4 +258,97 @@ describe('QueryRowValidator', () => {
       expect(result).toBe(false);
     });
   });
+
+  describe('$or operator', () => {
+    it('should return true if any condition in $or passes', () => {
+      const row = { id: 1, role: 'editor', active: true };
+
+      const result = QueryRowValidator.validate(row, {
+        $or: [{ role: 'admin' }, { role: 'editor' }],
+      });
+
+      expect(result).toBe(true);
+    });
+
+    it('should return false if all conditions in $or fail', () => {
+      const row = { id: 1, role: 'viewer', active: true };
+
+      const result = QueryRowValidator.validate(row, {
+        $or: [{ role: 'admin' }, { role: 'editor' }],
+      });
+
+      expect(result).toBe(false);
+    });
+
+    it('should combine standard property conditions with $or (AND semantics)', () => {
+      const row = { id: 1, active: false, role: 'admin' };
+
+      const result = QueryRowValidator.validate(row, {
+        active: true,
+        $or: [{ role: 'admin' }, { role: 'editor' }],
+      });
+
+      expect(result).toBe(false);
+    });
+
+    it('should support callback functions inside $or conditions', () => {
+      const row = { age: 25, status: 'pending' };
+
+      const result = QueryRowValidator.validate(row, {
+        $or: [(r) => r.age > 30, (r) => r.status === 'pending'],
+      });
+
+      expect(result).toBe(true);
+    });
+
+    it('should support nested $or conditions recursively', () => {
+      const row = { age: 16, hasGuardianConsent: true, isVip: false };
+
+      const result = QueryRowValidator.validate(row, {
+        $or: [
+          { isVip: true },
+          {
+            $or: [{ age: (a) => a >= 18 }, { hasGuardianConsent: true }],
+          },
+        ],
+      });
+
+      expect(result).toBe(true);
+    });
+
+    it('should treat empty $or array as true', () => {
+      const row = { id: 1 };
+
+      const result = QueryRowValidator.validate(row, {
+        $or: [],
+      });
+
+      expect(result).toBe(true);
+    });
+
+    it('should skip null or undefined $or when ignoreNullValues is true', () => {
+      const row = { id: 1 };
+
+      const resultWithNull = QueryRowValidator.validate(
+        row,
+        {
+          id: 1,
+          $or: null as any,
+        },
+        { ignoreNullValues: true }
+      );
+
+      const resultWithUndefined = QueryRowValidator.validate(
+        row,
+        {
+          id: 1,
+          $or: undefined,
+        },
+        { ignoreNullValues: true }
+      );
+
+      expect(resultWithNull).toBe(true);
+      expect(resultWithUndefined).toBe(true);
+    });
+  });
 });

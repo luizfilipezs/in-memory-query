@@ -39,6 +39,21 @@ export class QueryRowValidator {
         continue;
       }
 
+      if (propName === '$or') {
+        if (Array.isArray(propCondition)) {
+          const conditions = propCondition as WhereCondition<T>[];
+
+          if (
+            conditions.length > 0 &&
+            !conditions.some((cond) => this.validate(row, cond, options))
+          ) {
+            return false;
+          }
+        }
+
+        continue;
+      }
+
       const key = propName as unknown as keyof T;
       const propValue = row[key];
 
