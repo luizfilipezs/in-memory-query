@@ -300,21 +300,49 @@ const adultsOnly = Query.from(users)
   .all();
 ```
 
+##### 5. Mixed Condition Expressions
+
+You can combine comparison operators (such as `$ne`) and nested property conditions on the same object:
+
+```ts
+// Ensure address is not null and matches nested criteria
+const brazilianResidents = Query.from(users)
+  .where({
+    address: {
+      $ne: null,
+      country: 'Brazil',
+    },
+  })
+  .all();
+```
+
 ---
 
 #### `filterWhere(condition)`
 
-Similar to `where()`, but designed for dynamic search forms: **properties with `null` or `undefined` values are ignored**.
+Similar to `where()`, but designed for dynamic search forms: **properties or operator targets with `null` or `undefined` values are ignored**.
+
+All query operators (`$or`, `$not`, `$in`, `$nin`, `$gt`, `$gte`, `$lt`, `$lte`, `$ne`) are supported within `filterWhere()`:
 
 ```ts
-// Imagine these values come from user input form controls
-const nameFilter = undefined; // User left name blank -> IGNORED
-const roleFilter = 'admin';   // User selected 'admin' -> APPLIED
+// Imagine these values come from dynamic user filters / search parameters:
+const nameFilter = undefined;         // Blank input -> IGNORED
+const roleFilter = 'admin';           // Selected 'admin' -> APPLIED
+const minAgeFilter = null;            // Not specified -> IGNORED ($gte skipped)
+const maxAgeFilter = 40;              // Specified -> APPLIED ($lte applied)
+const allowedRoles = undefined;       // Not specified -> IGNORED ($in skipped)
 
 const searchResult = Query.from(users)
   .filterWhere({
     name: nameFilter,
     role: roleFilter,
+    age: {
+      $gte: minAgeFilter,
+      $lte: maxAgeFilter,
+    },
+    status: {
+      $in: allowedRoles,
+    },
   })
   .all();
 ```
