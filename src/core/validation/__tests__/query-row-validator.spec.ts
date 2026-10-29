@@ -333,7 +333,7 @@ describe('QueryRowValidator', () => {
         row,
         {
           id: 1,
-          $or: null as any,
+          $or: null,
         },
         { ignoreNullValues: true }
       );
@@ -414,7 +414,7 @@ describe('QueryRowValidator', () => {
       const resultWithNull = QueryRowValidator.validate(
         row,
         {
-          id: { $in: null as any },
+          id: { $in: null },
         },
         { ignoreNullValues: true }
       );
@@ -524,7 +524,7 @@ describe('QueryRowValidator', () => {
         row,
         {
           id: 1,
-          $not: null as any,
+          $not: null,
         },
         { ignoreNullValues: true }
       );
@@ -606,7 +606,7 @@ describe('QueryRowValidator', () => {
       const resultWithNull = QueryRowValidator.validate(
         row,
         {
-          id: { $nin: null as any },
+          id: { $nin: null },
         },
         { ignoreNullValues: true }
       );

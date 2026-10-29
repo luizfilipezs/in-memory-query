@@ -290,6 +290,16 @@ describe('Query', () => {
 
         expect(result).toHaveLength(1);
         expect(result[0]!.id).toBe(1);
+
+        const resultNull = Query.from(users)
+          .filterWhere({
+            id: 1,
+            $or: null,
+          })
+          .all();
+
+        expect(resultNull).toHaveLength(1);
+        expect(resultNull[0]!.id).toBe(1);
       });
 
       it('should ignore null/undefined $in with filterWhere', () => {
@@ -300,6 +310,14 @@ describe('Query', () => {
           .all();
 
         expect(result).toHaveLength(3);
+
+        const resultNull = Query.from(users)
+          .filterWhere({
+            id: { $in: null },
+          })
+          .all();
+
+        expect(resultNull).toHaveLength(3);
       });
 
       it('should ignore null/undefined $not with filterWhere', () => {
@@ -312,6 +330,16 @@ describe('Query', () => {
 
         expect(result).toHaveLength(1);
         expect(result[0]!.id).toBe(1);
+
+        const resultNull = Query.from(users)
+          .filterWhere({
+            id: 1,
+            $not: null,
+          })
+          .all();
+
+        expect(resultNull).toHaveLength(1);
+        expect(resultNull[0]!.id).toBe(1);
       });
 
       it('should ignore null/undefined $nin with filterWhere', () => {
@@ -322,6 +350,64 @@ describe('Query', () => {
           .all();
 
         expect(result).toHaveLength(3);
+
+        const resultNull = Query.from(users)
+          .filterWhere({
+            id: { $nin: null },
+          })
+          .all();
+
+        expect(resultNull).toHaveLength(3);
+      });
+
+      it('should ignore null/undefined comparison operators with filterWhere', () => {
+        const result = Query.from(users)
+          .filterWhere({
+            id: {
+              $gt: null,
+              $gte: undefined,
+              $lt: null,
+              $lte: undefined,
+              $ne: null,
+            },
+          })
+          .all();
+
+        expect(result).toHaveLength(3);
+      });
+
+      it('should filter correctly with optional and nullable object properties', () => {
+        interface Profile {
+          id: number;
+          age?: number | null | undefined;
+          details?: { bio?: string; score: number } | null | undefined;
+        }
+
+        const profiles: Profile[] = [
+          { id: 1, age: 25, details: { bio: 'hello', score: 100 } },
+          { id: 2, age: null, details: null },
+          { id: 3, age: undefined },
+        ];
+
+        const resWithOp = Query.from(profiles)
+          .where({
+            age: { $gt: 20 },
+          })
+          .all();
+
+        expect(resWithOp).toHaveLength(1);
+        expect(resWithOp[0]!.id).toBe(1);
+
+        const resWithNested = Query.from(profiles)
+          .where({
+            details: {
+              score: { $gte: 90 },
+            },
+          })
+          .all();
+
+        expect(resWithNested).toHaveLength(1);
+        expect(resWithNested[0]!.id).toBe(1);
       });
     });
 

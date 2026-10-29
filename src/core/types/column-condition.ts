@@ -5,13 +5,17 @@ import type { QueryConditionsGroupNullable } from './query-conditions-group-null
 /**
  * Condition to apply to a row column.
  */
-export type ColumnCondition<
-  T extends object,
-  P extends keyof T,
-> = T[P] extends object
-  ? (QueryConditionsGroupNullable<T[P]> & ComparisonOperators<T[P]>) | undefined
-  : | T[P]
-    | AttributeValidationFunction<T, P>
-    | ComparisonOperators<T[P]>
-    | null
-    | undefined;
+export type ColumnCondition<T extends object, P extends keyof T> =
+  NonNullable<T[P]> extends object
+    ? | (QueryConditionsGroupNullable<NonNullable<T[P]>> &
+          ComparisonOperators<NonNullable<T[P]>>)
+      | ComparisonOperators<NonNullable<T[P]>>
+      | T[P]
+      | AttributeValidationFunction<T, P>
+      | null
+      | undefined
+    : | T[P]
+      | AttributeValidationFunction<T, P>
+      | ComparisonOperators<T[P]>
+      | null
+      | undefined;

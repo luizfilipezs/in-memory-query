@@ -2,12 +2,13 @@
  * Comparison operators for attribute validation.
  */
 export type ComparisonOperators<T> = {
-  $in?: T[] | undefined;
-  $nin?: T[] | undefined;
-  $not?: T | ((value: T) => boolean) | ComparisonOperators<T> | undefined;
-  $gt?: T | undefined;
-  $gte?: T | undefined;
-  $lt?: T | undefined;
-  $lte?: T | undefined;
-  $ne?: T | undefined;
+  $in?: T[] | null | undefined;
+  $nin?: T[] | null | undefined;
+  $not?:
+    T | ((value: T) => boolean) | ComparisonOperators<T> | null | undefined;
+  $gt?: T | null | undefined;
+  $gte?: T | null | undefined;
+  $lt?: T | null | undefined;
+  $lte?: T | null | undefined;
+  $ne?: T | null | undefined;
 };
