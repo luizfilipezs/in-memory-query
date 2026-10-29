@@ -924,7 +924,7 @@ describe('QueryRowValidator', () => {
               $ne: null,
               country: 'Brazil',
             },
-          } as any)
+          })
         ).toBe(true);
 
         expect(
@@ -933,16 +933,20 @@ describe('QueryRowValidator', () => {
               $ne: null,
               country: 'Chile',
             },
-          } as any)
+          })
         ).toBe(false);
 
+        const nullRow: { address: { country: string; city: string } | null } = {
+          address: null,
+        };
+
         expect(
-          QueryRowValidator.validate({ address: null }, {
+          QueryRowValidator.validate(nullRow, {
             address: {
               $ne: null,
               country: 'Brazil',
             },
-          } as any)
+          })
         ).toBe(false);
       });
     });
