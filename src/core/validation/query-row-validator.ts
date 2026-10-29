@@ -208,7 +208,29 @@ export class QueryRowValidator {
       }
 
       if (isOperatorMatch) {
-        return true;
+        const remainingKeys = Object.keys(condition).filter(
+          (k) => !k.startsWith('$')
+        );
+
+        if (remainingKeys.length === 0) {
+          return true;
+        }
+
+        if (!isObject(value)) {
+          return false;
+        }
+
+        const remainingCondition: Record<string, unknown> = {};
+
+        for (const k of remainingKeys) {
+          remainingCondition[k] = (condition as Record<string, unknown>)[k];
+        }
+
+        return this.validate(
+          value,
+          remainingCondition as QueryConditionsGroupNullable<object>,
+          options
+        );
       }
 
       return isObject(value)

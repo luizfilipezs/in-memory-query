@@ -895,6 +895,42 @@ describe('QueryRowValidator', () => {
           )
         ).toBe(false);
       });
+
+      it('should support combining comparison operators and nested properties on the same object', () => {
+        const row = {
+          address: {
+            country: 'Brazil',
+            city: 'São Paulo',
+          },
+        };
+
+        expect(
+          QueryRowValidator.validate(row, {
+            address: {
+              $ne: null,
+              country: 'Brazil',
+            },
+          } as any)
+        ).toBe(true);
+
+        expect(
+          QueryRowValidator.validate(row, {
+            address: {
+              $ne: null,
+              country: 'Chile',
+            },
+          } as any)
+        ).toBe(false);
+
+        expect(
+          QueryRowValidator.validate({ address: null }, {
+            address: {
+              $ne: null,
+              country: 'Brazil',
+            },
+          } as any)
+        ).toBe(false);
+      });
     });
   });
 });
