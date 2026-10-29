@@ -889,6 +889,15 @@ describe('QueryRowValidator', () => {
     });
 
     describe('combined relational operators', () => {
+      it('should return false when operators are combined with nested keys but the value is not an object', () => {
+        expect(
+          QueryRowValidator.validate(
+            { address: 'Brazil' as unknown as { country: string } },
+            { address: { $ne: null, country: 'Brazil' } }
+          )
+        ).toBe(false);
+      });
+
       it('should support range filtering ($gte and $lte together)', () => {
         expect(
           QueryRowValidator.validate(
