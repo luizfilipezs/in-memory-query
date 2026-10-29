@@ -101,6 +101,10 @@ export class QueryRowValidator {
       return Array.isArray(value) ? compareArrays(value, condition) : false;
     }
 
+    if (condition instanceof Date) {
+      return value instanceof Date && value.getTime() === condition.getTime();
+    }
+
     if (isObject(condition)) {
       let isOperatorMatch = false;
 

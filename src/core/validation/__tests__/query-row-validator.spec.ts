@@ -40,6 +40,20 @@ describe('QueryRowValidator', () => {
 
       expect(result).toBe(false);
     });
+
+    it('should validate equality for Date instances', () => {
+      const d1 = new Date('2023-01-01');
+      const d1Copy = new Date('2023-01-01');
+      const d2 = new Date('2023-01-02');
+
+      expect(
+        QueryRowValidator.validate({ createdAt: d1 }, { createdAt: d1Copy })
+      ).toBe(true);
+
+      expect(
+        QueryRowValidator.validate({ createdAt: d1 }, { createdAt: d2 })
+      ).toBe(false);
+    });
   });
 
   describe('function conditions', () => {

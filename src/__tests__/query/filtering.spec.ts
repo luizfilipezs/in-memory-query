@@ -21,6 +21,21 @@ describe('Query', () => {
         expect(result.every((u) => u.address.country === 'Brazil')).toBe(true);
       });
 
+      it('should filter using direct Date equality', () => {
+        const result = Query.from(users)
+          .where({ createdAt: new Date('2023-01-01') })
+          .all();
+
+        expect(result).toHaveLength(1);
+        expect(result[0]!.id).toBe(1);
+
+        const emptyResult = Query.from(users)
+          .where({ createdAt: new Date('2099-01-01') })
+          .all();
+
+        expect(emptyResult).toHaveLength(0);
+      });
+
       it('should filter using function condition', () => {
         const result = Query.from(users)
           .where((user) => user.isAdmin())

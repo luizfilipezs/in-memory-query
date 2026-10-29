@@ -9,6 +9,12 @@ export const deepEqual = (a: unknown, b: unknown): boolean => {
     return false;
   }
 
+  if (a instanceof Date || b instanceof Date) {
+    return a instanceof Date && b instanceof Date
+      ? a.getTime() === b.getTime()
+      : false;
+  }
+
   if (Array.isArray(a) !== Array.isArray(b)) {
     return false;
   }
