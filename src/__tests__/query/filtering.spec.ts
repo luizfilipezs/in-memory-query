@@ -21,6 +21,21 @@ describe('Query', () => {
         expect(result.every((u) => u.address.country === 'Brazil')).toBe(true);
       });
 
+      it('should filter using direct Date equality', () => {
+        const result = Query.from(users)
+          .where({ createdAt: new Date('2023-01-01') })
+          .all();
+
+        expect(result).toHaveLength(1);
+        expect(result[0]!.id).toBe(1);
+
+        const emptyResult = Query.from(users)
+          .where({ createdAt: new Date('2099-01-01') })
+          .all();
+
+        expect(emptyResult).toHaveLength(0);
+      });
+
       it('should filter using function condition', () => {
         const result = Query.from(users)
           .where((user) => user.isAdmin())
@@ -51,6 +66,161 @@ describe('Query', () => {
           .all();
 
         expect(result).toHaveLength(2);
+      });
+
+      it('should filter using $or operator', () => {
+        const result = Query.from(users)
+          .where({
+            $or: [{ id: 1 }, { id: 2 }],
+          })
+          .all();
+
+        expect(result).toHaveLength(2);
+        expect(result.map((u) => u.id)).toEqual([1, 2]);
+      });
+
+      it('should filter combining standard properties and $or operator', () => {
+        const result = Query.from(users)
+          .where({
+            isActive: true,
+            $or: [{ id: 1 }, { id: 2 }],
+          })
+          .all();
+
+        expect(result).toHaveLength(1);
+        expect(result[0]!.id).toBe(1);
+      });
+
+      it('should filter using nested $or with callbacks and deep conditions', () => {
+        const result = Query.from(users)
+          .where({
+            $or: [
+              (u) => u.isAdmin(),
+              {
+                address: { city: 'São Paulo' },
+              },
+            ],
+          })
+          .all();
+
+        expect(result).toHaveLength(2);
+        expect(result.map((u) => u.id)).toEqual([1, 3]);
+      });
+
+      it('should filter using $in operator', () => {
+        const result = Query.from(users)
+          .where({
+            id: { $in: [1, 3] },
+          })
+          .all();
+
+        expect(result).toHaveLength(2);
+        expect(result.map((u) => u.id)).toEqual([1, 3]);
+      });
+
+      it('should combine $in operator with other conditions and $or', () => {
+        const result = Query.from(users)
+          .where({
+            id: { $in: [1, 2, 3] },
+            $or: [{ name: 'John' }, { name: 'Bob' }],
+          })
+          .all();
+
+        expect(result).toHaveLength(2);
+        expect(result.map((u) => u.name)).toEqual(['John', 'Bob']);
+      });
+
+      it('should filter using $not operator', () => {
+        const result = Query.from(users)
+          .where({
+            $not: {
+              $or: [{ id: 1 }, { id: 3 }],
+            },
+          })
+          .all();
+
+        expect(result).toHaveLength(1);
+        expect(result[0]!.id).toBe(2);
+      });
+
+      it('should filter using $not with callback and nested conditions', () => {
+        const result = Query.from(users)
+          .where({
+            $not: (user) => user.isAdmin(),
+          })
+          .all();
+
+        expect(result).toHaveLength(2);
+        expect(result.map((u) => u.id)).toEqual([2, 3]);
+      });
+
+      it('should filter using $nin operator', () => {
+        const result = Query.from(users)
+          .where({
+            id: { $nin: [1, 2] },
+          })
+          .all();
+
+        expect(result).toHaveLength(1);
+        expect(result[0]!.id).toBe(3);
+      });
+
+      it('should filter using attribute-level $not operator', () => {
+        const result = Query.from(users)
+          .where({
+            name: { $not: 'John' },
+          })
+          .all();
+
+        expect(result).toHaveLength(2);
+        expect(result.map((u) => u.name)).toEqual(['Mary', 'Bob']);
+      });
+
+      it('should filter using attribute-level $not with callback', () => {
+        const result = Query.from(users)
+          .where({
+            id: { $not: (id) => id === 1 },
+          })
+          .all();
+
+        expect(result).toHaveLength(2);
+        expect(result.map((u) => u.id)).toEqual([2, 3]);
+      });
+
+      it('should filter using $gt and $lt operators', () => {
+        const result = Query.from(users)
+          .where({
+            id: { $gt: 1, $lt: 3 },
+          })
+          .all();
+
+        expect(result).toHaveLength(1);
+        expect(result[0]!.id).toBe(2);
+      });
+
+      it('should filter using $gte and $lte operators with Date values', () => {
+        const result = Query.from(users)
+          .where({
+            createdAt: {
+              $gte: new Date('2023-01-01'),
+              $lte: new Date('2023-02-01'),
+            },
+          })
+          .all();
+
+        expect(result).toHaveLength(2);
+        expect(result.map((u) => u.id)).toEqual([1, 2]);
+      });
+
+      it('should filter using $ne operator', () => {
+        const result = Query.from(users)
+          .where({
+            id: { $ne: 1 },
+          })
+          .all();
+
+        expect(result).toHaveLength(2);
+        expect(result.map((u) => u.id)).toEqual([2, 3]);
       });
     });
 
@@ -123,6 +293,136 @@ describe('Query', () => {
         const query = Query.from([{ fn: (): void => {} }]).filterWhere({});
 
         expectType<Query<{ fn: () => void }>>(query);
+      });
+
+      it('should ignore null/undefined conditions for $or with filterWhere', () => {
+        const result = Query.from(users)
+          .filterWhere({
+            id: 1,
+            $or: undefined,
+          })
+          .all();
+
+        expect(result).toHaveLength(1);
+        expect(result[0]!.id).toBe(1);
+
+        const resultNull = Query.from(users)
+          .filterWhere({
+            id: 1,
+            $or: null,
+          })
+          .all();
+
+        expect(resultNull).toHaveLength(1);
+        expect(resultNull[0]!.id).toBe(1);
+      });
+
+      it('should ignore null/undefined $in with filterWhere', () => {
+        const result = Query.from(users)
+          .filterWhere({
+            id: { $in: undefined },
+          })
+          .all();
+
+        expect(result).toHaveLength(3);
+
+        const resultNull = Query.from(users)
+          .filterWhere({
+            id: { $in: null },
+          })
+          .all();
+
+        expect(resultNull).toHaveLength(3);
+      });
+
+      it('should ignore null/undefined $not with filterWhere', () => {
+        const result = Query.from(users)
+          .filterWhere({
+            id: 1,
+            $not: undefined,
+          })
+          .all();
+
+        expect(result).toHaveLength(1);
+        expect(result[0]!.id).toBe(1);
+
+        const resultNull = Query.from(users)
+          .filterWhere({
+            id: 1,
+            $not: null,
+          })
+          .all();
+
+        expect(resultNull).toHaveLength(1);
+        expect(resultNull[0]!.id).toBe(1);
+      });
+
+      it('should ignore null/undefined $nin with filterWhere', () => {
+        const result = Query.from(users)
+          .filterWhere({
+            id: { $nin: undefined },
+          })
+          .all();
+
+        expect(result).toHaveLength(3);
+
+        const resultNull = Query.from(users)
+          .filterWhere({
+            id: { $nin: null },
+          })
+          .all();
+
+        expect(resultNull).toHaveLength(3);
+      });
+
+      it('should ignore null/undefined comparison operators with filterWhere', () => {
+        const result = Query.from(users)
+          .filterWhere({
+            id: {
+              $gt: null,
+              $gte: undefined,
+              $lt: null,
+              $lte: undefined,
+              $ne: null,
+            },
+          })
+          .all();
+
+        expect(result).toHaveLength(3);
+      });
+
+      it('should filter correctly with optional and nullable object properties', () => {
+        interface Profile {
+          id: number;
+          age?: number | null | undefined;
+          details?: { bio?: string; score: number } | null | undefined;
+        }
+
+        const profiles: Profile[] = [
+          { id: 1, age: 25, details: { bio: 'hello', score: 100 } },
+          { id: 2, age: null, details: null },
+          { id: 3, age: undefined },
+        ];
+
+        const resWithOp = Query.from(profiles)
+          .where({
+            age: { $gt: 20 },
+          })
+          .all();
+
+        expect(resWithOp).toHaveLength(1);
+        expect(resWithOp[0]!.id).toBe(1);
+
+        const resWithNested = Query.from(profiles)
+          .where({
+            details: {
+              score: { $gte: 90 },
+            },
+          })
+          .all();
+
+        expect(resWithNested).toHaveLength(1);
+        expect(resWithNested[0]!.id).toBe(1);
       });
     });
 

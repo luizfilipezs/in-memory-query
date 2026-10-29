@@ -90,12 +90,14 @@ describe('deepEqual', () => {
       expect(deepEqual(obj, obj)).toBe(true);
     });
 
-    it('returns false for Date objects with same value (by design)', () => {
-      const a = new Date(2020, 1, 1);
-      const b = new Date(2020, 1, 1);
+    it('returns true for Date objects with same time and false for different time', () => {
+      const a = new Date('2020-01-01');
+      const b = new Date('2020-01-01');
+      const c = new Date('2020-01-02');
 
-      // Date has no enumerable keys, so this documents the limitation
       expect(deepEqual(a, b)).toBe(true);
+      expect(deepEqual(a, c)).toBe(false);
+      expect(deepEqual(a, {})).toBe(false);
     });
   });
 });

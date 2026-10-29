@@ -223,8 +223,12 @@ export class Query<T extends object> {
    * If a callback function is provided, it must return a boolean value.
    *
    * If an object is provided, its properties must be attributes of `T` and their
-   * corresponding values must be the expected values for the attributes or a
-   * callback functions that return boolean values.
+   * corresponding values must be the expected values for the attributes, a
+   * callback function that returns a boolean value, or comparison operators
+   * such as `{ $in: [...] }`, `{ $nin: [...] }`, `{ $gt: ... }`, `{ $gte: ... }`,
+   * `{ $lt: ... }`, `{ $lte: ... }`, or `{ $ne: ... }`. The object may also include an optional
+   * `$or` operator containing an array of conditions where at least one must be satisfied,
+   * or a `$not` operator to negate an entire condition group, attribute, or predicate.
    *
    * @returns Current query.
    */

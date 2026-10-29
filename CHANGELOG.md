@@ -1,5 +1,47 @@
 # Changelog
 
+## v2.14.0
+
+### Summary
+
+- [x] Bug fixes
+- [ ] Refactoring
+- [x] New features
+- [ ] Breaking changes
+- [x] Docs
+
+### New features
+
+- **Logical Query Operators**:
+  - **`$or`**: Evaluates an array of condition groups where matching rows must satisfy at least one condition.
+  - **`$not`**: Negates a condition group, callback predicate, or nested conditions.
+  - **Attribute-level `$not`**: Negates literal values, callbacks, or comparison operators at the individual property level (e.g., `{ status: { $not: 'inactive' } }`).
+
+- **Membership Operators**:
+  - **`$in`**: Matches rows where the column value equals any element in the provided array (using `deepEqual` for object/array values).
+  - **`$nin`**: Matches rows where the column value is not present in the provided array.
+
+- **Relational and Comparison Operators**:
+  - Added support for `$gt`, `$gte`, `$lt`, `$lte`, and `$ne` on attributes.
+  - Supports numbers, dates, strings, booleans, and bigints. Multiple relational operators can be combined on the same property to perform range queries (e.g., `{ age: { $gte: 18, $lte: 65 } }`).
+
+- **Mixed Condition Expressions**:
+  - Condition objects can combine comparison operators and nested object properties simultaneously (e.g., `{ address: { $ne: null, country: 'Brazil' } }`).
+
+- **Dynamic Search Support (`filterWhere`)**:
+  - All query operators (`$or`, `$not`, `$in`, `$nin`, `$gt`, etc.) natively support `null` and `undefined` in `filterWhere()`, safely skipping unprovided conditions without requiring type assertions.
+
+### Bug fixes
+
+- **Direct `Date` Equality and `deepEqual` Temporal Comparison**:
+  - Fixed an issue where literal `Date` equality in condition objects (e.g., `{ createdAt: new Date('2023-01-01') }`) and deep equality checks across `deepEqual` always evaluated to `true` because `Date` instances have no enumerable keys. `Date` instances are now compared by their timestamp (`getTime()`).
+- **Condition Typing for Optional and Nullable Object Properties**:
+  - Fixed condition typing in `where()` and `filterWhere()` for optional or nullable object properties (e.g., `address?: Address | null`), ensuring TypeScript correctly preserves recursive nested object filtering instead of collapsing to primitive conditions.
+
+### Docs
+
+- Updated `README.md` with comprehensive documentation and examples for logical operators, membership operators, and relational comparisons.
+
 ## v2.13.0
 
 ### Summary

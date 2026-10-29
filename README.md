@@ -28,6 +28,7 @@
   - [Creating a Query](#creating-a-query)
   - [Filtering Data](#filtering-data)
     - [`where(condition)`](#wherecondition)
+    - [Logical & Comparison Operators (`$or`, `$not`, `$in`, `$nin`, `$gt`, etc.)](#logical--comparison-operators)
     - [`filterWhere(condition)`](#filterwherecondition)
     - [`distinct(key | callback)`](#distinctkey--callback)
   - [Selecting & Projecting](#selecting--projecting)
@@ -66,7 +67,8 @@
 - ⚡ **Zero Runtime Dependencies**: Ultra-lightweight footprint.
 - 🛡️ **End-to-End TypeScript Safety**: Automatic autocomplete for object properties, nested paths, and strict return types.
 - 🔄 **Fluent Builder API**: Chainable methods for clean and readable code pipelines.
-- 🔍 **Flexible Conditions**: Supports literal matching, nested object conditions, custom predicate functions, and dynamic query filters ignoring `null`/`undefined`.
+- 🔍 **Rich Query Operators**: Logical operators (`$or`, `$not`), membership operators (`$in`, `$nin`), and relational/range operators (`$gt`, `$gte`, `$lt`, `$lte`, `$ne`).
+- 🎯 **Flexible Conditions**: Supports literal matching, nested object conditions, custom predicate functions, and dynamic query filters ignoring `null`/`undefined`.
 - 📊 **Powerful Grouping & Aggregations**: Group data by property or function, transform group items, aggregate values, or partition pagination (`top`, `limitPerGroup`).
 
 ---
@@ -193,19 +195,154 @@ const brazilUsers = Query.from(users)
 
 ---
 
-#### `filterWhere(condition)`
+#### Logical & Comparison Operators
 
-Similar to `where()`, but designed for dynamic search forms: **properties with `null` or `undefined` values are ignored**.
+You can use query operators directly inside condition objects to build complex filter expressions with complete type-safety.
+
+| Operator | Target | Description | Example |
+| :--- | :--- | :--- | :--- |
+| `$or` | Row / Condition group | Matches if **at least one** condition in the array evaluates to `true`. | `{ $or: [{ role: 'admin' }, { role: 'editor' }] }` |
+| `$not` | Row or Attribute | Negates a condition, group, predicate, or attribute comparison. | `{ $not: { role: 'guest' } }` or `{ age: { $not: (a) => a < 18 } }` |
+| `$in` | Attribute | Matches if the attribute value is equal to **any** element in the array (`deepEqual`). | `{ id: { $in: [1, 2, 3] } }` |
+| `$nin` | Attribute | Matches if the attribute value is **not** in the array. | `{ role: { $nin: ['guest', 'banned'] } }` |
+| `$gt` | Attribute | Matches if the attribute is strictly **greater than** (`>`) the value. Supports numbers, dates, strings. | `{ age: { $gt: 18 } }` |
+| `$gte` | Attribute | Matches if the attribute is **greater than or equal to** (`>=`) the value. | `{ createdAt: { $gte: new Date('2023-01-01') } }` |
+| `$lt` | Attribute | Matches if the attribute is strictly **less than** (`<`) the value. | `{ price: { $lt: 100 } }` |
+| `$lte` | Attribute | Matches if the attribute is **less than or equal to** (`<=`) the value. | `{ score: { $lte: 50 } }` |
+| `$ne` | Attribute | Matches if the attribute value is **not equal** (`!==` or deep unequal) to the value. | `{ status: { $ne: 'deleted' } }` |
+
+##### 1. Logical `$or` and `$not` Groups
 
 ```ts
-// Imagine these values come from user input form controls
-const nameFilter = undefined; // User left name blank -> IGNORED
-const roleFilter = 'admin';   // User selected 'admin' -> APPLIED
+// Search active users that are either admin or editor
+const staff = Query.from(users)
+  .where({
+    isActive: true,
+    $or: [
+      { role: 'admin' },
+      { role: 'editor' },
+    ],
+  })
+  .all();
+
+// Negate an entire group of conditions: NOT (id === 1 OR isAdmin === true)
+const regularUsers = Query.from(users)
+  .where({
+    $not: {
+      $or: [
+        { id: 1 },
+        { isAdmin: true },
+      ],
+    },
+  })
+  .all();
+```
+
+##### 2. Membership: `$in` and `$nin`
+
+```ts
+// Match any ID in the provided array
+const specificUsers = Query.from(users)
+  .where({
+    id: { $in: [1, 2, 5] },
+  })
+  .all();
+
+// Exclude specific roles
+const nonGuests = Query.from(users)
+  .where({
+    role: { $nin: ['guest', 'anonymous'] },
+  })
+  .all();
+```
+
+##### 3. Relational Comparisons & Range Queries (`$gt`, `$gte`, `$lt`, `$lte`, `$ne`)
+
+Operators on the same property can be composed together to form ranges:
+
+```ts
+// Range query: age between 18 and 65 (inclusive)
+const workingAgeUsers = Query.from(users)
+  .where({
+    age: { $gte: 18, $lte: 65 },
+  })
+  .all();
+
+// Date comparisons (automatic temporal normalization)
+const q1Signups = Query.from(users)
+  .where({
+    createdAt: {
+      $gte: new Date('2023-01-01'),
+      $lt: new Date('2023-04-01'),
+    },
+  })
+  .all();
+
+// Inequality matching
+const activeNonAdmins = Query.from(users)
+  .where({
+    role: { $ne: 'admin' },
+  })
+  .all();
+```
+
+##### 4. Attribute-level `$not`
+
+You can also apply `$not` directly to individual fields:
+
+```ts
+// Negate a literal or custom callback on a column
+const adultsOnly = Query.from(users)
+  .where({
+    status: { $not: 'inactive' },
+    age: { $not: (a) => a < 18 },
+  })
+  .all();
+```
+
+##### 5. Mixed Condition Expressions
+
+You can combine comparison operators (such as `$ne`) and nested property conditions on the same object:
+
+```ts
+// Ensure address is not null and matches nested criteria
+const brazilianResidents = Query.from(users)
+  .where({
+    address: {
+      $ne: null,
+      country: 'Brazil',
+    },
+  })
+  .all();
+```
+
+---
+
+#### `filterWhere(condition)`
+
+Similar to `where()`, but designed for dynamic search forms: **properties or operator targets with `null` or `undefined` values are ignored**.
+
+All query operators (`$or`, `$not`, `$in`, `$nin`, `$gt`, `$gte`, `$lt`, `$lte`, `$ne`) are supported within `filterWhere()`:
+
+```ts
+// Imagine these values come from dynamic user filters / search parameters:
+const nameFilter = undefined;         // Blank input -> IGNORED
+const roleFilter = 'admin';           // Selected 'admin' -> APPLIED
+const minAgeFilter = null;            // Not specified -> IGNORED ($gte skipped)
+const maxAgeFilter = 40;              // Specified -> APPLIED ($lte applied)
+const allowedRoles = undefined;       // Not specified -> IGNORED ($in skipped)
 
 const searchResult = Query.from(users)
   .filterWhere({
     name: nameFilter,
     role: roleFilter,
+    age: {
+      $gte: minAgeFilter,
+      $lte: maxAgeFilter,
+    },
+    status: {
+      $in: allowedRoles,
+    },
   })
   .all();
 ```
